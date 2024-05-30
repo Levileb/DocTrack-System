@@ -1,0 +1,140 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #ffffff;
+}
+
+.formlogin {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 70px 15px 70px 15px;
+  height: 100vh;
+  /* min-width: 320px; */
+  color: #002349;
+}
+
+.wrapper h2 {
+  color: #002349;
+  text-align: center;
+  /* text-shadow: 1px 0 5px #787878; */
+}
+.wrapper h1 {
+  color: #002349;
+  text-align: center;
+  margin-bottom: 50px;
+  text-shadow: 2px 2px 4px #787878;
+}
+
+.wrapper .input-box {
+  position: relative;
+  width: 100%;
+  height: 42px;
+  background: #b3c2ca;
+  margin: 30px 0;
+  border-radius: 16px;
+}
+.input-box input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  border: 2px solid #00162d;
+  border-radius: 15px;
+  padding: 20px 45px 20px 20px;
+  font-size: 18px;
+}
+
+.input-box input::placeholder {
+  color: #002349;
+}
+
+.input-box .icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 25px;
+}
+.loginBtn {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  width: 100%;
+  height: 45px;
+  background: #129bff;
+  border: none;
+  outline: none;
+  border-radius: 15px;
+  box-shadow: 0px 5px 10px #00162d;
+  cursor: pointer;
+}
+.loginBtn:hover {
+  color: #b3c2ca;
+  background: #0c5e99;
+}
+.head {
+  position: fixed;
+  width: 100%;
+  height: 70px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-color);
+  border-color: var(--bg-color);
+  border-bottom: 1px solid;
+  z-index: 900;
+  overflow: hidden;
+}
+.head .comp {
+  display: flex;
+  position: relative;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-height: 70px;
+}
+.head img {
+  position: absolute;
+  height: 50px;
+  left: 49%;
+  transform: translateX(-50%);
+}
+.head .comp h1 {
+  position: fixed;
+  max-height: 70px;
+  margin-right: 0px;
+  margin-left: 10px;
+  color: #ffffff;
+}
+.head .info {
+  width: fit-content;
+  position: fixed;
+  height: 70px;
+  right: 0;
+  margin-right: 15px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+}
+.head .info .icon {
+  position: relative;
+  font-size: 20px;
+  color: #ffffff;
+}
+@media screen and (max-width: 490px) {
+  .head img {
+    position: relative;
+    left: 5%;
+    padding-left: 10px;
+  }
+}

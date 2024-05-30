@@ -1,0 +1,682 @@
+table {
+  width: 100%;
+  height: fit-content;
+  border-collapse: collapse;
+}
+thead {
+  font-weight: 600;
+  border: 1px solid black;
+  background: #aebed0;
+}
+tbody tr {
+  cursor: pointer;
+}
+tbody tr:hover {
+  background: #f4fcff;
+}
+td {
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: center;
+  border: 1px solid black;
+}
+
+.contents {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.contents p {
+  margin-left: 10px;
+}
+
+.content-table {
+  padding: 20px 25px 20px 25px;
+}
+.viewbtn {
+  padding: 10px;
+  /* width: 100px; */
+}
+.viewbtn button {
+  color: #ffffff;
+  background: var(--blue);
+  box-shadow: none;
+}
+.viewbtn button:hover {
+  color: #d1d1d1;
+  background: var(--bluehover);
+}
+
+.SendingForm {
+  margin: auto;
+  margin-top: 20px;
+}
+.submitbuttons {
+  width: 220px;
+  height: 40px;
+  /* position: absolute; */
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  /* bottom: 0; */
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+/* POPUP */
+.popup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+.popup {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  width: 300px;
+  height: 300px;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 10px);
+}
+.popup p {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 10px;
+  height: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  width: max-content;
+  display: flex;
+}
+.popup .closebtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  align-items: center;
+  background: none;
+  border: none;
+}
+.popup .closebtn .closeicon {
+  display: flex;
+  font-size: 25px;
+  color: #b40000;
+  background: #fff;
+  cursor: pointer;
+}
+.popup .closeicon:hover {
+  color: #6f0000;
+  background: #fff;
+}
+.qrCodeImage img {
+  width: 220px;
+}
+
+.popup.lgt {
+  height: 130px;
+}
+.popup label {
+  margin-top: 30px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.popup .yesnobtns {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.popup .yesnobtns button {
+  background: #aebed0;
+  color: #00162d;
+}
+.popup .yesnobtns button:hover {
+  color: #fff;
+  background: #586671;
+}
+
+.pop-info {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  width: 300px;
+  height: 250px;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 10px);
+}
+.popup .view-userinfo li {
+  font-size: 16px;
+}
+
+.popup .actionbtn {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+.popup .editbtn {
+  position: relative;
+  width: max-content;
+}
+.popup .editbtn .ed-btn {
+  width: 80px;
+  color: #ffffff;
+  background: #586671;
+  cursor: pointer;
+}
+.popup .archivebtn {
+  position: relative;
+  width: max-content;
+}
+.popup .archivebtn .arc-btn {
+  width: 80px;
+  color: #ffffff;
+  background: var(--blue);
+  cursor: pointer;
+}
+.popup .archivebtn .ack-btn {
+  width: 90px;
+  font-size: 13px;
+  color: #ffffff;
+  background: #002d5c;
+  cursor: pointer;
+}
+.popup .archivebtn .forw-btn {
+  width: 70px;
+  font-size: 13px;
+  color: #ffffff;
+  background: #d4a300;
+  cursor: pointer;
+}
+.popup .archivebtn .edit-btn {
+  width: 70px;
+  font-size: 13px;
+  color: #ffffff;
+  background: var(--blue);
+  cursor: pointer;
+}
+.popup .archivebtn .comp-btn {
+  width: 90px;
+  font-size: 13px;
+  color: #ffffff;
+  background: var(--blue);
+  cursor: pointer;
+}
+.popup.savesuccess {
+  display: flex;
+  align-items: center;
+  height: 100px;
+  transition: ease-in-out 1ms;
+}
+.popup.savesuccess p {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  font-size: 17px;
+}
+/* popup ends */
+
+.submitdocuBtn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  /* justify-content: center; */
+}
+.submitdocuBtn button {
+  width: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-shadow: none;
+  background: none;
+  border: 1px solid #00162d;
+  color: #00162d;
+}
+.submitdocuBtn button p {
+  font-size: 16px;
+}
+.submitdocuBtn button:hover {
+  background: #d2ddea;
+  border: 1px solid #00162d;
+  color: #00162d;
+}
+.submitdocuBtn.secondarybtn button .icon {
+  display: none;
+}
+
+.adduserbtn {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  margin-left: 5px;
+  text-decoration: none;
+  justify-content: center;
+}
+.adduserbtn.nf {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  margin-left: 5px;
+  text-decoration: none;
+  justify-content: center;
+}
+.adduserbtn button {
+  width: auto;
+  display: flex;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-shadow: none;
+  background: none;
+  border: 1px solid #00162d;
+  color: #00162d;
+  text-decoration: none;
+}
+.adduserbtn p {
+  font-size: 15px;
+}
+.adduserbtn button:hover {
+  background: #d2ddea;
+  border: 1px solid #00162d;
+  color: #00162d;
+}
+.adduserbtn .icon {
+  font-size: 18px;
+  margin-right: 3px;
+}
+.navbuttons {
+  display: flex;
+  width: 100%;
+  justify-content: left;
+  align-items: center;
+}
+.usertable {
+  display: flex;
+  justify-content: center;
+}
+.usertable.content-table {
+  padding-top: 0;
+}
+.loe {
+  padding-left: 25px;
+}
+.view-user {
+  padding-top: 5px;
+  padding-bottom: 8px;
+}
+.view-user button {
+  width: 100px;
+}
+.view-user button:hover {
+  color: #d4d4d4;
+  background: var(--bluehover);
+}
+
+.AddUserHeader .backbtn {
+  display: flex;
+  margin-right: 20px;
+}
+.AddUserHeader .backbtn p {
+  font-size: 16px;
+}
+.AddUserHeader .backbtn button {
+  color: #00162d;
+  box-shadow: none;
+  background: #fff;
+  border: 1px solid #00162d;
+}
+.AddUserHeader .backbtn button:hover {
+  background: #d2ddea;
+}
+
+.PanelHeader .backbtn {
+  display: flex;
+  margin-right: 20px;
+  align-items: center;
+}
+.PanelHeader .backbtn p {
+  font-size: 16px;
+}
+.PanelHeader .backbtn button {
+  color: #00162d;
+  box-shadow: none;
+  background: #fff;
+  border: 1px solid #00162d;
+}
+.PanelHeader .backbtn button:hover {
+  background: #d2ddea;
+}
+
+.noContainer {
+  display: flex;
+  justify-content: space-between;
+}
+.FormWrapper.noffice {
+  width: max-content;
+  padding: 20px 10% 0px 0px;
+}
+.AddOfficeForm {
+  width: 100%;
+}
+.listofficetable {
+  width: 50vw;
+  height: 100vh;
+  display: flex;
+}
+
+/* DD */
+.dropdown {
+  width: 300px;
+  margin-bottom: 10px;
+  height: 30px;
+  font-size: 16px;
+  background: #ebf1f5;
+  border: none;
+  outline: none;
+  border: 2px solid #00162d;
+  border-radius: 15px;
+  font-size: 18px;
+  padding-left: 15px;
+}
+
+.popup.completed {
+  max-width: 500px;
+  max-height: 240px;
+}
+
+.popup.homeView {
+  max-width: 500px;
+}
+
+.popupsubmitting {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  width: 300px;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 10px);
+}
+.popupsubmitting .closebtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  align-items: center;
+  background: none;
+  border: none;
+}
+.popupsubmitting .closebtn .closeicon {
+  display: flex;
+  font-size: 25px;
+  color: #b40000;
+  background: #fff;
+  cursor: pointer;
+}
+.popupsubmitting .closeicon:hover {
+  color: #6f0000;
+  background: #fff;
+}
+.popupsubmitting label {
+  display: flex;
+  font-weight: 600;
+}
+.popupsubmitting .actionbtn {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+.popupsubmitting p {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* QrScanner Styles - Start */
+.popup.qrscanner {
+  width: 95vw;
+  height: 85vh;
+  display: flex;
+  align-items: center;
+  transform: none;
+  transition: 0.3s;
+  z-index: 9999;
+}
+.popup-container.qr {
+  z-index: 1111;
+}
+.qr-reader {
+  width: 100%;
+  height: 95%;
+  margin: 0 auto;
+  position: relative;
+}
+.qr-reader h4 {
+  text-align: center;
+}
+.qr-reader video {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border: 2px solid #00162d;
+  object-fit: cover;
+}
+
+.qr-reader .qr-box {
+  width: 100% !important;
+  left: 0 !important;
+}
+
+.qr-reader .qr-frame {
+  position: absolute;
+  fill: none;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+
+/* NEW!! Tracking Page Design */
+.dtp-top {
+  display: flex;
+  margin: 10px;
+  height: 100px;
+  align-items: center;
+  justify-content: center;
+}
+.dtp-top form {
+  display: flex;
+}
+.dtp-top .search-box {
+  display: flex;
+  padding: 2px 5px 2px 5px;
+  border-radius: 5px;
+  border: 2px solid #00162d;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+}
+.dtp-top .search-box input {
+  width: 300px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+}
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.dtp-top .search-button {
+  display: flex;
+  align-items: center;
+}
+.dtp-top .search-button button {
+  font-size: 16px;
+  height: 24px;
+  width: 80px;
+  margin-left: 10px;
+  box-shadow: none;
+}
+.dtp-center {
+  display: flex;
+  margin: 10px;
+  height: 100px;
+  align-items: center;
+  justify-content: center;
+}
+@media screen and (max-width: 490px) {
+  .dtp-top form {
+    flex-direction: column;
+    align-items: center;
+  }
+  .dtp-top .search-box {
+    margin-bottom: 10px;
+  }
+}
+/* NEW!! Tracking Page Design */
+
+/* NEW!! For SidePanel */
+.spBackground.visible {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(99, 99, 99, 0.5);
+  z-index: 1111;
+}
+/* NEW!! For SidePanel */
+
+
+/* Media Queries for mobile screens */
+@media screen and (max-width: 650px) {
+  .qr-reader {
+    width: 100%;
+  }
+}
+@media screen and (min-width: 490px) {
+  .popup.qrscanner {
+    height: 80vh;
+    width: 70vw;
+  }
+}
+@media screen and (min-width: 700px) {
+  .popup.qrscanner {
+    height: 80vh;
+    width: 50vw;
+  }
+}
+/* QrScanner Styles - End */
+
+@media screen and (max-width: 490px) {
+  td {
+    padding: 0;
+    font-size: 14px;
+  }
+  .PanelHeader .filter p {
+    font-size: 15px;
+  }
+  .PanelHeader .filter {
+    margin: 0;
+  }
+  .PanelHeader .viewusers {
+    display: none;
+  }
+  .view-user.primarybtn button {
+    width: 45px;
+    font-size: 13px;
+  }
+  .content-table {
+    padding: 10px 2px 0px 2px;
+  }
+  .content-table td {
+    font-size: 12px;
+  }
+  .viewbtn.secondarybtn button {
+    width: 45px;
+    font-size: 13px;
+  }
+}
+@media screen and (max-width: 650px) {
+  .PanelHeader .submitdocuBtn.secondarybtn button {
+    padding-left: 3px;
+    padding-right: 3px;
+    display: flex;
+  }
+  .PanelHeader .submitdocuBtn.secondarybtn button .icon {
+    font-size: 25px;
+    display: flex;
+  }
+  .PanelHeader .submitdocuBtn.secondarybtn button p {
+    display: none;
+  }
+  .PanelHeader .scanbtn p {
+    display: none;
+  }
+  /* .PanelHeader .backbtn p {
+    font-size: 14px;
+    margin: 5px;
+  }
+  .PanelHeader .backbtn button {
+    width: max-content;
+    height: auto;
+  } */
+}
+@media screen and (max-width: 750px) {
+  .noContainer {
+    flex-direction: column-reverse;
+    padding: 5% 5% 5% 5%;
+  }
+  .listofficetable {
+    height: 50vh;
+    width: 100%;
+  }
+  .FormWrapper.noffice {
+    width: 100%;
+  }
+  .FormWrapper.noffice .AddOfficeForm {
+    width: max-content;
+  }
+  .FormWrapper.noffice {
+    padding: 0px 0px 8% 0px;
+  }
+  .content-table {
+    padding: 5px;
+  }
+  .adduserbtn {
+    width: fit-content;
+  }
+  .adduserbtn.nf {
+    width: fit-content;
+  }
+  .adduserbtn button p {
+    display: none;
+  }
+  .adduserbtn .icon {
+    margin: auto;
+  }
+  .loe {
+    padding-left: 5px;
+  }
+}
