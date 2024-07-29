@@ -98,9 +98,21 @@ const Forwarding = () => {
     setSelectedOffice("");
   };
 
-  const handleSubmitForm = (event) => {
+  const handleSubmitForm = async (event) => {
     event.preventDefault();
     setShowPopup(true);
+    
+    // Save the forwarding log
+    try {
+      await axios.post('http://localhost:3001/api/forward', {
+        user_id: selectedEmployee.id, // Assuming selectedEmployee contains the user ID
+        doc_id: docId,
+        forwardedTo: selectedOffice.name, // Assuming selectedOffice contains the office name
+      });
+    } catch (error) {
+      console.error("Error saving forwarding log:", error);
+    }
+
     handleClearForm2();
     setTimeout(() => setShowPopup(false), 1000);
   };

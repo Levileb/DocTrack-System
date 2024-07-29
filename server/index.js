@@ -8,6 +8,7 @@ const UserModel = require('./models/User');
 const DocModel = require('./models/Document');
 const OfficeModel = require('./models/Office');
 const ReceivingLogModel = require('./models/ReceivingLogs');
+const ForwardingLogModel = require('./models/ForwardingLogs');
 
 
 const app = express();
@@ -274,6 +275,23 @@ app.post('/api/docs/update-received', verifyUser, async (req, res) => {
     }
 });
 
+// Add new route to save forwarding log
+app.post('/api/forward', verifyUser, async (req, res) => {
+    try {
+      const { user_id, doc_id, forwardedTo } = req.body;
+  
+      const newForwardingLog = await ForwardingLogModel.create({
+        user_id,
+        doc_id,
+        forwardedTo,
+      });
+  
+      res.status(201).json({ message: 'Forwarding log created successfully.', log: newForwardingLog });
+    } catch (error) {
+      console.error('Error creating forwarding log:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 
 app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {

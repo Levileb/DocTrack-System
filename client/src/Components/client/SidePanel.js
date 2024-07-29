@@ -1,89 +1,71 @@
 import React, { useState, useEffect } from "react";
 import user from "./assets/sample-profile.png";
 import { Link, useLocation } from "react-router-dom";
-import { LuHome } from "react-icons/lu";
-import { LuUserSquare2 } from "react-icons/lu";
-import { RiFolderReceivedLine } from "react-icons/ri";
+import { LuHome, LuUserSquare2, LuFolderCheck } from "react-icons/lu";
+import { RiFolderReceivedLine, RiMailSendLine } from "react-icons/ri";
 import { FaRegShareFromSquare } from "react-icons/fa6";
-import { LuFolderCheck } from "react-icons/lu";
-import { RiMailSendLine } from "react-icons/ri";
-import { MdLogout } from "react-icons/md";
+import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
-import axios from 'axios'; // Import axios for making HTTP requests
+import axios from 'axios';
 import { AiFillCloseCircle } from "react-icons/ai";
-import { MdOutlineContentPasteSearch } from "react-icons/md";
 
 const SidePanel = () => {
-  const [collapsed, setCollapsed] = useState(true); // State to track whether the side panel is collapsed or not
-  const [arrowRotated, setArrowRotated] = useState(true); // State to track arrow rotation
-  const [userDetails, setUserDetails] = useState({ firstname: "", lastname: "",  role: "" }); // State to store user details
-  const location = useLocation(); // get current location
+  const [collapsed, setCollapsed] = useState(true);
+  const [arrowRotated, setArrowRotated] = useState(true);
+  const [userDetails, setUserDetails] = useState({ firstname: "", lastname: "", role: "" });
+  const location = useLocation();
 
   useEffect(() => {
-    // Fetch user details from the backend when component mounts
     fetchUserDetails();
   }, []);
 
   const fetchUserDetails = () => {
-    const token = localStorage.getItem('token'); // Retrieve token from local storage
+    const token = localStorage.getItem('token');
     if (!token) {
       console.error("Token is missing");
       return;
     }
-  
-    // Wait for the token to become available
-    const intervalId = setInterval(() => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        clearInterval(intervalId); // Stop waiting once token is available
-        axios.get('http://localhost:3001/api/user/details', {
-          headers: {
-            Authorization: `Bearer ${token}` // Include the token in the request headers
-          }
-        })
-          .then(response => {
-            setUserDetails(response.data); // Set the user details in the state
-          })
-          .catch(error => {
-            console.error("Error fetching user details:", error);
-          });
+
+    axios.get('http://localhost:3001/api/user/details', {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    }, 1000); // Check for token availability every 1 second
+    })
+      .then(response => {
+        setUserDetails(response.data);
+        console.log("User details fetched:", response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching user details:", error);
+      });
   };
-  
-  
-  
+
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
-    setArrowRotated(!arrowRotated); // Toggle arrow rotation
+    setArrowRotated(!arrowRotated);
   };
 
   const isActive = (path) => {
-    return location.pathname === path; // check if path matches current location
+    return location.pathname === path;
   };
 
-  const { firstname, lastname, role } = userDetails; // Destructure user details
+  const { firstname, role } = userDetails;
 
   const handleLogout = () => {
-    // const confirmLogout = window.confirm("Are you sure you want to Log out?");
     const confirmLogout = handlePopup;
     if (confirmLogout) {
-      // Perform logout action
-      // For example, clearing local storage and redirecting to login page
       localStorage.removeItem("token");
-      window.location.href = "/"; // Assuming "/login" is your login page route
+      window.location.href = "/";
     }
   };
 
-  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
+  const [showPopup, setShowPopup] = useState(false);
 
   const handlePopup = (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
-    // Add your form submission logic here
-
-    // Show popup notification
+    event.preventDefault();
     setShowPopup(true);
   };
+
   const closePopup = () => {
     setShowPopup(false);
   };
@@ -111,10 +93,10 @@ const SidePanel = () => {
 
   return (
     <>
-    <div
+      <div
         className={`spBackground ${!collapsed ? "visible" : ""}`}
         onClick={toggleCollapse}
-        >
+      >
         <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
           <div className="user">
             <img src={user} alt="user profile"></img>
@@ -127,7 +109,7 @@ const SidePanel = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  {firstname} 
+                  {firstname}
                 </li>
                 <li>{role}</li>
               </ul>
@@ -139,7 +121,7 @@ const SidePanel = () => {
                 <li
                   onClick={scrollToTop}
                   className={isActive("/home") ? "active" : ""}
-                  >
+                >
                   <Tooltip text={"Home"}>
                     <LuHome className="icon" />
                   </Tooltip>
@@ -204,7 +186,7 @@ const SidePanel = () => {
                 </li>
               </Link>
 
-              {role === "admin" && ( // Conditionally render based on user's position
+              {role === "admin" && (
                 <Link to="/view-user">
                   <li onClick={scrollToTop} className={isActive("/view-user") ? "active" : ""}>
                     <Tooltip text={"View Users"}>
@@ -223,7 +205,7 @@ const SidePanel = () => {
             <BsArrowLeftCircleFill className="arrow" />
           </div>
 
-          <div className="logout" >
+          <div className="logout">
             <Tooltip text={"Logout?"}>
               <MdLogout className="icon" />
             </Tooltip>
