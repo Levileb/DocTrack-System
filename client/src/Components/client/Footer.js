@@ -9,15 +9,12 @@ const Footer = () => {
       <div className="FooterWrapper">
         <div className="company">
           <img src={logo} alt="logo"></img>
-          <h1>Company Name</h1>
+          <h1>City Government of Kabankalan</h1>
         </div>
         <div className="credits">
           <p>Developed by DICT Regional Office VI</p>
           <p>{`© ${year} | All Rights Reserved`}</p>
         </div>
-      </div>
-      <div className="LowerFooter">
-        {/* <p>Developers: <br/>Harvey John Abello <br/>Julex Jones Severo</p> */}
       </div>
     </div>
   );
