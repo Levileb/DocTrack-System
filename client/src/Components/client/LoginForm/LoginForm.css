@@ -3,7 +3,10 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #ffffff;
+  background-position-x: center;
+  background-image: url("../assets/kabankalan-background-2.png");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .formlogin {
@@ -22,13 +25,13 @@
   color: #002349;
 }
 
-.wrapper h2 {
-  color: #002349;
+.wrapper h3 {
+  color: #ffffff;
   text-align: center;
   /* text-shadow: 1px 0 5px #787878; */
 }
 .wrapper h1 {
-  color: #002349;
+  color: #ffffff;
   text-align: center;
   margin-bottom: 50px;
   text-shadow: 2px 2px 4px #787878;
@@ -38,7 +41,7 @@
   position: relative;
   width: 100%;
   height: 42px;
-  background: #b3c2ca;
+  background: rgb(232, 240, 254);
   margin: 30px 0;
   border-radius: 16px;
 }
@@ -48,7 +51,8 @@
   background: transparent;
   border: none;
   outline: none;
-  border: 2px solid #00162d;
+  color: #002349;
+  border: 2px solid #ffffff;
   border-radius: 15px;
   padding: 20px 45px 20px 20px;
   font-size: 18px;
@@ -75,7 +79,7 @@
   border: none;
   outline: none;
   border-radius: 15px;
-  box-shadow: 0px 5px 10px #00162d;
+  box-shadow: 0px 1px 1px #ffffff;
   cursor: pointer;
 }
 .loginBtn:hover {
@@ -86,6 +90,7 @@
   position: fixed;
   width: 100%;
   height: 70px;
+  padding: 0px 20px 0px 20px;
   top: 0;
   display: flex;
   align-items: center;
@@ -94,47 +99,36 @@
   border-bottom: 1px solid;
   z-index: 900;
   overflow: hidden;
+  justify-content: space-between;
 }
 .head .comp {
   display: flex;
   position: relative;
   align-items: center;
   text-align: center;
-  width: 100%;
   max-height: 70px;
 }
 .head img {
-  position: absolute;
+  display: flex;
   height: 50px;
-  left: 49%;
-  transform: translateX(-50%);
+  margin-left: 10px;
 }
 .head .comp h1 {
-  position: fixed;
-  max-height: 70px;
-  margin-right: 0px;
-  margin-left: 10px;
-  color: #ffffff;
-}
-.head .info {
-  width: fit-content;
-  position: fixed;
-  height: 70px;
-  right: 0;
-  margin-right: 15px;
-  justify-content: center;
   display: flex;
-  align-items: center;
-}
-.head .info .icon {
-  position: relative;
-  font-size: 20px;
+  max-height: 70px;
+  margin-right: 10px;
   color: #ffffff;
 }
 @media screen and (max-width: 490px) {
-  .head img {
-    position: relative;
-    left: 5%;
-    padding-left: 10px;
+  .head {
+    padding: 0;
+  }
+  .head .comp h1 {
+    font-size: 18px;
+  }
+}
+@media screen and (max-width: 510px) {
+  .head .comp h1 {
+    font-size: 16px;
   }
 }

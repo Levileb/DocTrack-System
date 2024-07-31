@@ -563,6 +563,7 @@ ul li {
 .FooterContainer .FooterWrapper .company img {
   max-height: 120px;
   min-height: 50px;
+  margin: 0px 10px 0px 10px;
 }
 .FooterContainer .FooterWrapper .company {
   color: #ffffff;
@@ -640,6 +641,15 @@ ul li {
 /* -------------------------------------- */
 
 /* MEDIA QUERIES -- Start */
+@media screen and (max-width: 770px) {
+  .header .logo h1 {
+    display: none;
+  }
+  .header .essentials h5 {
+    font-size: 16px;
+  }
+}
+
 /* Login Page Media query for very small screens, e.g., tablets, mobile phones */
 @media screen and (max-width: 570px) {
   .PanelHeader .scanner {
@@ -694,7 +704,9 @@ ul li {
   .sidebar.collapsed {
     height: 100%;
   }
-
+  .FooterContainer .FooterWrapper .company h2 {
+    width: 300px;
+  }
 }
 /* @media screen and (max-width: 380px) {
   .essentials h5 {

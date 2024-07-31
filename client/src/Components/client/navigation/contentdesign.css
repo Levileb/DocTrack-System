@@ -26,9 +26,9 @@ td {
   flex-direction: column;
   justify-content: space-around;
 }
-.contents p {
+/* .contents p {
   margin-left: 10px;
-}
+} */
 
 .content-table {
   padding: 20px 25px 20px 25px;
@@ -494,12 +494,10 @@ td {
   transform: translateX(-50%) translateY(-50%);
 }
 
-
 /* NEW!! Tracking Page Design */
 .dtp-top {
   display: flex;
-  margin: 10px;
-  height: 100px;
+  margin: 10px 0px 10px 0px;
   align-items: center;
   justify-content: center;
 }
@@ -541,7 +539,6 @@ input::-webkit-inner-spin-button {
 .dtp-center {
   display: flex;
   margin: 10px;
-  height: 100px;
   align-items: center;
   justify-content: center;
 }
@@ -567,7 +564,6 @@ input::-webkit-inner-spin-button {
   z-index: 1111;
 }
 /* NEW!! For SidePanel */
-
 
 /* Media Queries for mobile screens */
 @media screen and (max-width: 650px) {
