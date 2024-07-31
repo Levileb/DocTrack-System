@@ -3,16 +3,17 @@ const mongoose = require('mongoose');
 const ForwardingLogSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users', // Ensure this matches the name used in UserModel registration
+        ref: 'users', // Ensure this matches the exact model name used
         required: true
     },
     doc_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'docs', // Ensure this matches the name used in DocModel registration
+        ref: 'docs', // Ensure this matches the exact model name used
         required: true
     },
     forwardedTo: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users', // Assuming forwardedTo is also a User
         required: true
     },
     forwardedAt: {
@@ -21,5 +22,5 @@ const ForwardingLogSchema = new mongoose.Schema({
     }
 });
 
-const ForwardingLogModel = mongoose.model("ForwardingLog", ForwardingLogSchema);
+const ForwardingLogModel = mongoose.model('ForwardingLog', ForwardingLogSchema);
 module.exports = ForwardingLogModel;

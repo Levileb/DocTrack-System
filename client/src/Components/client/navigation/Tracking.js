@@ -58,9 +58,30 @@ const Tracking = () => {
                   <p>Code Number: {trackingInfo.codeNumber}</p>
                   <p>Status: {trackingInfo.status}</p>
                   <p>Location: {trackingInfo.location}</p>
-                  <p>Received By: {trackingInfo.receivedBy}</p>
                   <p>Document Title: {trackingInfo.documentTitle}</p>
-                  <p>Received At: {new Date(trackingInfo.receivedAt).toLocaleString()}</p>
+                  <h3>Receiving Logs</h3>
+                  {trackingInfo.receivingLogs.length > 0 ? (
+                    trackingInfo.receivingLogs.map((log, index) => (
+                      <div key={index}>
+                        <p>Received By: {log.receivedBy}</p>
+                        <p>Received At: {new Date(log.receivedAt).toLocaleString()}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No receiving logs available.</p>
+                  )}
+                  <h3>Forwarding Logs</h3>
+                  {trackingInfo.forwardingLogs.length > 0 ? (
+                    trackingInfo.forwardingLogs.map((log, index) => (
+                      <div key={index}>
+                        <p>Forwarded By: {log.forwardedBy}</p>
+                        <p>Forwarded To: {log.forwardedTo}</p>
+                        <p>Forwarded At: {new Date(log.forwardedAt).toLocaleString()}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No forwarding logs available.</p>
+                  )}
                 </div>
               ) : (
                 <p>Search result will be displayed here shortly..</p>

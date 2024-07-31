@@ -209,17 +209,14 @@ app.get('/offices', (req, res) => {
 });
 app.post('/api/docs/update-status', async (req, res) => {
     try {
-      const { docId } = req.body; // Assuming you're passing the document ID in the request body
-      // Update the document's status to "Viewed"
-      await DocModel.findByIdAndUpdate(docId, { status: 'Viewed' });
-      res.status(200).json({ message: 'Document status updated successfully.' });
+        const { docId, status } = req.body; // Accept the status as a parameter
+        await DocModel.findByIdAndUpdate(docId, { status: status });
+        res.status(200).json({ message: 'Document status updated successfully.' });
     } catch (error) {
-      console.error('Error updating document status:', error);
-      res.status(500).json({ error: 'Internal server error' });
+        console.error('Error updating document status:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-  });
-
-  module.exports = app;
+});
 
   // Update the backend endpoint to match the frontend request
 app.get('/api/receivingLogs', verifyUser, async (req, res) => {
@@ -275,62 +272,60 @@ app.post('/api/docs/update-received', verifyUser, async (req, res) => {
     }
 });
 
-// Add new route to save forwarding log
-app.post('/api/forward', verifyUser, async (req, res) => {
+// Add this to your backend routes
+app.post('/api/docs/log-forwarding', verifyUser, async (req, res) => {
     try {
-      const { user_id, doc_id, forwardedTo } = req.body;
-  
-      const newForwardingLog = await ForwardingLogModel.create({
-        user_id,
-        doc_id,
-        forwardedTo,
-      });
-  
-      res.status(201).json({ message: 'Forwarding log created successfully.', log: newForwardingLog });
+        const { docId, forwardedTo } = req.body;
+        const userId = req.user.id;
+        const newLog = await ForwardingLogModel.create({
+            user_id: userId,
+            doc_id: docId,
+            forwardedTo: forwardedTo,
+            forwardedAt: new Date()
+        });
+        // Update the document's status to "Forwarded"
+        await DocModel.findByIdAndUpdate(docId, { status: 'Forwarded' });
+        res.status(201).json({ message: 'Forwarding log created and document status updated successfully.', log: newLog });
     } catch (error) {
-      console.error('Error creating forwarding log:', error);
-      res.status(500).json({ error: 'Internal server error' });
+        console.error('Error logging forwarding:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-  });
+});
+
 
 
 app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
     try {
         const { codeNumber } = req.params;
 
-        console.log(`Received request for tracking info with code number: ${codeNumber}`);
-
         const document = await DocModel.findOne({ codeNumber }).populate('destination');
         if (!document) {
-            console.error("Document not found");
             return res.status(404).json({ error: "Document not found" });
         }
 
-        console.log("Document found:", document);
-
-        const latestLog = await ReceivingLogModel.findOne({ doc_id: document._id })
+        const receivingLogs = await ReceivingLogModel.find({ doc_id: document._id })
             .sort({ receivedAt: -1 })
-            .populate('user_id');  // Ensure that user_id is the field being populated
+            .populate('user_id');
 
-        if (!latestLog) {
-            console.error("No receiving log found for this document");
-            return res.status(404).json({ error: "No receiving log found for this document" });
-        }
-
-        console.log("Latest receiving log found:", latestLog);
-
-        const user = latestLog.user_id;
+        const forwardingLogs = await ForwardingLogModel.find({ doc_id: document._id })
+            .sort({ forwardedAt: -1 })
+            .populate('user_id');
 
         const trackingInfo = {
             codeNumber,
             status: document.status,
             location: document.destination,
-            receivedBy: `${user.firstname} ${user.lastname}`,
             documentTitle: document.title,
-            receivedAt: latestLog.receivedAt,
+            receivingLogs: receivingLogs.map(log => ({
+                receivedBy: `${log.user_id.firstname} ${log.user_id.lastname}`,
+                receivedAt: log.receivedAt
+            })),
+            forwardingLogs: forwardingLogs.map(log => ({
+                forwardedBy: `${log.user_id.firstname} ${log.user_id.lastname}`,
+                forwardedTo: log.forwardedTo,
+                forwardedAt: log.forwardedAt
+            }))
         };
-
-        console.log("Tracking info:", trackingInfo);
 
         res.status(200).json(trackingInfo);
     } catch (error) {

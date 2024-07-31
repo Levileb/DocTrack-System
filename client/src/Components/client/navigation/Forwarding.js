@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
-import Dropdown from "../Dropdown";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
@@ -101,25 +100,29 @@ const Forwarding = () => {
   const handleSubmitForm = async (event) => {
     event.preventDefault();
     setShowPopup(true);
-    
-    // Save the forwarding log
-    try {
-      await axios.post('http://localhost:3001/api/forward', {
-        user_id: selectedEmployee.id, // Assuming selectedEmployee contains the user ID
-        doc_id: docId,
-        forwardedTo: selectedOffice.name, // Assuming selectedOffice contains the office name
-      });
-    } catch (error) {
-      console.error("Error saving forwarding log:", error);
-    }
 
+    try {
+      await axios.post('http://localhost:3001/api/docs/log-forwarding', {
+          docId: docId,
+          forwardedTo: selectedEmployee
+      });
+      await axios.post('http://localhost:3001/api/docs/update-status', {
+          docId: docId,
+          status: 'Forwarded' // Pass the new status here
+      });
+      // Handle success message and clear form
+  } catch (error) {
+      console.error("Error forwarding document:", error);
+      // Handle error message
+  }
+  
     handleClearForm2();
     setTimeout(() => setShowPopup(false), 1000);
   };
 
-  const handleEmployeeSelect = (employee) => setSelectedEmployee(employee);
+  const handleEmployeeSelect = (event) => setSelectedEmployee(event.target.value);
 
-  const handleOfficeSelect = (office) => setSelectedOffice(office);
+  const handleOfficeSelect = (event) => setSelectedOffice(event.target.value);
 
   return (
     <>
@@ -160,19 +163,41 @@ const Forwarding = () => {
                   />
                 </div>
 
-                <Dropdown
-                  data={users.map(user => ({ id: user._id, name: `${user.firstname} ${user.lastname}` }))}
-                  label="Recipient"
-                  selectedValue={selectedEmployee}
-                  onSelect={handleEmployeeSelect}
-                />
+                <p>Recipient:</p>
+                <div className="input-new">
+                  <select
+                    id="recipient"
+                    className="input-field"
+                    required
+                    value={selectedEmployee}
+                    onChange={handleEmployeeSelect}
+                  >
+                    <option value="" disabled>Select Employee</option>
+                    {users.map(user => (
+                      <option key={user._id} value={user._id}>
+                        {`${user.firstname} ${user.lastname}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <Dropdown
-                  data={offices.map(office => ({ id: office._id, name: office.office, location: office.location }))}
-                  label="Designated Office"
-                  selectedValue={selectedOffice}
-                  onSelect={handleOfficeSelect}
-                />
+                <p>Designated Office:</p>
+                <div className="input-new">
+                  <select
+                    id="desOffice"
+                    className="input-field"
+                    required
+                    value={selectedOffice}
+                    onChange={handleOfficeSelect}
+                  >
+                    <option value="" disabled>Select Office</option>
+                    {offices.map(office => (
+                      <option key={office._id} value={office._id}>
+                        {office.office}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="submitbuttons">
                 <div className="ClearBtn secondarybtn">
