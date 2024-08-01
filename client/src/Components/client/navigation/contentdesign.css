@@ -538,10 +538,74 @@ input::-webkit-inner-spin-button {
 }
 .dtp-center {
   display: flex;
-  margin: 10px;
   align-items: center;
   justify-content: center;
 }
+
+/* The new deign --START-- */
+.tracking-history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 10px 30px 10px;
+  border-top: 1px solid #000000;
+}
+
+.timeline {
+  /* position: relative; */
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  margin: auto;
+  border-left: 5px solid #006b98;
+  border-bottom-left-radius: 5px;
+}
+
+.track-container {
+  position: relative;
+  background-color: inherit;
+  margin-bottom: 20px;
+}
+
+.track-container::before {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 5px;
+  background-color: #006b98;
+  left: 0;
+  top: 24px;
+}
+
+.track-content {
+  padding: 5px 10px;
+  background-color: white;
+  position: relative;
+  border-radius: 6px;
+  margin-left: 30px;
+  border: 1px solid black;
+  font-size: 13px;
+}
+/* The new deign --END-- */
+
+/* These are just a copy from the last design layout. Might delete later. */
+/*
+.dtp-center .track-history tr td {
+  background-color: white;
+  border-left: none;
+  border-right: none;
+  padding: 5px 10px 5px 10px;
+}
+.dtp-center .track-history thead {
+  border-left: none;
+  border-right: none;
+}
+.dtp-center .track-history table {
+  margin-left: auto;
+  margin-right: auto;
+  height: 100%;
+} */
+
 @media screen and (max-width: 490px) {
   .dtp-top form {
     flex-direction: column;
