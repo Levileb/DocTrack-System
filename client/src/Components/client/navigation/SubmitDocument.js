@@ -5,7 +5,7 @@ import Footer from "../Footer";
 import axios from "axios";
 import QRCode from "qrcode.react";
 import { AiFillCloseCircle } from "react-icons/ai";
-import logo from "../assets/logo.png";
+import logo from "../assets/kabankalan-logo.png";
 
 const SubmitDocument = () => {
   const getCurrentDate = () => {
@@ -196,7 +196,7 @@ const SubmitDocument = () => {
               <img style="max-width: 100px; max-height: 100px;" src="${logo}" alt="logo" />
             </div>
             <div id="companyTitle">
-              <h2 class="title">Company Name</h2>
+              <h2 class="title">City Government of Kabankalan</h2>
               <h5 class="title">Document Tracking System</h5>
             </div>
           </header>

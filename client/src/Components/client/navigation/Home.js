@@ -11,7 +11,7 @@ import { RiMailSendLine } from "react-icons/ri";
 import axios from "axios";
 import QrReader from "./QrReader";
 import qrCode from "qrcode";
-import logo from "../assets/logo.png";
+import logo from "../assets/kabankalan-logo.png";
 
 const Home = () => {
   const [docs, setDocs] = useState([]); // State  to store documents
@@ -56,7 +56,6 @@ const Home = () => {
       printWindow.document.write(`
         <html>
           <head>
-            <title>Routing Slip</title>
             <style>
               /* CSS styles */
               body {
@@ -130,16 +129,15 @@ const Home = () => {
             </style>
           </head>
           <body onload="window.print();">
-          <header>
-          <div id="logoImg">
-            <img style="max-width: 100px; max-height: 100px;" src="${logo}" alt="logo" />
-          </div>
-          <div id="companyTitle">
-            <h2 class="title">Company Name</h2>
-            <h5 class="title">Document Tracking System</h5>
-          </div>
-
-        </header>
+           <header>
+              <div id="logoImg">
+               <img style="max-width: 100px; max-height: 100px;" src="${logo}" alt="logo" />
+              </div>
+              <div id="companyTitle">
+                <h2 class="title">City Government of Kabankalan</h2>
+                <h5 class="title">Document Tracking System</h5>
+              </div>
+            </header>
 
             <div id="drs">
               <h4>Document Routing Slip</h4>
@@ -147,12 +145,18 @@ const Home = () => {
             <main>
               <div>
                 <ul>
-                  <li>Date: <strong>${new Date(doc.date).toLocaleDateString()}</strong></li>
+                  <li>Date: <strong>${new Date(
+                    doc.date
+                  ).toLocaleDateString()}</strong></li>
                   <li>Title: <strong>${doc.title}</strong></li>
                   <li>From: <strong>${doc.sender}</strong></li>
-                  <li>Originating Office: <strong>${doc.originating}</strong></li>
+                  <li>Originating Office: <strong>${
+                    doc.originating
+                  }</strong></li>
                   <li>To: <strong>${doc.recipient}</strong></li>
-                  <li>Destination Office: <strong>${doc.destination}</strong></li>
+                  <li>Destination Office: <strong>${
+                    doc.destination
+                  }</strong></li>
                 </ul>
               </div>
               <div>
@@ -199,11 +203,13 @@ const Home = () => {
       // If a document with matching data is found, display the pop-up container
       if (selectedDoc) {
         // Update the document's status to "Viewed"
-        await axios.post('http://localhost:3001/api/docs/update-status', { docId: selectedDoc._id });
+        await axios.post("http://localhost:3001/api/docs/update-status", {
+          docId: selectedDoc._id,
+        });
         console.log('Document status updated to "Viewed"');
 
         // Update the selectedDoc state with the updated status
-        setSelectedDoc({ ...selectedDoc, status: 'Viewed' });
+        setSelectedDoc({ ...selectedDoc, status: "Viewed" });
       } else {
         console.log("No matching document found.");
       }
@@ -214,22 +220,19 @@ const Home = () => {
 
   const handleAcknowledge = async () => {
     try {
-        // Update the document's status to "Received"
-        const response = await axios.post('http://localhost:3001/api/docs/update-received', { docId: selectedDoc._id });
-        console.log('Document status updated to "Received"', response.data);
+      // Update the document's status to "Received"
+      const response = await axios.post(
+        "http://localhost:3001/api/docs/update-received",
+        { docId: selectedDoc._id }
+      );
+      console.log('Document status updated to "Received"', response.data);
 
-        // Update the selectedDoc state with the updated status
-        setSelectedDoc({ ...selectedDoc, status: 'Received' });
+      // Update the selectedDoc state with the updated status
+      setSelectedDoc({ ...selectedDoc, status: "Received" });
     } catch (error) {
-        console.error("Error acknowledging document:", error);
+      console.error("Error acknowledging document:", error);
     }
-};
-
-  
-  
-  
-  
-  
+  };
 
   return (
     <>
@@ -321,7 +324,9 @@ const Home = () => {
             <ul className="view-userinfo">
               <li>
                 Date:{" "}
-                <strong>{new Date(selectedDoc.date).toLocaleDateString()}</strong>
+                <strong>
+                  {new Date(selectedDoc.date).toLocaleDateString()}
+                </strong>
               </li>
               <li>
                 Title: <strong>{selectedDoc.title}</strong>
@@ -356,27 +361,28 @@ const Home = () => {
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
-                <button className="ack-btn" onClick={handleAcknowledge}>Receive</button>
+                <button className="ack-btn" onClick={handleAcknowledge}>
+                  Receive
+                </button>
               </div>
               <div className="archivebtn secondarybtn">
-              <Link to={`/forwarding-document/${selectedDoc._id}`}>
-  <button className="forw-btn">Forward</button>
-</Link>
-
+                <Link to={`/forwarding-document/${selectedDoc._id}`}>
+                  <button className="forw-btn">Forward</button>
+                </Link>
               </div>
             </div>
           </div>
         </div>
       )}
 
-{showScanner && (
-  <div className="popup-container qr" onClick={closeScanner}>
-    <div className="popup qrscanner">
-      <QrReader onClose={closeScanner} onScan={handleScan} /> {/* Pass onScan prop */}
-    </div>
-  </div>
-)}
-
+      {showScanner && (
+        <div className="popup-container qr" onClick={closeScanner}>
+          <div className="popup qrscanner">
+            <QrReader onClose={closeScanner} onScan={handleScan} />{" "}
+            {/* Pass onScan prop */}
+          </div>
+        </div>
+      )}
     </>
   );
 };
