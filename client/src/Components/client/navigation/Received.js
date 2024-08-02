@@ -4,7 +4,7 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Link } from "react-router-dom";
+//import { Link } from "react-router-dom";
 import axios from 'axios'; // Import axios for making HTTP requests
 
 const Received = () => {

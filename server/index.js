@@ -96,6 +96,18 @@ app.get('/view-user', (req, res) => {
         });
 });
 
+// New route to archive a user
+app.post('/archive-user/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        await UserModel.findByIdAndUpdate(userId, { isArchived: true });
+        res.status(200).json({ message: "User archived successfully." });
+    } catch (error) {
+        console.error("Error archiving user:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 // Endpoint to fetch all documents
 app.get('/api/docs', (req, res) => {
     DocModel.find()

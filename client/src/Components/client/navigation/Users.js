@@ -3,7 +3,7 @@ import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { FiUserPlus } from "react-icons/fi";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { IoSearch } from "react-icons/io5";
 import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
@@ -14,13 +14,15 @@ const Users = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [popupUserData, setPopupUserData] = useState(null);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch users data from the database
     axios.get("http://localhost:3001/view-user")
       .then(response => {
-        setUsers(response.data); // Set the fetched data to the state
+        // Filter out archived users
+        const activeUsers = response.data.filter(user => !user.isArchived);
+        setUsers(activeUsers); // Set the filtered data to the state
       })
       .catch(error => {
         console.error("Error fetching users:", error);
@@ -53,6 +55,19 @@ const Users = () => {
     navigate(`/update-user/${selectedUserId}`); // Pass selectedUserId in the URL
   };
   
+  const archiveUser = () => {
+    axios.post(`http://localhost:3001/archive-user/${selectedUserId}`)
+      .then(response => {
+        setShowPopup(false);
+        setUsers(users.filter(user => user._id !== selectedUserId));
+        alert(response.data.message);
+      })
+      .catch(error => {
+        console.error("Error archiving user:", error);
+        alert("Failed to archive user.");
+      });
+  };
+
   return (
     <>
       <Header />
@@ -92,7 +107,7 @@ const Users = () => {
             </div>
           </div>
 
-          <a className="loe">List of Employees</a>
+          <p className="loe">List of Employees</p>
 
           <div className="usertable content-table">
             <table>
@@ -162,7 +177,7 @@ const Users = () => {
                 <button className="ed-btn" onClick={handleEditUser}>Edit</button> {/* Call handleEditUser on click */}
               </div>
               <div className="archivebtn secondarybtn">
-                <button className="arc-btn">Archive</button>
+                <button className="arc-btn"onClick={archiveUser}>Archive</button>
               </div>
             </div>
           </div>

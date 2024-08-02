@@ -14,19 +14,32 @@ import qrCode from "qrcode";
 import logo from "../assets/logo.png";
 
 const Home = () => {
-  const [docs, setDocs] = useState([]); // State  to store documents
+  const [docs, setDocs] = useState([]); // State to store documents
   const [selectedDoc, setSelectedDoc] = useState(null); // State to store the selected document
   const [showScanner, setShowScanner] = useState(false); // State for popup visibility
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [filteredDocs, setFilteredDocs] = useState([]); // State for filtered documents
 
   useEffect(() => {
     fetchDocs();
   }, []); // Fetch documents on component mount
+
+  useEffect(() => {
+    // Filter documents based on search query
+    const filtered = docs.filter((doc) =>
+      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.recipient.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredDocs(filtered);
+  }, [searchQuery, docs]);
 
   const fetchDocs = () => {
     axios
       .get("http://localhost:3001/api/docs")
       .then((response) => {
         setDocs(response.data);
+        setFilteredDocs(response.data); // Initialize filteredDocs with all documents
       })
       .catch((error) => {
         console.error("Error fetching documents:", error);
@@ -214,22 +227,16 @@ const Home = () => {
 
   const handleAcknowledge = async () => {
     try {
-        // Update the document's status to "Received"
-        const response = await axios.post('http://localhost:3001/api/docs/update-received', { docId: selectedDoc._id });
-        console.log('Document status updated to "Received"', response.data);
+      // Update the document's status to "Received"
+      const response = await axios.post('http://localhost:3001/api/docs/update-received', { docId: selectedDoc._id });
+      console.log('Document status updated to "Received"', response.data);
 
-        // Update the selectedDoc state with the updated status
-        setSelectedDoc({ ...selectedDoc, status: 'Received' });
+      // Update the selectedDoc state with the updated status
+      setSelectedDoc({ ...selectedDoc, status: 'Received' });
     } catch (error) {
-        console.error("Error acknowledging document:", error);
+      console.error("Error acknowledging document:", error);
     }
-};
-
-  
-  
-  
-  
-  
+  };
 
   return (
     <>
@@ -265,6 +272,8 @@ const Home = () => {
                   id=""
                   placeholder="Search.."
                   className="search-bar"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 ></input>
               </div>
             </div>
@@ -283,7 +292,7 @@ const Home = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {docs.map((val, key) => (
+                  {filteredDocs.map((val, key) => (
                     <tr key={key}>
                       <td>{val.date.substring(0, 10)}</td>
                       <td>{val.title}</td>
@@ -356,27 +365,27 @@ const Home = () => {
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
-                <button className="ack-btn" onClick={handleAcknowledge}>Receive</button>
+                <button className="ack-btn" onClick={handleAcknowledge}>
+                  Receive
+                </button>
               </div>
               <div className="archivebtn secondarybtn">
-              <Link to={`/forwarding-document/${selectedDoc._id}`}>
-  <button className="forw-btn">Forward</button>
-</Link>
-
+                <Link to={`/forwarding-document/${selectedDoc._id}`}>
+                  <button className="forw-btn">Forward</button>
+                </Link>
               </div>
             </div>
           </div>
         </div>
       )}
 
-{showScanner && (
-  <div className="popup-container qr" onClick={closeScanner}>
-    <div className="popup qrscanner">
-      <QrReader onClose={closeScanner} onScan={handleScan} /> {/* Pass onScan prop */}
-    </div>
-  </div>
-)}
-
+      {showScanner && (
+        <div className="popup-container qr" onClick={closeScanner}>
+          <div className="popup qrscanner">
+            <QrReader onClose={closeScanner} onScan={handleScan} /> {/* Pass onScan prop */}
+          </div>
+        </div>
+      )}
     </>
   );
 };
