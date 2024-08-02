@@ -3,10 +3,9 @@ import "./LoginForm.css";
 import { MdOutlineEmail } from "react-icons/md";
 import { IoIosLock } from "react-icons/io";
 import Footer from "../Footer";
-import logo from "../assets/logo.png";
-import { IoInformationCircleOutline } from "react-icons/io5";
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import logo from "../assets/kabankalan-logo.png";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -23,33 +22,34 @@ function LoginForm() {
       return;
     }
 
-    axios.post('http://localhost:3001', { email, password })
-      .then(res => {
+    axios
+      .post("http://localhost:3001", { email, password })
+      .then((res) => {
         if (res.data.Status === "Success") {
           // Displaying a success message
           window.alert("Login successful!");
 
           // Storing token and role in local storage
-          localStorage.setItem('token', res.data.token);
-          localStorage.setItem('role', res.data.role);
+          localStorage.setItem("token", res.data.token);
+          localStorage.setItem("role", res.data.role);
 
           if (res.data.role === "admin") {
-            navigate('/home');
+            navigate("/home");
           } else {
-            navigate('/home');
+            navigate("/home");
           }
         } else {
           // If login fails, set loginStatus state to display error message
           setLoginStatus("Incorrect email or password. Please try again.");
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         // Reset email and password fields after an unsuccessful login attempt
         setEmail("");
         setPassword("");
       });
-  }
+  };
 
   return (
     <>
@@ -58,10 +58,7 @@ function LoginForm() {
           <img src={logo} alt="logo"></img>
 
           <div className="comp">
-            <h1>Company Name</h1>
-          </div>
-          <div className="info">
-            <IoInformationCircleOutline className="icon" />
+            <h1>City Government of Kabankalan</h1>
           </div>
         </nav>
       </header>
@@ -69,12 +66,17 @@ function LoginForm() {
         <div className="wrapper">
           <form className="formlogin" onSubmit={handleSubmit}>
             <h1>Document Tracking System</h1>
-            <h2>Login to your Account</h2>
+            <h3>Login to your Account</h3>
 
             <div className="input-box">
-              <input type="email" placeholder="Email" id="email" required
+              <input
+                type="email"
+                placeholder="Email"
+                id="email"
+                required
                 value={email} // Set value attribute to control the input field
-                onChange={(e) => setEmail(e.target.value)} />
+                onChange={(e) => setEmail(e.target.value)}
+              />
               <MdOutlineEmail className="icon" />
             </div>
 
@@ -91,7 +93,11 @@ function LoginForm() {
             </div>
 
             {/* Conditionally render login status message */}
-            {loginStatus && <p className="error-message">{loginStatus}</p>}
+            {loginStatus && (
+              <p style={{ color: "white" }} className="error-message">
+                {loginStatus}
+              </p>
+            )}
 
             {/* Removed unnecessary <a> tag wrapping the button */}
             <button className="loginBtn" type="submit">

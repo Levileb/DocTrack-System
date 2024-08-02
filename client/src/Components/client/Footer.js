@@ -1,5 +1,6 @@
 import React from "react";
-import logo from "./assets/logo.png";
+import logo from "./assets/dict-logo.png";
+import logo2 from "./assets/kabankalan-logo.png";
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -9,7 +10,8 @@ const Footer = () => {
       <div className="FooterWrapper">
         <div className="company">
           <img src={logo} alt="logo"></img>
-          <h1>City Government of Kabankalan</h1>
+          <img src={logo2} alt="logo"></img>
+          <h2>City Government of Kabankalan</h2>
         </div>
         <div className="credits">
           <p>Developed by DICT Regional Office VI</p>

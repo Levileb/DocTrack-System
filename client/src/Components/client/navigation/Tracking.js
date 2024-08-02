@@ -11,7 +11,9 @@ const Tracking = () => {
   const handleSearch = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.get(`http://localhost:3001/api/docs/tracking-info/${searchTerm}`);
+      const response = await axios.get(
+        `http://localhost:3001/api/docs/tracking-info/${searchTerm}`
+      );
       setTrackingInfo(response.data);
     } catch (error) {
       console.error("Error fetching tracking information:", error);
@@ -35,6 +37,7 @@ const Tracking = () => {
                 <p>Document Tracking</p>
               </div>
             </div>
+
             <div className="dtp-top">
               <form onSubmit={handleSearch}>
                 <div className="search-box">
@@ -44,7 +47,7 @@ const Tracking = () => {
                     onChange={handleChange}
                     placeholder="Enter code number.."
                     className="search-bar"
-                  ></input>
+                  />
                 </div>
                 <div className="search-button primarybtn">
                   <button type="submit">Search</button>
@@ -53,35 +56,41 @@ const Tracking = () => {
             </div>
             <div className="dtp-center">
               {trackingInfo ? (
-                <div>
+                <div className="track-results">
                   <h2>Tracking Information</h2>
                   <p>Code Number: {trackingInfo.codeNumber}</p>
+                  <p>Title: {trackingInfo.documentTitle}</p>
                   <p>Status: {trackingInfo.status}</p>
-                  <p>Location: {trackingInfo.location}</p>
-                  <p>Document Title: {trackingInfo.documentTitle}</p>
-                  <h3>Receiving Logs</h3>
-                  {trackingInfo.receivingLogs.length > 0 ? (
-                    trackingInfo.receivingLogs.map((log, index) => (
-                      <div key={index}>
-                        <p>Received By: {log.receivedBy}</p>
-                        <p>Received At: {new Date(log.receivedAt).toLocaleString()}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No receiving logs available.</p>
-                  )}
-                  <h3>Forwarding Logs</h3>
-                  {trackingInfo.forwardingLogs.length > 0 ? (
-                    trackingInfo.forwardingLogs.map((log, index) => (
-                      <div key={index}>
-                        <p>Forwarded By: {log.forwardedBy}</p>
-                        <p>Forwarded To: {log.forwardedTo}</p>
-                        <p>Forwarded At: {new Date(log.forwardedAt).toLocaleString()}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No forwarding logs available.</p>
-                  )}
+
+                  <div className="tracking-history">
+                    <div className="timeline">
+                      {[...trackingInfo.receivingLogs, ...trackingInfo.forwardingLogs].map((log, index) => (
+                        <div
+                          key={index}
+                          className={`track-container ${
+                            index % 2 === 0 ? "left" : "right"
+                          }`}
+                        >
+                          <div className="track-content">
+                            {log.receivedAt ? (
+                              <>
+                                <p>Received At: {new Date(log.receivedAt).toLocaleString()}</p>
+                                <p>Received By: {log.receivedBy}</p>
+                                <p>Document Title: {log.documentTitle}</p>
+                              </>
+                            ) : (
+                              <>
+                                <p>Forwarded At: {new Date(log.forwardedAt).toLocaleString()}</p>
+                                <p>Forwarded By: {log.forwardedBy}</p>
+                                <p>Forwarded To: {log.forwardedTo}</p>
+                                <p>Document Title: {log.documentTitle}</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <p>Search result will be displayed here shortly..</p>

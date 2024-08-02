@@ -310,32 +310,36 @@ app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
     try {
         const { codeNumber } = req.params;
 
-        const document = await DocModel.findOne({ codeNumber }).populate('destination');
+        const document = await DocModel.findOne({ codeNumber });
         if (!document) {
             return res.status(404).json({ error: "Document not found" });
         }
 
         const receivingLogs = await ReceivingLogModel.find({ doc_id: document._id })
             .sort({ receivedAt: -1 })
-            .populate('user_id');
+            .populate('user_id', 'firstname lastname') // Populate user details
+            .populate('doc_id', 'title'); // Populate document details
 
         const forwardingLogs = await ForwardingLogModel.find({ doc_id: document._id })
             .sort({ forwardedAt: -1 })
-            .populate('user_id');
+            .populate('user_id', 'firstname lastname') // Populate user details
+            .populate('doc_id', 'title') // Populate document details
+            .populate('forwardedTo', 'firstname lastname'); // Populate forwardedTo user details
 
         const trackingInfo = {
             codeNumber,
             status: document.status,
-            location: document.destination,
             documentTitle: document.title,
             receivingLogs: receivingLogs.map(log => ({
                 receivedBy: `${log.user_id.firstname} ${log.user_id.lastname}`,
-                receivedAt: log.receivedAt
+                receivedAt: log.receivedAt,
+                documentTitle: log.doc_id.title
             })),
             forwardingLogs: forwardingLogs.map(log => ({
                 forwardedBy: `${log.user_id.firstname} ${log.user_id.lastname}`,
-                forwardedTo: log.forwardedTo,
-                forwardedAt: log.forwardedAt
+                forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`,
+                forwardedAt: log.forwardedAt,
+                documentTitle: log.doc_id.title
             }))
         };
 
@@ -345,6 +349,8 @@ app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+
 
   
 
