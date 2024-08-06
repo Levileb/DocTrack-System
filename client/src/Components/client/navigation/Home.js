@@ -390,6 +390,9 @@ const Home = () => {
                 </Link>
               </div>
             </div>
+            <div className="completebtn">
+              <button className="ack-btn">Acknowledge Complete</button>
+            </div>
           </div>
         </div>
       )}
