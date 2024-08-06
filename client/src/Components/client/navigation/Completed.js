@@ -95,7 +95,7 @@ const Forwarded = () => {
 
       {showPopup && (
         <div className="popup-container">
-          <div className="popup">
+          <div className="popup comp">
             <p>User Information</p>
             {data.map((val) => {
               return (

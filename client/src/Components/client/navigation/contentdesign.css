@@ -233,6 +233,54 @@ td {
   height: 100%;
   font-size: 17px;
 }
+
+.popup.forwarding {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  min-width: 300px;
+  height: auto;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 10px);
+}
+.popup.comp {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  min-width: 300px;
+  height: auto;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 10px);
+}
+.popup-received {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  width: 300px;
+  height: auto;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 10px);
+}
+.popup-received p {
+  margin-bottom: 5px;
+  height: 20px;
+  align-self: center;
+  font-weight: 600;
+  width: max-content;
+  display: flex;
+}
 /* popup ends */
 
 .submitdocuBtn {

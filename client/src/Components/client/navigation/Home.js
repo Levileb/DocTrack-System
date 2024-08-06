@@ -19,6 +19,7 @@ const Home = () => {
   const [showScanner, setShowScanner] = useState(false); // State for popup visibility
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [filteredDocs, setFilteredDocs] = useState([]); // State for filtered documents
+  const [showPopup, setShowPopup] = useState(false); // Recently Added Popup
 
   useEffect(() => {
     fetchDocs();
@@ -26,10 +27,11 @@ const Home = () => {
 
   useEffect(() => {
     // Filter documents based on search query
-    const filtered = docs.filter((doc) =>
-      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.recipient.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = docs.filter(
+      (doc) =>
+        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.recipient.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredDocs(filtered);
   }, [searchQuery, docs]);
@@ -233,12 +235,17 @@ const Home = () => {
 
   const handleAcknowledge = async () => {
     try {
-        // Update the document's status to "Received"
-        const response = await axios.post('http://localhost:3001/api/docs/update-received', { docId: selectedDoc._id });
-        console.log('Document status updated to "Received"', response.data);
+      // Update the document's status to "Received"
+      const response = await axios.post(
+        "http://localhost:3001/api/docs/update-received",
+        { docId: selectedDoc._id }
+      );
+      setShowPopup(true);
+      console.log('Document status updated to "Received"', response.data);
 
-        // Update the selectedDoc state with the updated status
-        setSelectedDoc({ ...selectedDoc, status: 'Received' });
+      // Update the selectedDoc state with the updated status
+      setSelectedDoc({ ...selectedDoc, status: "Received" });
+      setTimeout(() => setShowPopup(false), 1000);
     } catch (error) {
       console.error("Error acknowledging document:", error);
     }
@@ -387,14 +394,22 @@ const Home = () => {
         </div>
       )}
 
-{showScanner && (
-  <div className="popup-container qr" onClick={closeScanner}>
-    <div className="popup qrscanner">
-      <QrReader onClose={closeScanner} onScan={handleScan} /> {/* Pass onScan prop */}
-    </div>
-  </div>
-)}
+      {showScanner && (
+        <div className="popup-container qr" onClick={closeScanner}>
+          <div className="popup qrscanner">
+            <QrReader onClose={closeScanner} onScan={handleScan} />{" "}
+            {/* Pass onScan prop */}
+          </div>
+        </div>
+      )}
 
+      {showPopup && (
+        <div className="popup-container">
+          <div className="popup-received">
+            <p>Document Received!</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
