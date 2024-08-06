@@ -11,6 +11,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginStatus, setLoginStatus] = useState(""); // State to track login status
+  const [showPopup, setShowPopup] = useState(false); // Recently Added Popup
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
@@ -27,16 +28,22 @@ function LoginForm() {
       .then((res) => {
         if (res.data.Status === "Success") {
           // Displaying a success message
-          window.alert("Login successful!");
+          setShowPopup(true);
 
           // Storing token and role in local storage
           localStorage.setItem("token", res.data.token);
           localStorage.setItem("role", res.data.role);
 
           if (res.data.role === "admin") {
-            navigate("/home");
+            setTimeout(() => {
+              navigate("/home");
+              setShowPopup(false);
+            }, 1000);
           } else {
-            navigate("/home");
+            setTimeout(() => {
+              navigate("/home");
+              setShowPopup(false);
+            }, 1000);
           }
         } else {
           // If login fails, set loginStatus state to display error message
@@ -107,6 +114,14 @@ function LoginForm() {
         </div>
       </div>
       <Footer />
+      {/* Recently Added Popup */}
+      {showPopup && (
+        <div className="popup-container">
+          <div className="popuplogsuccess">
+            <p>Login Successfully!</p>
+          </div>
+        </div>
+      )}
     </>
   );
 }
