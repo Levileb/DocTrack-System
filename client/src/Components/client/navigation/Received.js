@@ -5,7 +5,7 @@ import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
 //import { Link } from "react-router-dom";
-import axios from 'axios'; // Import axios for making HTTP requests
+import axios from "axios"; // Import axios for making HTTP requests
 
 const Received = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -21,10 +21,10 @@ const Received = () => {
   const fetchReceivingLogs = async () => {
     try {
       // Make a GET request to fetch receiving logs data
-      const response = await axios.get('/api/receivingLogs'); // Assuming your backend API endpoint for receiving logs is '/api/receivingLogs'
+      const response = await axios.get("/api/receivingLogs"); // Assuming your backend API endpoint for receiving logs is '/api/receivingLogs'
       setData(response.data); // Update data state with the fetched data
     } catch (error) {
-      console.error('Error fetching receiving logs:', error);
+      console.error("Error fetching receiving logs:", error);
     }
   };
 
@@ -92,8 +92,10 @@ const Received = () => {
                         <td>{val.title}</td>
                         <td>{val.sender}</td>
                         <td>
-                          <div className="viewbtn secondarybtn">
-                            <button onClick={() => handlePopup(val)}>View</button>
+                          <div className="viewbtn">
+                            <button onClick={() => handlePopup(val)}>
+                              View
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -126,9 +128,7 @@ const Received = () => {
             <button className="closebtn" onClick={closePopup}>
               <AiFillCloseCircle className="closeicon" />
             </button>
-            <div className="actionbtn">
-              {/* Action buttons */}
-            </div>
+            <div className="actionbtn">{/* Action buttons */}</div>
           </div>
         </div>
       )}

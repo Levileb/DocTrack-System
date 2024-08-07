@@ -18,13 +18,14 @@ const Users = () => {
 
   useEffect(() => {
     // Fetch users data from the database
-    axios.get("http://localhost:3001/view-user")
-      .then(response => {
+    axios
+      .get("http://localhost:3001/view-user")
+      .then((response) => {
         // Filter out archived users
-        const activeUsers = response.data.filter(user => !user.isArchived);
+        const activeUsers = response.data.filter((user) => !user.isArchived);
         setUsers(activeUsers); // Set the filtered data to the state
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching users:", error);
       });
   }, []);
@@ -41,11 +42,12 @@ const Users = () => {
   useEffect(() => {
     if (selectedUserId !== null) {
       // Fetch details of the selected user based on the id
-      axios.get(`http://localhost:3001/api/user/details/${selectedUserId}`)
-        .then(response => {
+      axios
+        .get(`http://localhost:3001/api/user/details/${selectedUserId}`)
+        .then((response) => {
           setPopupUserData(response.data); // Set the fetched user data for the popup
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error fetching user details:", error);
         });
     }
@@ -54,15 +56,16 @@ const Users = () => {
   const handleEditUser = () => {
     navigate(`/update-user/${selectedUserId}`); // Pass selectedUserId in the URL
   };
-  
+
   const archiveUser = () => {
-    axios.post(`http://localhost:3001/archive-user/${selectedUserId}`)
-      .then(response => {
+    axios
+      .post(`http://localhost:3001/archive-user/${selectedUserId}`)
+      .then((response) => {
         setShowPopup(false);
-        setUsers(users.filter(user => user._id !== selectedUserId));
+        setUsers(users.filter((user) => user._id !== selectedUserId));
         alert(response.data.message);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error archiving user:", error);
         alert("Failed to archive user.");
       });
@@ -124,12 +127,16 @@ const Users = () => {
                 {users.map((user, index) => (
                   <tr key={user._id}>
                     <td>{index + 1}</td>
-                    <td>{user.firstname} {user.lastname}</td>
+                    <td>
+                      {user.firstname} {user.lastname}
+                    </td>
                     <td>{user.office}</td>
                     <td>{user.position}</td>
                     <td>
-                      <div className="view-user primarybtn">
-                        <button onClick={() => handlePopup(user._id)}>View</button>
+                      <div className="view-user">
+                        <button onClick={() => handlePopup(user._id)}>
+                          View
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -174,10 +181,15 @@ const Users = () => {
             </button>
             <div className="actionbtn">
               <div className="editbtn secondarybtn">
-                <button className="ed-btn" onClick={handleEditUser}>Edit</button> {/* Call handleEditUser on click */}
+                <button className="ed-btn" onClick={handleEditUser}>
+                  Edit
+                </button>{" "}
+                {/* Call handleEditUser on click */}
               </div>
               <div className="archivebtn secondarybtn">
-                <button className="arc-btn"onClick={archiveUser}>Archive</button>
+                <button className="arc-btn" onClick={archiveUser}>
+                  Archive
+                </button>
               </div>
             </div>
           </div>

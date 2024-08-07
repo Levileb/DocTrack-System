@@ -77,7 +77,7 @@ const Forwarded = () => {
                         <td>{val.receipient}</td>
                         {/* <td>{val.officeto}</td> */}
                         <td>
-                          <div className="viewbtn secondarybtn">
+                          <div className="viewbtn">
                             <button onClick={handlePopup}>View</button>
                           </div>
                         </td>

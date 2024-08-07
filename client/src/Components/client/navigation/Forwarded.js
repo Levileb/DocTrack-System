@@ -65,7 +65,7 @@ const Forwarded = () => {
                     <td>From</td>
                     {/* <td>Originating Office </td>  */}
                     <td>To</td>
-                     {/* <td>Destination Office</td>  */}
+                    {/* <td>Destination Office</td>  */}
                     <td>Action</td>
                   </tr>
                 </thead>
@@ -78,9 +78,9 @@ const Forwarded = () => {
                         <td>{val.sender}</td>
                         {/* <td>{val.officefrom}</td>  */}
                         <td>{val.receipient}</td>
-                         {/* <td>{val.officeto}</td>  */}
+                        {/* <td>{val.officeto}</td>  */}
                         <td>
-                          <div className="viewbtn secondarybtn">
+                          <div className="viewbtn">
                             <button onClick={handlePopup}>View</button>
                           </div>
                         </td>
@@ -142,8 +142,8 @@ const Forwarded = () => {
               <div className="archivebtn secondarybtn">
                 <Link to={"/forwarding-document"}>
                   <button className="forw-btn">Forward</button>
-                </Link>              </div>
-              
+                </Link>{" "}
+              </div>
             </div>
           </div>
         </div>
