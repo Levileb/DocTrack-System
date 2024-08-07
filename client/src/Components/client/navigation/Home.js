@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
@@ -8,6 +8,7 @@ import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { AiFillCloseCircle } from "react-icons/ai"; // Added printer icon
 import { RiMailSendLine } from "react-icons/ri";
+import { FaAngleDown } from "react-icons/fa6";
 import axios from "axios";
 import QrReader from "./QrReader";
 import qrCode from "qrcode";
@@ -20,6 +21,8 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [filteredDocs, setFilteredDocs] = useState([]); // State for filtered documents
   const [showPopup, setShowPopup] = useState(false); // Recently Added Popup
+  const [openDropdownIndex, setOpenDropdownIndex] = useState(null); // State to manage dropdowns
+  const dropdownRefs = useRef([]); // Array of refs for dropdowns
 
   useEffect(() => {
     fetchDocs();
@@ -36,6 +39,23 @@ const Home = () => {
     setFilteredDocs(filtered);
   }, [searchQuery, docs]);
 
+  useEffect(() => {
+    // Close the dropdown if clicked outside
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRefs.current &&
+        !dropdownRefs.current.some((ref) => ref && ref.contains(event.target))
+      ) {
+        setOpenDropdownIndex(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const fetchDocs = () => {
     axios
       .get("http://localhost:3001/api/docs")
@@ -51,6 +71,7 @@ const Home = () => {
   const handlePopup = (event, doc) => {
     event.preventDefault(); // Prevent default form submission behavior
     setSelectedDoc(doc); // Set the selected document
+    setOpenDropdownIndex(null); // Close the dropdown
   };
 
   const closePopup = () => {
@@ -185,6 +206,7 @@ const Home = () => {
       `);
       printWindow.document.close();
     });
+    setOpenDropdownIndex(null); // Close the dropdown
   };
 
   const qrButtonHandler = (event) => {
@@ -251,6 +273,10 @@ const Home = () => {
     }
   };
 
+  const toggleDropdown = (index) => {
+    setOpenDropdownIndex(openDropdownIndex === index ? null : index);
+  };
+
   return (
     <>
       <Header />
@@ -301,7 +327,6 @@ const Home = () => {
                     <td>From</td>
                     <td>To</td>
                     <td>Action</td>
-                    <td>Print</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -312,17 +337,40 @@ const Home = () => {
                       <td>{val.sender}</td>
                       <td>{val.recipient}</td>
                       <td>
-                        <div className="viewbtn secondarybtn">
-                          <button onClick={(e) => handlePopup(e, val)}>
-                            View
-                          </button>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="viewbtn secondarybtn">
-                          <button onClick={() => printDocument(val)}>
-                            <p>Print</p>
-                          </button>
+                        <div className="moreActions">
+                          <div
+                            className="dropdownBtn"
+                            ref={(el) => (dropdownRefs.current[key] = el)}
+                          >
+                            <button
+                              className="ddown-toggle"
+                              onClick={() => toggleDropdown(key)}
+                            >
+                              Options <FaAngleDown className="down-icon" />
+                            </button>
+                            {openDropdownIndex === key && (
+                              <div className="ddown-menu">
+                                <ul>
+                                  <li onClick={(e) => handlePopup(e, val)}>
+                                    View
+                                  </li>
+                                  <li onClick={() => printDocument(val)}>
+                                    Print
+                                  </li>
+
+                                  <li>
+                                    <Link
+                                      className="edit-link"
+                                      to={`/update-document/${val._id}`}
+                                      onClick={() => setOpenDropdownIndex(null)}
+                                    >
+                                      Edit
+                                    </Link>
+                                  </li>
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -374,11 +422,11 @@ const Home = () => {
               <AiFillCloseCircle className="closeicon" />
             </button>
             <div className="actionbtn">
-              <div className="archivebtn secondarybtn">
+              {/* <div className="archivebtn secondarybtn">
                 <Link to={`/update-document/${selectedDoc._id}`}>
                   <button className="edit-btn">Edit</button>
                 </Link>
-              </div>
+              </div> */}
               <div className="archivebtn secondarybtn">
                 <button className="ack-btn" onClick={handleAcknowledge}>
                   Receive
@@ -389,9 +437,9 @@ const Home = () => {
                   <button className="forw-btn">Forward</button>
                 </Link>
               </div>
-            </div>
-            <div className="completebtn">
-              <button className="ack-btn">Acknowledge Complete</button>
+              <div className="archivebtn secondarybtn">
+                <button className="comp-btn">Complete</button>
+              </div>
             </div>
           </div>
         </div>
