@@ -6,13 +6,17 @@ import { RiFolderReceivedLine, RiMailSendLine } from "react-icons/ri";
 import { FaRegShareFromSquare } from "react-icons/fa6";
 import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
-import axios from 'axios';
+import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
 
 const SidePanel = () => {
   const [collapsed, setCollapsed] = useState(true);
   const [arrowRotated, setArrowRotated] = useState(true);
-  const [userDetails, setUserDetails] = useState({ firstname: "", lastname: "", role: "" });
+  const [userDetails, setUserDetails] = useState({
+    firstname: "",
+    lastname: "",
+    role: "",
+  });
   const location = useLocation();
 
   useEffect(() => {
@@ -20,22 +24,23 @@ const SidePanel = () => {
   }, []);
 
   const fetchUserDetails = () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("Token is missing");
       return;
     }
 
-    axios.get('http://localhost:3001/api/user/details', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(response => {
+    axios
+      .get("http://localhost:3001/api/user/details", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
         setUserDetails(response.data);
         console.log("User details fetched:", response.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching user details:", error);
       });
   };
@@ -49,7 +54,7 @@ const SidePanel = () => {
     return location.pathname === path;
   };
 
-  const { firstname, role } = userDetails;
+  const { firstname, lastname, role } = userDetails;
 
   const handleLogout = () => {
     const confirmLogout = handlePopup;
@@ -91,6 +96,9 @@ const SidePanel = () => {
     );
   };
 
+  const firstLetter = firstname ? firstname.charAt(0).toUpperCase() : "";
+  const capitalizeRole = (role) => role.toUpperCase();
+
   return (
     <>
       <div
@@ -99,7 +107,10 @@ const SidePanel = () => {
       >
         <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
           <div className="user">
-            <img src={user} alt="user profile"></img>
+            {/* <img src={user} alt="user profile"></img> */}
+            <div className="user-acro">
+              <h1>{firstLetter}</h1>
+            </div>
             <div className="username">
               <ul>
                 <li
@@ -109,9 +120,11 @@ const SidePanel = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  {firstname}
+                  {firstname} {lastname}
                 </li>
-                <li>{role}</li>
+                <li>
+                  <small>{capitalizeRole(role)}</small>
+                </li>
               </ul>
             </div>
           </div>
@@ -188,7 +201,10 @@ const SidePanel = () => {
 
               {role === "admin" && (
                 <Link to="/view-user">
-                  <li onClick={scrollToTop} className={isActive("/view-user") ? "active" : ""}>
+                  <li
+                    onClick={scrollToTop}
+                    className={isActive("/view-user") ? "active" : ""}
+                  >
                     <Tooltip text={"View Users"}>
                       <LuUserSquare2 className="icon" />
                     </Tooltip>
