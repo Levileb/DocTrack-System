@@ -272,6 +272,18 @@ const Home = () => {
       console.error("Error acknowledging document:", error);
     }
   };
+  
+  const handleComplete = async () => {
+    try {
+      const response = await axios.post('http://localhost:3001/api/docs/complete', { docId: selectedDoc._id });
+      console.log('Document marked as completed', response.data);
+  
+      // Update the selectedDoc state with the updated status
+      setSelectedDoc({ ...selectedDoc, status: "Completed" });
+    } catch (error) {
+      console.error("Error completing document:", error);
+    }
+  };
 
   const toggleDropdown = (index) => {
     setOpenDropdownIndex(openDropdownIndex === index ? null : index);
@@ -438,7 +450,7 @@ const Home = () => {
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
-                <button className="comp-btn">Complete</button>
+              <button className="comp-btn" onClick={handleComplete}>Complete</button>
               </div>
             </div>
           </div>
