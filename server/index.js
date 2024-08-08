@@ -9,6 +9,7 @@ const DocModel = require('./models/Document');
 const OfficeModel = require('./models/Office');
 const ReceivingLogModel = require('./models/ReceivingLogs');
 const ForwardingLogModel = require('./models/ForwardingLogs');
+const CompletedLogModel = require('./models/CompletedLogs');
 
 
 const app = express();
@@ -304,6 +305,35 @@ app.post('/api/docs/log-forwarding', verifyUser, async (req, res) => {
     }
 });
 
+app.post('/api/docs/complete', verifyUser, async (req, res) => {
+    const { docId } = req.body;
+    const userId = req.user.id; // Get the userId from the request
+
+    try {
+        // Fetch the document's receiving and forwarding logs
+        const receivingLogs = await ReceivingLogModel.find({ docId });
+        const forwardingLogs = await ForwardingLogModel.find({ docId });
+
+        // Create a completed log
+        const completedLog = new CompletedLogModel({
+            docId,
+            userId, // Add the userId here
+            receivingLogs: receivingLogs.map(log => log._id),
+            forwardingLogs: forwardingLogs.map(log => log._id),
+        });
+
+        await completedLog.save();
+
+        // Update the document's status to "Completed"
+        await DocModel.findByIdAndUpdate(docId, { status: "Completed" });
+
+        res.json({ message: "Document marked as completed", completedLog });
+    } catch (error) {
+        console.error("Error completing document:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 
 app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
@@ -317,30 +347,43 @@ app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
 
         const receivingLogs = await ReceivingLogModel.find({ doc_id: document._id })
             .sort({ receivedAt: -1 })
-            .populate('user_id', 'firstname lastname') // Populate user details
-            .populate('doc_id', 'title'); // Populate document details
+            .populate('user_id', 'firstname lastname')
+            .populate('doc_id', 'title');
 
         const forwardingLogs = await ForwardingLogModel.find({ doc_id: document._id })
             .sort({ forwardedAt: -1 })
-            .populate('user_id', 'firstname lastname') // Populate user details
-            .populate('doc_id', 'title') // Populate document details
-            .populate('forwardedTo', 'firstname lastname'); // Populate forwardedTo user details
+            .populate('user_id', 'firstname lastname')
+            .populate('doc_id', 'title')
+            .populate('forwardedTo', 'firstname lastname');
+
+        const completedLog = await CompletedLogModel.findOne({ docId: document._id })
+            .populate('userId', 'firstname lastname')
+            .populate('docId', 'title');
+
+        if (!completedLog || !completedLog.userId) {
+            console.error('Completed log or userId not found:', completedLog);
+        }
 
         const trackingInfo = {
             codeNumber,
             status: document.status,
             documentTitle: document.title,
             receivingLogs: receivingLogs.map(log => ({
-                receivedBy: `${log.user_id.firstname} ${log.user_id.lastname}`,
+                receivedBy: log.user_id ? `${log.user_id.firstname} ${log.user_id.lastname}` : 'Unknown User',
                 receivedAt: log.receivedAt,
                 documentTitle: log.doc_id.title
             })),
             forwardingLogs: forwardingLogs.map(log => ({
-                forwardedBy: `${log.user_id.firstname} ${log.user_id.lastname}`,
-                forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`,
+                forwardedBy: log.user_id ? `${log.user_id.firstname} ${log.user_id.lastname}` : 'Unknown User',
+                forwardedTo: log.forwardedTo ? `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}` : 'Unknown User',
                 forwardedAt: log.forwardedAt,
                 documentTitle: log.doc_id.title
-            }))
+            })),
+            completedLog: completedLog ? {
+                completedBy: completedLog.userId ? `${completedLog.userId.firstname} ${completedLog.userId.lastname}` : 'Unknown User',
+                completedAt: completedLog.completedAt,
+                documentTitle: completedLog.docId.title
+            } : null
         };
 
         res.status(200).json(trackingInfo);
@@ -349,6 +392,10 @@ app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+
+
+
 
 
 

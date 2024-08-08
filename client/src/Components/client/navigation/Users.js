@@ -14,6 +14,7 @@ const Users = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [popupUserData, setPopupUserData] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,6 +72,16 @@ const Users = () => {
       });
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredUsers = users.filter((user) =>
+    `${user.firstname} ${user.lastname}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
       <Header />
@@ -105,6 +116,8 @@ const Users = () => {
                   type="text"
                   placeholder="Search.."
                   className="search-bar"
+                  value={searchTerm} // Bind searchTerm to input value
+                  onChange={handleSearchChange} // Handle input change
                 ></input>
               </div>
             </div>
@@ -124,7 +137,7 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, index) => (
+                {filteredUsers.map((user, index) => (
                   <tr key={user._id}>
                     <td>{index + 1}</td>
                     <td>
