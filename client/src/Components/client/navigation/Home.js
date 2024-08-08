@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
@@ -8,6 +8,7 @@ import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { AiFillCloseCircle } from "react-icons/ai"; // Added printer icon
 import { RiMailSendLine } from "react-icons/ri";
+import { FaAngleDown } from "react-icons/fa6";
 import axios from "axios";
 import QrReader from "./QrReader";
 import qrCode from "qrcode";
@@ -19,6 +20,9 @@ const Home = () => {
   const [showScanner, setShowScanner] = useState(false); // State for popup visibility
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [filteredDocs, setFilteredDocs] = useState([]); // State for filtered documents
+  const [showPopup, setShowPopup] = useState(false); // Recently Added Popup
+  const [openDropdownIndex, setOpenDropdownIndex] = useState(null); // State to manage dropdowns
+  const dropdownRefs = useRef([]); // Array of refs for dropdowns
 
   useEffect(() => {
     fetchDocs();
@@ -26,13 +30,31 @@ const Home = () => {
 
   useEffect(() => {
     // Filter documents based on search query
-    const filtered = docs.filter((doc) =>
-      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.recipient.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = docs.filter(
+      (doc) =>
+        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.recipient.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredDocs(filtered);
   }, [searchQuery, docs]);
+
+  useEffect(() => {
+    // Close the dropdown if clicked outside
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRefs.current &&
+        !dropdownRefs.current.some((ref) => ref && ref.contains(event.target))
+      ) {
+        setOpenDropdownIndex(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const fetchDocs = () => {
     axios
@@ -49,6 +71,7 @@ const Home = () => {
   const handlePopup = (event, doc) => {
     event.preventDefault(); // Prevent default form submission behavior
     setSelectedDoc(doc); // Set the selected document
+    setOpenDropdownIndex(null); // Close the dropdown
   };
 
   const closePopup = () => {
@@ -183,6 +206,7 @@ const Home = () => {
       `);
       printWindow.document.close();
     });
+    setOpenDropdownIndex(null); // Close the dropdown
   };
 
   const qrButtonHandler = (event) => {
@@ -233,15 +257,24 @@ const Home = () => {
 
   const handleAcknowledge = async () => {
     try {
-        // Update the document's status to "Received"
-        const response = await axios.post('http://localhost:3001/api/docs/update-received', { docId: selectedDoc._id });
-        console.log('Document status updated to "Received"', response.data);
+      // Update the document's status to "Received"
+      const response = await axios.post(
+        "http://localhost:3001/api/docs/update-received",
+        { docId: selectedDoc._id }
+      );
+      setShowPopup(true);
+      console.log('Document status updated to "Received"', response.data);
 
-        // Update the selectedDoc state with the updated status
-        setSelectedDoc({ ...selectedDoc, status: 'Received' });
+      // Update the selectedDoc state with the updated status
+      setSelectedDoc({ ...selectedDoc, status: "Received" });
+      setTimeout(() => setShowPopup(false), 1000);
     } catch (error) {
       console.error("Error acknowledging document:", error);
     }
+  };
+
+  const toggleDropdown = (index) => {
+    setOpenDropdownIndex(openDropdownIndex === index ? null : index);
   };
 
   return (
@@ -294,7 +327,6 @@ const Home = () => {
                     <td>From</td>
                     <td>To</td>
                     <td>Action</td>
-                    <td>Print</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -305,17 +337,40 @@ const Home = () => {
                       <td>{val.sender}</td>
                       <td>{val.recipient}</td>
                       <td>
-                        <div className="viewbtn secondarybtn">
-                          <button onClick={(e) => handlePopup(e, val)}>
-                            View
-                          </button>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="viewbtn secondarybtn">
-                          <button onClick={() => printDocument(val)}>
-                            <p>Print</p>
-                          </button>
+                        <div className="moreActions">
+                          <div
+                            className="dropdownBtn"
+                            ref={(el) => (dropdownRefs.current[key] = el)}
+                          >
+                            <button
+                              className="ddown-toggle"
+                              onClick={() => toggleDropdown(key)}
+                            >
+                              Options <FaAngleDown className="down-icon" />
+                            </button>
+                            {openDropdownIndex === key && (
+                              <div className="ddown-menu">
+                                <ul>
+                                  <li onClick={(e) => handlePopup(e, val)}>
+                                    View
+                                  </li>
+                                  <li onClick={() => printDocument(val)}>
+                                    Print
+                                  </li>
+
+                                  <li>
+                                    <Link
+                                      className="edit-link"
+                                      to={`/update-document/${val._id}`}
+                                      onClick={() => setOpenDropdownIndex(null)}
+                                    >
+                                      Edit
+                                    </Link>
+                                  </li>
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -367,11 +422,11 @@ const Home = () => {
               <AiFillCloseCircle className="closeicon" />
             </button>
             <div className="actionbtn">
-              <div className="archivebtn secondarybtn">
+              {/* <div className="archivebtn secondarybtn">
                 <Link to={`/update-document/${selectedDoc._id}`}>
                   <button className="edit-btn">Edit</button>
                 </Link>
-              </div>
+              </div> */}
               <div className="archivebtn secondarybtn">
                 <button className="ack-btn" onClick={handleAcknowledge}>
                   Receive
@@ -382,19 +437,30 @@ const Home = () => {
                   <button className="forw-btn">Forward</button>
                 </Link>
               </div>
+              <div className="archivebtn secondarybtn">
+                <button className="comp-btn">Complete</button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-{showScanner && (
-  <div className="popup-container qr" onClick={closeScanner}>
-    <div className="popup qrscanner">
-      <QrReader onClose={closeScanner} onScan={handleScan} /> {/* Pass onScan prop */}
-    </div>
-  </div>
-)}
+      {showScanner && (
+        <div className="popup-container qr" onClick={closeScanner}>
+          <div className="popup qrscanner">
+            <QrReader onClose={closeScanner} onScan={handleScan} />{" "}
+            {/* Pass onScan prop */}
+          </div>
+        </div>
+      )}
 
+      {showPopup && (
+        <div className="popup-container">
+          <div className="popup-received">
+            <p>Document Received!</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const Forwarding = () => {
   const { docId } = useParams();
@@ -62,7 +62,9 @@ const Forwarding = () => {
     if (docId) {
       const fetchDocument = async () => {
         try {
-          const docResponse = await axios.get(`http://localhost:3001/api/docs/${docId}`);
+          const docResponse = await axios.get(
+            `http://localhost:3001/api/docs/${docId}`
+          );
           setFormData((prevFormData) => ({
             ...prevFormData,
             title: docResponse.data.title,
@@ -102,25 +104,26 @@ const Forwarding = () => {
     setShowPopup(true);
 
     try {
-      await axios.post('http://localhost:3001/api/docs/log-forwarding', {
-          docId: docId,
-          forwardedTo: selectedEmployee
+      await axios.post("http://localhost:3001/api/docs/log-forwarding", {
+        docId: docId,
+        forwardedTo: selectedEmployee,
       });
-      await axios.post('http://localhost:3001/api/docs/update-status', {
-          docId: docId,
-          status: 'Forwarded' // Pass the new status here
+      await axios.post("http://localhost:3001/api/docs/update-status", {
+        docId: docId,
+        status: "Forwarded", // Pass the new status here
       });
       // Handle success message and clear form
-  } catch (error) {
+    } catch (error) {
       console.error("Error forwarding document:", error);
       // Handle error message
-  }
-  
+    }
+
     handleClearForm2();
     setTimeout(() => setShowPopup(false), 1000);
   };
 
-  const handleEmployeeSelect = (event) => setSelectedEmployee(event.target.value);
+  const handleEmployeeSelect = (event) =>
+    setSelectedEmployee(event.target.value);
 
   const handleOfficeSelect = (event) => setSelectedOffice(event.target.value);
 
@@ -172,8 +175,10 @@ const Forwarding = () => {
                     value={selectedEmployee}
                     onChange={handleEmployeeSelect}
                   >
-                    <option value="" disabled>Select Employee</option>
-                    {users.map(user => (
+                    <option value="" disabled>
+                      Select Employee
+                    </option>
+                    {users.map((user) => (
                       <option key={user._id} value={user._id}>
                         {`${user.firstname} ${user.lastname}`}
                       </option>
@@ -190,8 +195,10 @@ const Forwarding = () => {
                     value={selectedOffice}
                     onChange={handleOfficeSelect}
                   >
-                    <option value="" disabled>Select Office</option>
-                    {offices.map(office => (
+                    <option value="" disabled>
+                      Select Office
+                    </option>
+                    {offices.map((office) => (
                       <option key={office._id} value={office._id}>
                         {office.office}
                       </option>
@@ -218,7 +225,7 @@ const Forwarding = () => {
 
       {showPopup && (
         <div className="popup-container">
-          <div className="popup">
+          <div className="popup forwarding">
             <p>Forwarded Successfully!</p>
           </div>
         </div>

@@ -77,7 +77,7 @@ const Forwarded = () => {
                         <td>{val.receipient}</td>
                         {/* <td>{val.officeto}</td> */}
                         <td>
-                          <div className="viewbtn secondarybtn">
+                          <div className="viewbtn">
                             <button onClick={handlePopup}>View</button>
                           </div>
                         </td>
@@ -95,7 +95,7 @@ const Forwarded = () => {
 
       {showPopup && (
         <div className="popup-container">
-          <div className="popup">
+          <div className="popup comp">
             <p>User Information</p>
             {data.map((val) => {
               return (
