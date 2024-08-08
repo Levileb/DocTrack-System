@@ -14,7 +14,26 @@ const Tracking = () => {
       const response = await axios.get(
         `http://localhost:3001/api/docs/tracking-info/${searchTerm}`
       );
-      setTrackingInfo(response.data);
+      const data = response.data;
+
+      // Ensure receivingLogs and forwardingLogs are arrays
+      const receivingLogs = Array.isArray(data.receivingLogs) ? data.receivingLogs : [];
+      const forwardingLogs = Array.isArray(data.forwardingLogs) ? data.forwardingLogs : [];
+
+      // Combine receiving and forwarding logs into a single array
+      const combinedLogs = [
+        ...receivingLogs.map(log => ({ ...log, type: 'receiving' })),
+        ...forwardingLogs.map(log => ({ ...log, type: 'forwarding' }))
+      ];
+
+      // Sort combined logs by their respective timestamps
+      combinedLogs.sort((a, b) => {
+        const timeA = a.receivedAt || a.forwardedAt;
+        const timeB = b.receivedAt || b.forwardedAt;
+        return new Date(timeA) - new Date(timeB);
+      });
+
+      setTrackingInfo({ ...data, combinedLogs });
     } catch (error) {
       console.error("Error fetching tracking information:", error);
       setTrackingInfo(null);
@@ -64,7 +83,7 @@ const Tracking = () => {
 
                   <div className="tracking-history">
                     <div className="timeline">
-                      {[...trackingInfo.receivingLogs, ...trackingInfo.forwardingLogs].map((log, index) => (
+                      {trackingInfo.combinedLogs.map((log, index) => (
                         <div
                           key={index}
                           className={`track-container ${
@@ -72,7 +91,7 @@ const Tracking = () => {
                           }`}
                         >
                           <div className="track-content">
-                            {log.receivedAt ? (
+                            {log.type === 'receiving' ? (
                               <>
                                 <p>Received At: {new Date(log.receivedAt).toLocaleString()}</p>
                                 <p>Received By: {log.receivedBy}</p>
