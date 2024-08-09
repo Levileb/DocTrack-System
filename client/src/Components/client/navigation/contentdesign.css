@@ -201,6 +201,9 @@ td {
   background: #aebed0;
   cursor: pointer;
 }
+.popup .archivebtn .ack-btn:hover {
+  background: #93a0b0;
+}
 .popup .archivebtn .forw-btn {
   width: 70px;
   font-size: 13px;
@@ -208,6 +211,9 @@ td {
   /* background: #c18907; */
   background: #aebed0;
   cursor: pointer;
+}
+.popup .archivebtn .forw-btn:hover {
+  background: #93a0b0;
 }
 .popup .archivebtn .edit-btn {
   width: 70px;
@@ -223,6 +229,9 @@ td {
   /* background: #006005; */
   background: #aebed0;
   cursor: pointer;
+}
+.popup .archivebtn .comp-btn:hover {
+  background: #93a0b0;
 }
 .popup.savesuccess {
   display: flex;
