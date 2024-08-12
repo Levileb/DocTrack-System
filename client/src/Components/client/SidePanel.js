@@ -202,6 +202,19 @@ const SidePanel = () => {
               </Link>
 
               {role === "admin" && (
+                <Link to="/internal-logs">
+                  <li
+                    onClick={scrollToTop}
+                    className={isActive("/internal-logs") ? "active" : ""}
+                  >
+                    <Tooltip text={"Internal Logs"}>
+                      <GrDocumentTime className="icon" />
+                    </Tooltip>
+                    <p href="/view-user">Internal Logs</p>
+                  </li>
+                </Link>
+              )}
+              {role === "admin" && (
                 <Link to="/view-user">
                   <li
                     onClick={scrollToTop}

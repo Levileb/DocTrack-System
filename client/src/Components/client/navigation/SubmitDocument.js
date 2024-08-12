@@ -32,6 +32,7 @@ const SubmitDocument = () => {
   const [codeNumber, setCodeNumber] = useState("");
   const [users, setUsers] = useState([]);
   const [offices, setOffices] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     fetchUserDetails();
@@ -106,8 +107,11 @@ const SubmitDocument = () => {
     axios
       .post("http://localhost:3001/submit-document", updatedFormData)
       .then((res) => {
-        window.alert("Document successfully submitted!");
-        setShowQR(true);
+        setShowPopup(true);
+        setTimeout(() => {
+          setShowPopup(false);
+          setShowQR(true);
+        }, 1300);
       })
       .catch((err) => console.log(err));
   };
@@ -120,6 +124,17 @@ const SubmitDocument = () => {
   const parseDate = (dateString) => {
     const [year, month, day] = dateString.split("-");
     return new Date(year, month - 1, day);
+  };
+
+  const handleClear = () => {
+    setFormData({
+      date: getCurrentDate(),
+      title: "",
+      sender: formData.sender,
+      originating: formData.originating,
+      recipient: "",
+      destination: "",
+    });
   };
 
   const printQR = () => {
@@ -233,7 +248,7 @@ const SubmitDocument = () => {
   return (
     <>
       <Header />
-      <SidePanel/>
+      <SidePanel />
       <div className="MainPanel">
         <div className="PanelWrapper">
           <div className="AddUserHeader">
@@ -300,23 +315,22 @@ const SubmitDocument = () => {
                   </select>
                 </div>
                 <p>Destination Office:</p>
-<div className="input-new">
-  <select
-    id="destination" // Make sure this matches the key in the state
-    value={formData.destination}
-    onChange={handleInputChange}
-  >
-    <option value="" disabled>
-      Select Office
-    </option>
-    {offices.map((officeItem, index) => (
-      <option key={index} value={officeItem.office}>
-        {officeItem.office}
-      </option>
-    ))}
-  </select>
-  
-</div>
+                <div className="input-new">
+                  <select
+                    id="destination" // Make sure this matches the key in the state
+                    value={formData.destination}
+                    onChange={handleInputChange}
+                  >
+                    <option value="" disabled>
+                      Select Office
+                    </option>
+                    {offices.map((officeItem, index) => (
+                      <option key={index} value={officeItem.office}>
+                        {officeItem.office}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <p>Remarks:</p>
                 <div className="input-new">
                   <input
@@ -327,7 +341,6 @@ const SubmitDocument = () => {
                     required
                   />
                 </div>
-
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">
@@ -356,28 +369,69 @@ const SubmitDocument = () => {
           </div>
         </div>
       </div>
+      <SidePanel />
+      <Footer />
       {showQR && (
-        <div className="popup">
-          <div className="popup-content">
-            <QRCode
-              id="qrCode"
-              value={`https://your-website.com/track/${codeNumber}`}
-              size={290}
-              level={"H"}
-              includeMargin={true}
-            />
-            <p id="codeNum">{codeNumber}</p>
-            <button className="closeButton" onClick={() => setShowQR(false)}>
-              <AiFillCloseCircle />
-            </button>
-            <button className="printButton" onClick={printQR}>
-              Print QR
+        <div className="popup-container submitdocs">
+          <div className="popupsubmitting">
+            <p>Document Information</p>
+            <div className="infoToPrint" id="divToPrint">
+              <ul className="view-userinfo sd">
+                <li>
+                  Date: <strong>{formData.date.toLocaleDateString()}</strong>
+                </li>
+                <li>
+                  Title: <strong>{formData.title}</strong>
+                </li>
+                <li>
+                  Sender: <strong>{formData.sender}</strong>
+                </li>
+                <li>
+                  Originating Office: <strong>{formData.originating}</strong>
+                </li>
+                <li>
+                  Recipient: <strong>{formData.recipient}</strong>
+                </li>
+                <li>
+                  Destination Office: <strong>{formData.destination}</strong>
+                </li>
+              </ul>
+            </div>
+            <div className="qrCodeImage">
+              <label>
+                <small>QR Code:</small>
+              </label>
+              <QRCode id="qrCode" value={JSON.stringify(formData)} />
+              <br />
+              <label id="codeNum">
+                <small>Code Number: {codeNumber}</small>
+              </label>
+            </div>
+            <div className="actionbtn primarybtn">
+              <button className="printbtn" onClick={printQR}>
+                Print
+              </button>
+            </div>
+            <button
+              className="closebtn"
+              onClick={() => {
+                setShowQR(false);
+                handleClear();
+              }}
+            >
+              <AiFillCloseCircle className="closeicon" />
             </button>
           </div>
         </div>
       )}
-      <SidePanel />
-      <Footer />
+
+      {showPopup && (
+        <div className="popup-container">
+          <div className="popup submitting">
+            <p>Document Submitted Successfully.</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
