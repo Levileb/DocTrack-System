@@ -25,6 +25,7 @@ const SubmitDocument = () => {
     originating: "",
     recipient: "",
     destination: "",
+    remarks: "",
   });
 
   const [showQR, setShowQR] = useState(false);
@@ -314,7 +315,18 @@ const SubmitDocument = () => {
       </option>
     ))}
   </select>
+  
 </div>
+                <p>Remarks:</p>
+                <div className="input-new">
+                  <input
+                    type="text"
+                    id="remarks"
+                    value={formData.remarks}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
 
               </div>
               <div className="adduserbuttons">
@@ -329,6 +341,7 @@ const SubmitDocument = () => {
                         originating: formData.originating,
                         recipient: "",
                         destination: "",
+                        remarks: "",
                       })
                     }
                   >

@@ -9,6 +9,7 @@ const DocSchema = new mongoose.Schema({
     destination: String,
     qrCode: String, // Add field for storing QR code data or URL
     codeNumber: String, // Add field for storing the code number
+    remarks: String,
     status: {
         type: String,
         enum: ['Created', 'Received', 'Forwarded', 'Completed'],

@@ -98,6 +98,7 @@ const Tracking = () => {
                                 <p>Received At: {new Date(log.receivedAt).toLocaleString()}</p>
                                 <p>Received By: {log.receivedBy}</p>
                                 <p>Document Title: {log.documentTitle}</p>
+                                <p className="remarks">Remarks: {log.remarks}</p> {/* Apply the CSS class here */}
                               </>
                             ) : log.type === 'forwarding' ? (
                               <>
@@ -105,12 +106,14 @@ const Tracking = () => {
                                 <p>Forwarded By: {log.forwardedBy}</p>
                                 <p>Forwarded To: {log.forwardedTo}</p>
                                 <p>Document Title: {log.documentTitle}</p>
+                                <p className="remarks">Remarks: {log.remarks}</p> {/* Apply the CSS class here */}
                               </>
                             ) : (
                               <>
                                 <p>Completed At: {new Date(log.completedAt).toLocaleString()}</p>
                                 <p>Completed By: {log.completedBy}</p>
                                 <p>Document Title: {log.documentTitle}</p>
+                                <p className="remarks">Remarks: {log.remarks}</p> {/* Apply the CSS class here */}
                               </>
                             )}
                           </div>

@@ -19,7 +19,8 @@ const ForwardingLogSchema = new mongoose.Schema({
     forwardedAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    remarks: String
 });
 
 const ForwardingLogModel = mongoose.model('ForwardingLog', ForwardingLogSchema);

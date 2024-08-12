@@ -5,7 +5,8 @@ const CompletedLogSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
  // receivingLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ReceivingLog' }],
 //forwardingLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ForwardingLog' }],
-  completedAt: { type: Date, default: Date.now }
+  completedAt: { type: Date, default: Date.now },
+  remarks: String
 });
 
 const CompletedLogModel = mongoose.model('CompletedLog', CompletedLogSchema);

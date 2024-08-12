@@ -247,14 +247,16 @@ app.get('/api/receivingLogs', verifyUser, async (req, res) => {
 });
 
 
-  app.post('/api/docs/log-receipt', verifyUser, async (req, res) => {
+  // Add this to your backend routes
+app.post('/api/docs/log-receipt', verifyUser, async (req, res) => {
     try {
-        const { docId } = req.body;
+        const { docId, remarks } = req.body;
         const userId = req.user.id;
 
         const newLog = await ReceivingLogModel.create({
             user_id: userId,
             doc_id: docId,
+            remarks: remarks,
             receivedAt: new Date()
         });
 
@@ -268,35 +270,28 @@ app.get('/api/receivingLogs', verifyUser, async (req, res) => {
 app.post('/api/docs/update-received', verifyUser, async (req, res) => {
     try {
         const { docId } = req.body;
-        const userId = req.user.id;
-
         await DocModel.findByIdAndUpdate(docId, { status: 'Received' });
 
-        const newLog = await ReceivingLogModel.create({
-            user_id: userId,
-            doc_id: docId,
-            receivedAt: new Date()
-        });
-
-        res.status(200).json({ message: 'Document status updated to "Received" and receipt logged successfully.', log: newLog });
+        res.status(200).json({ message: 'Document status updated to "Received" successfully.' });
     } catch (error) {
-        console.error('Error updating document status to "Received" and logging receipt:', error);
+        console.error('Error updating document status:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
-// Add this to your backend routes
+
 app.post('/api/docs/log-forwarding', verifyUser, async (req, res) => {
     try {
-        const { docId, forwardedTo } = req.body;
+        console.log(req.body); // Add this line to log the request body
+        const { docId, forwardedTo, remarks } = req.body;
         const userId = req.user.id;
         const newLog = await ForwardingLogModel.create({
             user_id: userId,
             doc_id: docId,
             forwardedTo: forwardedTo,
+            remarks: remarks,
             forwardedAt: new Date()
         });
-        // Update the document's status to "Forwarded"
         await DocModel.findByIdAndUpdate(docId, { status: 'Forwarded' });
         res.status(201).json({ message: 'Forwarding log created and document status updated successfully.', log: newLog });
     } catch (error) {
@@ -305,38 +300,38 @@ app.post('/api/docs/log-forwarding', verifyUser, async (req, res) => {
     }
 });
 
+
 app.post('/api/docs/complete', verifyUser, async (req, res) => {
-    const { docId } = req.body;
-    const userId = req.user.id; // Get the userId from the request
-
+    const { docId, remarks } = req.body; // Include remarks in the request body
+    const userId = req.user.id;
+  
     try {
-        // Fetch the document's receiving and forwarding logs
-        const receivingLogs = await ReceivingLogModel.find({ docId });
-        const forwardingLogs = await ForwardingLogModel.find({ docId });
-
-        // Create a completed log
-        const completedLog = new CompletedLogModel({
-            docId,
-            userId, // Add the userId here
-            receivingLogs: receivingLogs.map(log => log._id),
-            forwardingLogs: forwardingLogs.map(log => log._id),
-        });
-
-        await completedLog.save();
-
-        // Update the document's status to "Completed"
-        await DocModel.findByIdAndUpdate(docId, { status: "Completed" });
-
-        res.json({ message: "Document marked as completed", completedLog });
+      // Fetch the document's receiving and forwarding logs
+      const receivingLogs = await ReceivingLogModel.find({ doc_id: docId });
+      const forwardingLogs = await ForwardingLogModel.find({ doc_id: docId });
+  
+      // Create a completed log
+      const completedLog = new CompletedLogModel({
+        docId,
+        userId,
+        receivingLogs: receivingLogs.map(log => log._id),
+        forwardingLogs: forwardingLogs.map(log => log._id),
+        remarks: remarks, // Include remarks in the completed log
+      });
+  
+      await completedLog.save();
+  
+      // Update the document's status to "Completed"
+      await DocModel.findByIdAndUpdate(docId, { status: "Completed" });
+  
+      res.json({ message: "Document marked as completed", completedLog });
     } catch (error) {
-        console.error("Error completing document:", error);
-        res.status(500).json({ error: "Internal server error" });
+      console.error("Error completing document:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-});
-
-
-
-app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
+  });
+  
+  app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
     try {
         const { codeNumber } = req.params;
 
@@ -348,17 +343,20 @@ app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
         const receivingLogs = await ReceivingLogModel.find({ doc_id: document._id })
             .sort({ receivedAt: -1 })
             .populate('user_id', 'firstname lastname')
-            .populate('doc_id', 'title');
+            .populate('doc_id', 'title')
+            .select('user_id doc_id receivedAt remarks'); // Add remarks field
 
         const forwardingLogs = await ForwardingLogModel.find({ doc_id: document._id })
             .sort({ forwardedAt: -1 })
             .populate('user_id', 'firstname lastname')
             .populate('doc_id', 'title')
-            .populate('forwardedTo', 'firstname lastname');
+            .populate('forwardedTo', 'firstname lastname')
+            .select('user_id doc_id forwardedTo forwardedAt remarks'); // Add remarks field
 
         const completedLog = await CompletedLogModel.findOne({ docId: document._id })
             .populate('userId', 'firstname lastname')
-            .populate('docId', 'title');
+            .populate('docId', 'title')
+            .select('userId docId completedAt remarks'); // Add remarks field
 
         if (!completedLog || !completedLog.userId) {
             console.error('Completed log or userId not found:', completedLog);
@@ -371,18 +369,21 @@ app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
             receivingLogs: receivingLogs.map(log => ({
                 receivedBy: log.user_id ? `${log.user_id.firstname} ${log.user_id.lastname}` : 'Unknown User',
                 receivedAt: log.receivedAt,
-                documentTitle: log.doc_id.title
+                documentTitle: log.doc_id.title,
+                remarks: log.remarks // Add remarks here
             })),
             forwardingLogs: forwardingLogs.map(log => ({
                 forwardedBy: log.user_id ? `${log.user_id.firstname} ${log.user_id.lastname}` : 'Unknown User',
                 forwardedTo: log.forwardedTo ? `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}` : 'Unknown User',
                 forwardedAt: log.forwardedAt,
-                documentTitle: log.doc_id.title
+                documentTitle: log.doc_id.title,
+                remarks: log.remarks // Add remarks here
             })),
             completedLog: completedLog ? {
                 completedBy: completedLog.userId ? `${completedLog.userId.firstname} ${completedLog.userId.lastname}` : 'Unknown User',
                 completedAt: completedLog.completedAt,
-                documentTitle: completedLog.docId.title
+                documentTitle: completedLog.docId.title,
+                remarks: completedLog.remarks // Add remarks here
             } : null
         };
 
@@ -393,22 +394,16 @@ app.get('/api/docs/tracking-info/:codeNumber', async (req, res) => {
     }
 });
 
-
-
-
-
-
-
   
 
 app.post('/submit-document', (req, res) => {
-    const { title, sender, originating, recipient, destination, date, qrCode, codeNumber } = req.body;
+    const { title, sender, originating, recipient, destination, date, qrCode, codeNumber,remarks } = req.body;
 
     // Convert the date string to a Date object
     const formattedDate = new Date(date);
 
     // Create a new document using the DocModel
-    DocModel.create({ title, sender, originating, recipient, destination, date: formattedDate, qrCode, codeNumber })
+    DocModel.create({ title, sender, originating, recipient, destination, date: formattedDate, qrCode, codeNumber, remarks })
         .then(document => res.json("Success"))
         .catch(err => res.json(err));
 });

@@ -5,7 +5,7 @@ import Header from "../Header";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
-const Forwarding = () => {
+const Receiving = () => {
   const { docId } = useParams();
 
   const getCurrentDateTime = () => {
@@ -37,27 +37,7 @@ const Forwarding = () => {
     remarks: "",
   });
 
-  const [users, setUsers] = useState([]);
-  const [offices, setOffices] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState("");
-  const [selectedOffice, setSelectedOffice] = useState("");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userResponse = await axios.get("http://localhost:3001/view-user");
-        setUsers(userResponse.data);
-
-        const officeResponse = await axios.get("http://localhost:3001/offices");
-        setOffices(officeResponse.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   useEffect(() => {
     if (docId) {
@@ -69,6 +49,8 @@ const Forwarding = () => {
           setFormData((prevFormData) => ({
             ...prevFormData,
             title: docResponse.data.title,
+            sender: docResponse.data.sender,
+            orgOffice: docResponse.data.originating,
           }));
         } catch (error) {
           console.error("Error fetching document:", error);
@@ -91,45 +73,35 @@ const Forwarding = () => {
     setFormData({
       date: getCurrentDateTime(),
       title: formData.title,
-      sender: "",
-      orgOffice: "",
+      sender: formData.sender,
+      orgOffice: formData.orgOffice,
       recipient: "",
       desOffice: "",
       remarks: "",
     });
-    setSelectedEmployee("");
-    setSelectedOffice("");
   };
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
     setShowPopup(true);
-  
+
     try {
-      await axios.post("http://localhost:3001/api/docs/log-forwarding", {
+      await axios.post("http://localhost:3001/api/docs/log-receipt", {
         docId: docId,
-        forwardedTo: selectedEmployee,
         remarks: formData.remarks,
       });
-      await axios.post("http://localhost:3001/api/docs/update-status", {
+      await axios.post("http://localhost:3001/api/docs/update-received", {
         docId: docId,
-        status: "Forwarded",
       });
       // Handle success message and clear form
     } catch (error) {
-      console.error("Error forwarding document:", error);
+      console.error("Error receiving document:", error);
       // Handle error message
     }
-  
+
     handleClearForm2();
     setTimeout(() => setShowPopup(false), 1000);
   };
-  
-
-  const handleEmployeeSelect = (event) =>
-    setSelectedEmployee(event.target.value);
-
-  const handleOfficeSelect = (event) => setSelectedOffice(event.target.value);
 
   return (
     <>
@@ -138,7 +110,7 @@ const Forwarding = () => {
         <div className="PanelWrapper">
           <div className="PanelHeader">
             <div className="filter">
-              <p>Forwarding</p>
+              <p>Receiving</p>
             </div>
           </div>
           <div className="contents">
@@ -170,45 +142,32 @@ const Forwarding = () => {
                   />
                 </div>
 
-                <p>Recipient:</p>
+                <p>Sender:</p>
                 <div className="input-new">
-                  <select
-                    id="recipient"
-                    className="input-field"
+                  <input
+                    type="text"
+                    id="sender"
+                    value={formData.sender}
+                    onChange={handleInputChange}
+                    autoComplete="off"
+                    readOnly
                     required
-                    value={selectedEmployee}
-                    onChange={handleEmployeeSelect}
-                  >
-                    <option value="" disabled>
-                      Select Employee
-                    </option>
-                    {users.map((user) => (
-                      <option key={user._id} value={user._id}>
-                        {`${user.firstname} ${user.lastname}`}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
-                <p>Designated Office:</p>
+                <p>Originating Office:</p>
                 <div className="input-new">
-                  <select
-                    id="desOffice"
-                    className="input-field"
+                  <input
+                    type="text"
+                    id="orgOffice"
+                    value={formData.orgOffice}
+                    onChange={handleInputChange}
+                    autoComplete="off"
+                    readOnly
                     required
-                    value={selectedOffice}
-                    onChange={handleOfficeSelect}
-                  >
-                    <option value="" disabled>
-                      Select Office
-                    </option>
-                    {offices.map((office) => (
-                      <option key={office._id} value={office._id}>
-                        {office.office}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
+
                 <p>Remarks:</p>
                 <div className="input-new">
                   <input
@@ -228,7 +187,7 @@ const Forwarding = () => {
                   </button>
                 </div>
                 <div className="ForwardBtn primarybtn">
-                  <button type="submit">Forward</button>
+                  <button type="submit">Receive</button>
                 </div>
               </div>
             </form>
@@ -241,7 +200,7 @@ const Forwarding = () => {
       {showPopup && (
         <div className="popup-container">
           <div className="popup forwarding">
-            <p>Forwarded Successfully!</p>
+            <p>Received Successfully!</p>
           </div>
         </div>
       )}
@@ -249,4 +208,4 @@ const Forwarding = () => {
   );
 };
 
-export default Forwarding;
+export default Receiving;

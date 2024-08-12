@@ -14,7 +14,8 @@ const ReceivingLogSchema = new mongoose.Schema({
     receivedAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    remarks: String
 });
 
 const ReceivingLogModel = mongoose.model("ReceivingLog", ReceivingLogSchema);
