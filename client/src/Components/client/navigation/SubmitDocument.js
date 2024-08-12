@@ -73,9 +73,21 @@ const SubmitDocument = () => {
 
   const handleInputChange = (event) => {
     const { id, value } = event.target;
+    let destination = formData.destination;
+
+    if (id === "recipient") {
+      const selectedUser = users.find(
+        (user) => `${user.firstname} ${user.lastname}` === value
+      );
+      if (selectedUser) {
+        destination = selectedUser.office;
+      }
+    }
+
     setFormData((prevFormData) => ({
       ...prevFormData,
       [id]: value,
+      destination: id === "recipient" ? destination : prevFormData.destination,
     }));
   };
 
@@ -220,6 +232,7 @@ const SubmitDocument = () => {
   return (
     <>
       <Header />
+      <SidePanel/>
       <div className="MainPanel">
         <div className="PanelWrapper">
           <div className="AddUserHeader">
@@ -286,23 +299,23 @@ const SubmitDocument = () => {
                   </select>
                 </div>
                 <p>Destination Office:</p>
-                <div className="input-new">
-                  <select
-                    id="destination" // Make sure this matches the key in the state
-                    required
-                    value={formData.destination}
-                    onChange={handleInputChange}
-                  >
-                    <option value="" disabled>
-                      Select Office
-                    </option>
-                    {offices.map((officeItem, index) => (
-                      <option key={index} value={officeItem.office}>
-                        {officeItem.office}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+<div className="input-new">
+  <select
+    id="destination" // Make sure this matches the key in the state
+    value={formData.destination}
+    onChange={handleInputChange}
+  >
+    <option value="" disabled>
+      Select Office
+    </option>
+    {offices.map((officeItem, index) => (
+      <option key={index} value={officeItem.office}>
+        {officeItem.office}
+      </option>
+    ))}
+  </select>
+</div>
+
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">
@@ -330,55 +343,28 @@ const SubmitDocument = () => {
           </div>
         </div>
       </div>
-      <SidePanel />
-      <Footer />
       {showQR && (
-        <div className="popup-container submitdocs">
-          <div className="popupsubmitting">
-            <p>Document Information</p>
-            <div className="infoToPrint" id="divToPrint">
-              <ul className="view-userinfo sd">
-                <li>
-                  Date: <strong>{formData.date.toLocaleDateString()}</strong>
-                </li>
-                <li>
-                  Title: <strong>{formData.title}</strong>
-                </li>
-                <li>
-                  Sender: <strong>{formData.sender}</strong>
-                </li>
-                <li>
-                  Originating Office: <strong>{formData.originating}</strong>
-                </li>
-                <li>
-                  Recipient: <strong>{formData.recipient}</strong>
-                </li>
-                <li>
-                  Destination Office: <strong>{formData.destination}</strong>
-                </li>
-              </ul>
-            </div>
-            <div className="qrCodeImage">
-              <label>
-                <small>QR Code:</small>
-              </label>
-              <QRCode id="qrCode" value={JSON.stringify(formData)} />
-              <br />
-              <label id="codeNum">
-                <small>Code Number: {codeNumber}</small>
-              </label>
-            </div>
-            <div className="actionbtn primarybtn">
-              <button className="printbtn" onClick={printQR}>
-                Print
-              </button>
-            </div>
-            <button className="closebtn" onClick={() => setShowQR(false)}>
-              <AiFillCloseCircle className="closeicon" />
+        <div className="popup">
+          <div className="popup-content">
+            <QRCode
+              id="qrCode"
+              value={`https://your-website.com/track/${codeNumber}`}
+              size={290}
+              level={"H"}
+              includeMargin={true}
+            />
+            <p id="codeNum">{codeNumber}</p>
+            <button className="closeButton" onClick={() => setShowQR(false)}>
+              <AiFillCloseCircle />
+            </button>
+            <button className="printButton" onClick={printQR}>
+              Print QR
             </button>
           </div>
         </div>
       )}
+      <SidePanel />
+      <Footer />
     </>
   );
 };
