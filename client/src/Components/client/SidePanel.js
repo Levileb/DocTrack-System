@@ -145,7 +145,9 @@ const SidePanel = () => {
 
               <Link onClick={scrollToTop} to="/track-document">
                 <li className={isActive("/track-document") ? "active" : ""}>
-                  <MdOutlineContentPasteSearch className="icon" />
+                  <Tooltip text={"Track Document"}>
+                    <MdOutlineContentPasteSearch className="icon" />
+                  </Tooltip>
                   <p>Track Document</p>
                 </li>
               </Link>
@@ -163,29 +165,29 @@ const SidePanel = () => {
                 </li>
               </Link>
 
-              <Link to="/received">
+              <Link to="/incoming">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/received") ? "active" : ""}
+                  className={isActive("/incoming") ? "active" : ""}
                 >
-                  <Tooltip text={"Received"}>
+                  <Tooltip text={"Incoming"}>
                     <RiFolderReceivedLine className="icon" />
                   </Tooltip>
 
-                  <p href="/received">Received</p>
+                  <p href="/incoming">Incoming</p>
                 </li>
               </Link>
 
-              <Link to="/forwarded">
+              <Link to="/outgoing">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/forwarded") ? "active" : ""}
+                  className={isActive("/outgoing") ? "active" : ""}
                 >
-                  <Tooltip text={"Forwarded"}>
+                  <Tooltip text={"Outgoing"}>
                     <FaRegShareFromSquare className="icon" />
                   </Tooltip>
 
-                  <p href="/forwarded">Forwarded</p>
+                  <p href="/outgoing">Outgoing</p>
                 </li>
               </Link>
 
@@ -240,12 +242,14 @@ const SidePanel = () => {
             </button>
 
             <div className="yesnobtns">
-              <div className=" primarybtn" onClick={closePopup}>
-                <button>No</button>
+              <div className="primarybtn" onClick={closePopup}>
+                <button class="no-button" autoFocus>
+                  No
+                </button>
               </div>
 
               <div className="primarybtn" onClick={handleLogout}>
-                <button>Yes</button>
+                <button class="yes-button">Yes</button>
               </div>
             </div>
           </div>

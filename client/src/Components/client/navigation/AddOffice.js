@@ -4,6 +4,8 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { RiArrowGoBackFill } from "react-icons/ri";
+import "../navigation/newcontent.css";
 
 const AddOffice = () => {
   const [office, setOffice] = useState("");
@@ -61,20 +63,36 @@ const AddOffice = () => {
     setOffice("");
   };
 
+  const Tooltip = ({ text, children }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    return (
+      <div
+        className="tooltip2-container"
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+        {isVisible && <div className="tooltip2">{text}</div>}
+      </div>
+    );
+  };
+
   return (
     <>
       <Header />
       <div className="MainPanel">
         <div className="PanelWrapper">
           <div className="AddUserHeader">
-            <h2>Add Office</h2>
-            <div className="backbtn secondarybtn">
+            <div className="back-btn">
               <Link to="/view-user">
                 <button>
-                  <p>Back</p>
+                  <Tooltip text={"Click to go back, View Users"}>
+                    <RiArrowGoBackFill className="back-icon" />
+                  </Tooltip>
                 </button>
               </Link>
             </div>
+            <p>Add Office</p>
           </div>
           <div className="noContainer">
             <div className="listofficetable content-table">

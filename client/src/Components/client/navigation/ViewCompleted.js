@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
@@ -6,6 +6,7 @@ import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
 import logo from "../assets/kabankalan-logo.png";
 import SampleQRcode from "../assets/sample-qrcode.jpg";
+import { RiArrowGoBackFill } from "react-icons/ri";
 
 const ViewCompleted = () => {
   const data = [
@@ -63,6 +64,20 @@ const ViewCompleted = () => {
     window.location.reload(); // Reload the page to restore original content
   };
 
+  const Tooltip = ({ text, children }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    return (
+      <div
+        className="tooltip2-container"
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+        {isVisible && <div className="tooltip2">{text}</div>}
+      </div>
+    );
+  };
+
   return (
     <>
       <Header />
@@ -71,14 +86,16 @@ const ViewCompleted = () => {
         <div className="MainPanel">
           <div className="PanelWrapper">
             <div className="PanelHeader">
-              <div className="filter">
+              <div className="filter vd">
+                <Link to="/completed">
+                  <button className="back-btn">
+                    <Tooltip text={"Click to go back, Completed"}>
+                      <RiArrowGoBackFill className="back-icon" />
+                    </Tooltip>
+                  </button>
+                </Link>
                 <p>View Document</p>
               </div>
-              <Link to="/completed">
-                <button className="back-btn">
-                  <p>Back</p>
-                </button>
-              </Link>
             </div>
 
             <div className="view-doc-info" ref={componentRef}>
@@ -123,7 +140,7 @@ const ViewCompleted = () => {
                     <tr>
                       <td>Date</td>
                       <td>Status</td>
-                      <td>Received By</td>
+                      <td>For</td>
                       <td>Remarks</td>
                     </tr>
                   </thead>

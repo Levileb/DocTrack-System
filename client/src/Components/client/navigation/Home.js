@@ -21,6 +21,7 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [filteredDocs, setFilteredDocs] = useState([]); // State for filtered documents
   const [showPopup, setShowPopup] = useState(false); // Recently Added Popup
+  const [showPopup2, setShowPopup2] = useState(false); // Recently Added Popup
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null); // State to manage dropdowns
   const dropdownRefs = useRef([]); // Array of refs for dropdowns
 
@@ -272,14 +273,19 @@ const Home = () => {
       console.error("Error acknowledging document:", error);
     }
   };
-  
+
   const handleComplete = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/api/docs/complete', { docId: selectedDoc._id });
-      console.log('Document marked as completed', response.data);
-  
+      const response = await axios.post(
+        "http://localhost:3001/api/docs/complete",
+        { docId: selectedDoc._id }
+      );
+      setShowPopup2(true);
+      console.log("Document marked as completed", response.data);
+
       // Update the selectedDoc state with the updated status
       setSelectedDoc({ ...selectedDoc, status: "Completed" });
+      setTimeout(() => setShowPopup2(false), 1000);
     } catch (error) {
       console.error("Error completing document:", error);
     }
@@ -450,7 +456,9 @@ const Home = () => {
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
-              <button className="comp-btn" onClick={handleComplete}>Complete</button>
+                <button className="comp-btn" onClick={handleComplete}>
+                  Complete
+                </button>
               </div>
             </div>
           </div>
@@ -470,6 +478,13 @@ const Home = () => {
         <div className="popup-container">
           <div className="popup-received">
             <p>Document Received!</p>
+          </div>
+        </div>
+      )}
+      {showPopup2 && (
+        <div className="popup-container">
+          <div className="popup-received">
+            <p>Acknowleded Completed!</p>
           </div>
         </div>
       )}

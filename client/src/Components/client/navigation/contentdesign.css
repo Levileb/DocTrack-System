@@ -142,11 +142,37 @@ td {
 .popup .yesnobtns button {
   background: #aebed0;
   color: #00162d;
+  transition: background-color 0.2s, color 0.2s;
+}
+/* No button */
+.popup .yesnobtns .no-button {
+  background-color: #4f5c67; /* Darker gray for No button */
+  color: #fff; /* White text */
+}
+
+.popup .yesnobtns .no-button:hover {
+  background-color: #dcdcdc; /* Light gray color from Yes button */
+  color: #000; /* Black text from Yes button */
+}
+
+/* Yes button */
+.popup .yesnobtns .yes-button {
+  background-color: #dcdcdc; /* Light gray for Yes button */
+  color: #000; /* Black text */
+}
+
+.popup .yesnobtns .yes-button:hover {
+  background-color: #4f5c67; /* Darker gray color from No button */
+  color: #fff; /* White text from No button */
+}
+/* .popup .yesnobtns .no {
+  background: #aebed0;
+  color: #00162d;
 }
 .popup .yesnobtns button:hover {
   color: #fff;
   background: #586671;
-}
+} */
 
 .pop-info {
   border-radius: 15px;

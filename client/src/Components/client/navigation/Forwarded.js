@@ -39,7 +39,7 @@ const Forwarded = () => {
         <div className="PanelWrapper">
           <div className="PanelHeader">
             <div className="filter">
-              <p>Forwarded</p>
+              <p>Outgoing Logs</p>
             </div>
             <div className="search">
               <div className="search-border">
