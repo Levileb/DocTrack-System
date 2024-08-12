@@ -5,6 +5,7 @@ import AddUsers from "./Components/client/navigation/AddUsers";
 import UpdateUsers from "./Components/client/navigation/UpdateUsers";
 import SubmitDocument from "./Components/client/navigation/SubmitDocument";
 import Received from "./Components/client/navigation/Received";
+import Receiving from "./Components/client/navigation/Receiving";
 import Forwarded from "./Components/client/navigation/Forwarded";
 import Completed from "./Components/client/navigation/Completed";
 import Users from "./Components/client/navigation/Users";
@@ -12,6 +13,7 @@ import UpdateDocument from "./Components/client/navigation/UpdateDocument";
 import Forwarding from "./Components/client/navigation/Forwarding";
 import AddOffice from "./Components/client/navigation/AddOffice";
 import Tracking from "./Components/client/navigation/Tracking";
+import ViewCompleted from "./Components/client/navigation/ViewCompleted";
 
 function App() {
   return (
@@ -22,7 +24,7 @@ function App() {
         <Route path="/submit-document" element={<SubmitDocu />} />
         <Route path="/incoming" element={<Receive />} />
         <Route path="/forwarding-document/:docId" element={<Forwarding />} />
-        <Route path="/forwarded" element={<Forward />} />
+        <Route path="/outgoing" element={<Forward />} />
         <Route path="/completed" element={<Complete />} />
         <Route path="/add-office" element={<AddOffice />} />
         <Route path="/add-user" element={<AddUser />} />
@@ -32,7 +34,7 @@ function App() {
         <Route path="/forwarding-document" element={<ForwardingTo />} />
         <Route path="/receiving-document" element={<ReceivingTo />} />
         <Route path="/track-document" element={<DocTrack />} />
-        <Route path="/view-completed" element={<ViewCompleted />} />
+        <Route path="/view-completed" element={<ViewComplete />} />
         <Route
           path="*"
           element={
