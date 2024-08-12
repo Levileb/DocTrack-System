@@ -354,6 +354,22 @@ td {
   width: max-content;
   display: flex;
 }
+.popup.submitting {
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  margin: auto;
+  width: 300px;
+  height: fit-content;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 0px);
+}
+.popup.submitting p {
+  font-size: 16px;
+  margin-bottom: 0%;
+}
 /* popup ends */
 
 .submitdocuBtn {
