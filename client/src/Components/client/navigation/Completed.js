@@ -4,16 +4,17 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 const Forwarded = () => {
   const data = [
     {
-      date: "2024/03/12",
+      date: "07/10/2024",
       title: "OJT Application",
-      sender: "Harvey John Abello",
+      sender: "Adam White",
       officefrom: "HR Section",
-      receipient: "Kyle Bryan Valencia",
-      officeto: "Cyber Security",
+      receipient: "Kyle Bryan",
+      officeto: "GovNet",
       status: "Completed",
     },
   ];
@@ -77,8 +78,11 @@ const Forwarded = () => {
                         <td>{val.receipient}</td>
                         {/* <td>{val.officeto}</td> */}
                         <td>
-                          <div className="viewbtn">
-                            <button onClick={handlePopup}>View</button>
+                          <div className="viewbtn" href="/view-completed">
+                            {/* <button href="/view-completed">View</button> */}
+                            <Link to={`/view-completed`}>
+                              <button href="/view-completed">View</button>
+                            </Link>
                           </div>
                         </td>
                       </tr>
