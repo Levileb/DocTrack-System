@@ -56,7 +56,7 @@ const Received = () => {
         <div className="PanelWrapper">
           <div className="PanelHeader">
             <div className="filter">
-              <p>Received</p>
+              <p>Incoming Logs</p>
             </div>
             <div className="search">
               <div className="search-border">

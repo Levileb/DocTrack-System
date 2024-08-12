@@ -20,7 +20,7 @@ const Home = () => {
   const [showScanner, setShowScanner] = useState(false); // State for popup visibility
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [filteredDocs, setFilteredDocs] = useState([]); // State for filtered documents
-  const [showPopup] = useState(false); // Recently Added Popup
+  const [showPopup, setShowPopup] = useState(false); // Recently Added Popup
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null); // State to manage dropdowns
   const dropdownRefs = useRef([]); // Array of refs for dropdowns
 
@@ -255,7 +255,35 @@ const Home = () => {
     }
   };
 
+  const handleAcknowledge = async () => {
+    try {
+      // Update the document's status to "Received"
+      const response = await axios.post(
+        "http://localhost:3001/api/docs/update-received",
+        { docId: selectedDoc._id }
+      );
+      setShowPopup(true);
+      console.log('Document status updated to "Received"', response.data);
+
+      // Update the selectedDoc state with the updated status
+      setSelectedDoc({ ...selectedDoc, status: "Received" });
+      setTimeout(() => setShowPopup(false), 1000);
+    } catch (error) {
+      console.error("Error acknowledging document:", error);
+    }
+  };
   
+  const handleComplete = async () => {
+    try {
+      const response = await axios.post('http://localhost:3001/api/docs/complete', { docId: selectedDoc._id });
+      console.log('Document marked as completed', response.data);
+  
+      // Update the selectedDoc state with the updated status
+      setSelectedDoc({ ...selectedDoc, status: "Completed" });
+    } catch (error) {
+      console.error("Error completing document:", error);
+    }
+  };
 
   const toggleDropdown = (index) => {
     setOpenDropdownIndex(openDropdownIndex === index ? null : index);
@@ -422,9 +450,7 @@ const Home = () => {
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
-              <Link to={`/completing-document/${selectedDoc._id}`}>
-                  <button className="comp-btn">Complete</button>
-                </Link>
+              <button className="comp-btn" onClick={handleComplete}>Complete</button>
               </div>
             </div>
           </div>
@@ -444,6 +470,13 @@ const Home = () => {
         <div className="popup-container">
           <div className="popup-received">
             <p>Document Received!</p>
+          </div>
+        </div>
+      )}
+      {showPopup2 && (
+        <div className="popup-container">
+          <div className="popup-received">
+            <p>Acknowleded Completed!</p>
           </div>
         </div>
       )}

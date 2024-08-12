@@ -5,6 +5,8 @@ import Footer from "../Footer";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { RiArrowGoBackFill } from "react-icons/ri";
+import "../navigation/newcontent.css";
 
 const UpdateDocument = () => {
   const { id } = useParams();
@@ -70,20 +72,36 @@ const UpdateDocument = () => {
     });
   };
 
+  const Tooltip = ({ text, children }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    return (
+      <div
+        className="tooltip2-container"
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+        {isVisible && <div className="tooltip2">{text}</div>}
+      </div>
+    );
+  };
+
   return (
     <>
       <Header />
       <div className="MainPanel">
         <div className="PanelWrapper">
           <div className="AddUserHeader">
-            <h2>Update Document</h2>
-            <div className="backbtn secondarybtn">
+            <div className="back-btn">
               <Link to="/home">
                 <button>
-                  <p>Back</p>
+                  <Tooltip text={"Click to go back, Home page"}>
+                    <RiArrowGoBackFill className="back-icon" />
+                  </Tooltip>{" "}
                 </button>
               </Link>
             </div>
+            <h2>Update Document</h2>
           </div>
 
           <div className="FormWrapper">
