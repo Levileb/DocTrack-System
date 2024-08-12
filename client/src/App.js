@@ -12,6 +12,8 @@ import UpdateDocument from "./Components/client/navigation/UpdateDocument";
 import Forwarding from "./Components/client/navigation/Forwarding";
 import AddOffice from "./Components/client/navigation/AddOffice";
 import Tracking from "./Components/client/navigation/Tracking";
+import Receiving from "./Components/client/navigation/Receiving";
+import Completing from "./Components/client/navigation/Completing";
 
 function App() {
   return (
@@ -22,7 +24,9 @@ function App() {
         <Route path="/submit-document" element={<SubmitDocu />} />
         <Route path="/incoming" element={<Receive />} />
         <Route path="/forwarding-document/:docId" element={<Forwarding />} />
-        <Route path="/forwarded" element={<Forward />} />
+        <Route path="/receiving-document/:docId" element={<Receiving />} />
+        <Route path="/completing-document/:docId" element={<Completing />} />
+        <Route path="/outgoing" element={<Forward />} />
         <Route path="/completed" element={<Complete />} />
         <Route path="/add-office" element={<AddOffice />} />
         <Route path="/add-user" element={<AddUser />} />
@@ -32,7 +36,6 @@ function App() {
         <Route path="/forwarding-document" element={<ForwardingTo />} />
         <Route path="/receiving-document" element={<ReceivingTo />} />
         <Route path="/track-document" element={<DocTrack />} />
-        <Route path="/view-completed" element={<ViewCompleted />} />
         <Route
           path="*"
           element={
@@ -95,10 +98,6 @@ function ReceivingTo() {
 
 function DocTrack() {
   return <Tracking />;
-}
-
-function ViewComplete() {
-  return <ViewCompleted />;
 }
 
 export default App;

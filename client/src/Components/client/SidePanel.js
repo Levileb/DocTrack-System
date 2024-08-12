@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import user from "./assets/sample-profile.png";
 import { Link, useLocation } from "react-router-dom";
 import { LuHome, LuUserSquare2, LuFolderCheck } from "react-icons/lu";
 import { RiFolderReceivedLine, RiMailSendLine } from "react-icons/ri";
