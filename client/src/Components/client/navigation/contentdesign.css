@@ -803,6 +803,33 @@ input::-webkit-inner-spin-button {
   color: #000000;
 }
 
+/* New Inserted CSS by Aug 13*/
+.docFilter-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+.docFilter {
+  width: 120px;
+  height: 30px;
+  padding: 5px;
+  margin: 0 0 10px 0;
+  border: 1px solid #00162d;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+}
+.docFilter .selection {
+  padding: 5px;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+}
+.docFilter:focus {
+  border-color: #aaa;
+}
+
 /* Media Queries for mobile screens */
 @media screen and (max-width: 650px) {
   .qr-reader {
