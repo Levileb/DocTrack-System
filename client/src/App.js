@@ -13,6 +13,7 @@ import UpdateDocument from "./Components/client/navigation/UpdateDocument";
 import Forwarding from "./Components/client/navigation/Forwarding";
 import AddOffice from "./Components/client/navigation/AddOffice";
 import Tracking from "./Components/client/navigation/Tracking";
+import InternalLogs from "./Components/client/navigation/InternalLogs";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/receiving-document" element={<ReceivingTo />} />
         <Route path="/track-document" element={<DocTrack />} />
         <Route path="/view-completed" element={<ViewCompleted />} />
+        <Route path="/internal-logs" element={<Internal />} />
         <Route
           path="*"
           element={
@@ -98,4 +100,8 @@ function DocTrack() {
   return <Tracking />;
 }
 
+// Inserted on Aug 13, 2024
+function Internal() {
+  return <InternalLogs />;
+}
 export default App;
