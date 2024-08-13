@@ -6,7 +6,7 @@ import "./contentdesign.css";
 import { MdQrCodeScanner } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import { AiFillCloseCircle } from "react-icons/ai"; // Added printer icon
+import { AiFillCloseCircle } from "react-icons/ai";
 import { RiMailSendLine } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa6";
 import axios from "axios";
@@ -15,32 +15,31 @@ import qrCode from "qrcode";
 import logo from "../assets/kabankalan-logo.png";
 
 const Home = () => {
-  const [docs, setDocs] = useState([]); // State to store documents
-  const [selectedDoc, setSelectedDoc] = useState(null); // State to store the selected document
-  const [showScanner, setShowScanner] = useState(false); // State for popup visibility
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
-  const [filteredDocs, setFilteredDocs] = useState([]); // State for filtered documents
-  const [showPopup] = useState(false); // Recently Added Popup
-  const [openDropdownIndex, setOpenDropdownIndex] = useState(null); // State to manage dropdowns
-  const dropdownRefs = useRef([]); // Array of refs for dropdowns
+  const [docs, setDocs] = useState([]);
+  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredDocs, setFilteredDocs] = useState([]);
+  const [showPopup] = useState(false);
+  const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
+  const dropdownRefs = useRef([]);
 
   useEffect(() => {
     fetchDocs();
-  }, []); // Fetch documents on component mount
+  }, []);
 
   useEffect(() => {
-    // Filter documents based on search query
     const filtered = docs.filter(
       (doc) =>
-        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.recipient.toLowerCase().includes(searchQuery.toLowerCase())
+        doc.status !== "Archived" &&
+        (doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doc.recipient.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     setFilteredDocs(filtered);
   }, [searchQuery, docs]);
 
   useEffect(() => {
-    // Close the dropdown if clicked outside
     const handleClickOutside = (event) => {
       if (
         dropdownRefs.current &&
@@ -60,8 +59,9 @@ const Home = () => {
     axios
       .get("http://localhost:3001/api/docs")
       .then((response) => {
-        setDocs(response.data);
-        setFilteredDocs(response.data); // Initialize filteredDocs with all documents
+        const activeDocs = response.data.filter(doc => doc.status !== "Archived");
+        setDocs(activeDocs);
+        setFilteredDocs(activeDocs);
       })
       .catch((error) => {
         console.error("Error fetching documents:", error);
@@ -69,31 +69,28 @@ const Home = () => {
   };
 
   const handlePopup = (event, doc) => {
-    event.preventDefault(); // Prevent default form submission behavior
-    setSelectedDoc(doc); // Set the selected document
-    setOpenDropdownIndex(null); // Close the dropdown
+    event.preventDefault();
+    setSelectedDoc(doc);
+    setOpenDropdownIndex(null);
   };
 
   const closePopup = () => {
-    setSelectedDoc(null); // Clear the selected document
+    setSelectedDoc(null);
   };
 
   const printDocument = (doc) => {
-    // Generate QR code image
     qrCode.toDataURL(JSON.stringify(doc), (err, url) => {
       if (err) {
         console.error("Error generating QR code:", err);
         return;
       }
 
-      // Write HTML content with QR code image
       const printWindow = window.open("", "_blank");
       printWindow.document.open();
       printWindow.document.write(`
         <html>
           <head>
             <style>
-              /* CSS styles */
               body {
                 font-family: 'Arial';
                 font-size: 12pt;
@@ -206,7 +203,7 @@ const Home = () => {
       `);
       printWindow.document.close();
     });
-    setOpenDropdownIndex(null); // Close the dropdown
+    setOpenDropdownIndex(null);
   };
 
   const qrButtonHandler = (event) => {
@@ -220,11 +217,9 @@ const Home = () => {
 
   const handleScan = async (data) => {
     try {
-      // Parse the scanned JSON data
       const scannedData = JSON.parse(data);
       console.log("Scanned Data:", scannedData);
 
-      // Find the document with matching data
       const selectedDoc = docs.find((doc) => {
         return (
           doc.date === scannedData.date &&
@@ -237,15 +232,11 @@ const Home = () => {
         );
       });
 
-      // If a document with matching data is found, display the pop-up container
       if (selectedDoc) {
-        // Update the document's status to "Viewed"
         await axios.post("http://localhost:3001/api/docs/update-status", {
           docId: selectedDoc._id,
         });
         console.log('Document status updated to "Viewed"');
-
-        // Update the selectedDoc state with the updated status
         setSelectedDoc({ ...selectedDoc, status: "Viewed" });
       } else {
         console.log("No matching document found.");
@@ -255,11 +246,18 @@ const Home = () => {
     }
   };
 
-  
-  
-
   const toggleDropdown = (index) => {
     setOpenDropdownIndex(openDropdownIndex === index ? null : index);
+  };
+
+  const archiveDocument = async (docId) => {
+    try {
+      await axios.post("http://localhost:3001/archive-document", { docId });
+      setDocs(docs.filter((doc) => doc._id !== docId));
+      setFilteredDocs(filteredDocs.filter((doc) => doc._id !== docId));
+    } catch (error) {
+      console.error("Error archiving document:", error);
+    }
   };
 
   return (
@@ -292,13 +290,11 @@ const Home = () => {
                 <IoSearch className="searchIcon" />
                 <input
                   type="search"
-                  name=""
-                  id=""
                   placeholder="Search.."
                   className="search-bar"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                ></input>
+                />
               </div>
             </div>
           </div>
@@ -342,7 +338,6 @@ const Home = () => {
                                   <li onClick={() => printDocument(val)}>
                                     Print
                                   </li>
-
                                   <li>
                                     <Link
                                       className="edit-link"
@@ -351,6 +346,9 @@ const Home = () => {
                                     >
                                       Edit
                                     </Link>
+                                  </li>
+                                  <li onClick={() => archiveDocument(val._id)}>
+                                    Archive
                                   </li>
                                 </ul>
                               </div>
@@ -407,11 +405,6 @@ const Home = () => {
               <AiFillCloseCircle className="closeicon" />
             </button>
             <div className="actionbtn">
-              {/* <div className="archivebtn secondarybtn">
-                <Link to={`/update-document/${selectedDoc._id}`}>
-                  <button className="edit-btn">Edit</button>
-                </Link>
-              </div> */}
               <div className="archivebtn secondarybtn">
                 <Link to={`/receiving-document/${selectedDoc._id}`}>
                   <button className="ack-btn">Receive</button>
@@ -423,7 +416,7 @@ const Home = () => {
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
-              <Link to={`/completing-document/${selectedDoc._id}`}>
+                <Link to={`/completing-document/${selectedDoc._id}`}>
                   <button className="comp-btn">Complete</button>
                 </Link>
               </div>
@@ -435,8 +428,7 @@ const Home = () => {
       {showScanner && (
         <div className="popup-container qr" onClick={closeScanner}>
           <div className="popup qrscanner">
-            <QrReader onClose={closeScanner} onScan={handleScan} />{" "}
-            {/* Pass onScan prop */}
+            <QrReader onClose={closeScanner} onScan={handleScan} />
           </div>
         </div>
       )}

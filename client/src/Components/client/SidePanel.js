@@ -7,6 +7,7 @@ import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
+import { GrDocumentTime } from "react-icons/gr";
 
 const SidePanel = () => {
   const [collapsed, setCollapsed] = useState(true);

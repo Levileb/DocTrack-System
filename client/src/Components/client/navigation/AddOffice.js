@@ -18,15 +18,21 @@ const AddOffice = () => {
 
   useEffect(() => {
     // Fetch offices when the component mounts
+    fetchOffices();
+  }, []);
+
+  const fetchOffices = () => {
     axios
       .get("http://localhost:3001/offices")
       .then((res) => {
-        setOffices(res.data); // Assuming the response contains an array of offices
+        // Filter out archived offices
+        const activeOffices = res.data.filter((office) => !office.isArchived);
+        setOffices(activeOffices);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, []); // Empty dependency array to run the effect only once when the component mounts
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -38,14 +44,7 @@ const AddOffice = () => {
         // Resetting form fields
         setOffice("");
         // Fetch updated list of offices after saving new office
-        axios
-          .get("http://localhost:3001/offices")
-          .then((res) => {
-            setOffices(res.data); // Update the list of offices
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        fetchOffices();
       })
       .catch((err) => {
         console.log(err);
@@ -61,6 +60,19 @@ const AddOffice = () => {
   const handleClear = () => {
     // Clear form fields
     setOffice("");
+  };
+
+  const handleArchive = (id) => {
+    axios
+      .post(`http://localhost:3001/archive-office/${id}`)
+      .then((res) => {
+        console.log("Office archived:", res.data);
+        // Fetch updated list of offices after archiving
+        fetchOffices();
+      })
+      .catch((err) => {
+        console.error("Error archiving office:", err);
+      });
   };
 
   const Tooltip = ({ text, children }) => {
@@ -113,7 +125,7 @@ const AddOffice = () => {
                         <td>{val.office}</td>
                         <td>
                           <div className="Arch-Btn">
-                            <button type="button">Archive</button>
+                            <button type="button" onClick={() => handleArchive(val._id)}>Archive</button>
                           </div>
                         </td>
                       </tr>
