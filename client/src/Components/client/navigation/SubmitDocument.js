@@ -31,47 +31,54 @@ const SubmitDocument = () => {
   const [showQR, setShowQR] = useState(false);
   const [codeNumber, setCodeNumber] = useState("");
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [offices, setOffices] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
+    const fetchUserDetails = () => {
+      axios
+        .get("http://localhost:3001/api/user/details", { withCredentials: true })
+        .then((res) => {
+          const { firstname, lastname, office } = res.data;
+          const fullName = `${firstname} ${lastname}`;
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            sender: fullName,
+            originating: office,
+          }));
+        })
+        .catch((err) => console.error(err));
+    };
+
+    const fetchUsers = () => {
+      axios
+        .get("http://localhost:3001/view-user")
+        .then((res) => {
+          const allUsers = res.data;
+          setUsers(allUsers);
+          // Filter out the sender from the list of users for the recipient dropdown
+          const filtered = allUsers.filter(
+            (user) => `${user.firstname} ${user.lastname}` !== formData.sender
+          );
+          setFilteredUsers(filtered);
+        })
+        .catch((err) => console.error("Error fetching users:", err));
+    };
+
+    const fetchOffices = () => {
+      axios
+        .get("http://localhost:3001/offices")
+        .then((res) => {
+          setOffices(res.data);
+        })
+        .catch((err) => console.error("Error fetching offices:", err));
+    };
+
     fetchUserDetails();
     fetchUsers();
     fetchOffices();
-  }, []);
-
-  const fetchUserDetails = () => {
-    axios
-      .get("http://localhost:3001/api/user/details", { withCredentials: true })
-      .then((res) => {
-        const { firstname, lastname, office } = res.data;
-        const fullName = `${firstname} ${lastname}`;
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          sender: fullName,
-          originating: office,
-        }));
-      })
-      .catch((err) => console.error(err));
-  };
-
-  const fetchUsers = () => {
-    axios
-      .get("http://localhost:3001/view-user")
-      .then((res) => {
-        setUsers(res.data);
-      })
-      .catch((err) => console.error("Error fetching users:", err));
-  };
-
-  const fetchOffices = () => {
-    axios
-      .get("http://localhost:3001/offices")
-      .then((res) => {
-        setOffices(res.data);
-      })
-      .catch((err) => console.error("Error fetching offices:", err));
-  };
+  }, [formData.sender]); // Added dependency here
 
   const handleInputChange = (event) => {
     const { id, value } = event.target;
@@ -92,6 +99,16 @@ const SubmitDocument = () => {
       destination: id === "recipient" ? destination : prevFormData.destination,
     }));
   };
+
+  useEffect(() => {
+    // Update the filteredUsers list whenever the sender changes
+    if (formData.sender) {
+      const filtered = users.filter(
+        (user) => `${user.firstname} ${user.lastname}` !== formData.sender
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [formData.sender, users]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -134,6 +151,7 @@ const SubmitDocument = () => {
       originating: formData.originating,
       recipient: "",
       destination: "",
+      remarks: "",
     });
   };
 
@@ -304,7 +322,7 @@ const SubmitDocument = () => {
                     <option value="" disabled>
                       Select Recipient
                     </option>
-                    {users.map((user) => (
+                    {filteredUsers.map((user) => (
                       <option
                         key={user._id}
                         value={`${user.firstname} ${user.lastname}`}
@@ -346,17 +364,7 @@ const SubmitDocument = () => {
                 <div className="ClearButton">
                   <button
                     type="button"
-                    onClick={() =>
-                      setFormData({
-                        date: getCurrentDate(),
-                        title: "",
-                        sender: formData.sender,
-                        originating: formData.originating,
-                        recipient: "",
-                        destination: "",
-                        remarks: "",
-                      })
-                    }
+                    onClick={handleClear}
                   >
                     Clear
                   </button>

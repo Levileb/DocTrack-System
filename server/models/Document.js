@@ -12,8 +12,8 @@ const DocSchema = new mongoose.Schema({
     remarks: String,
     status: {
         type: String,
-        enum: ['Created', 'Received', 'Forwarded', 'Completed'],
-        default: 'Created' // Default status is 'created'
+        enum: ['Created', 'Received', 'Forwarded', 'Completed', 'Archived'],
+        default: 'Created'
     }
 });
 

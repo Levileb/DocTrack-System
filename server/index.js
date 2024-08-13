@@ -220,6 +220,16 @@ app.get('/offices', (req, res) => {
             res.status(500).json({ error: "Internal server error" });
         });
 });
+
+// Endpoint to archive an office
+app.post('/archive-office/:id', (req, res) => {
+    const officeId = req.params.id;
+
+    OfficeModel.findByIdAndUpdate(officeId, { isArchived: true }, { new: true })
+        .then(updatedOffice => res.json(updatedOffice))
+        .catch(err => res.status(500).json({ error: "Failed to archive office" }));
+});
+
 app.post('/api/docs/update-status', async (req, res) => {
     try {
         const { docId, status } = req.body; // Accept the status as a parameter
@@ -408,6 +418,18 @@ app.post('/submit-document', (req, res) => {
         .catch(err => res.json(err));
 });
 
+app.post('/archive-document', (req, res) => {
+    const { docId } = req.body;
+  
+    DocModel.findByIdAndUpdate(docId, { status: 'Archived' }, { new: true })
+      .then(updatedDoc => {
+        if (!updatedDoc) {
+          return res.status(404).json({ error: 'Document not found' });
+        }
+        res.json({ message: 'Document archived successfully', document: updatedDoc });
+      })
+      .catch(err => res.status(500).json({ error: err.message }));
+  });
 
 
 app.post('/', (req, res) => {
