@@ -3,10 +3,11 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const Completing = () => {
   const { docId } = useParams();
+  const navigate = useNavigate();
 
   const getCurrentDateTime = () => {
     const today = new Date();
@@ -69,16 +70,8 @@ const Completing = () => {
     }));
   };
 
-  const handleClearForm2 = () => {
-    setFormData({
-      date: getCurrentDateTime(),
-      title: formData.title,
-      sender: formData.sender,
-      orgOffice: formData.orgOffice,
-      recipient: "",
-      desOffice: "",
-      remarks: "",
-    });
+  const handleCancel = () => {
+    navigate("/home");
   };
 
   const handleSubmitForm = async (event) => {
@@ -96,7 +89,16 @@ const Completing = () => {
       // Handle error message
     }
 
-    handleClearForm2();
+    setFormData({
+      date: getCurrentDateTime(),
+      title: formData.title,
+      sender: formData.sender,
+      orgOffice: formData.orgOffice,
+      recipient: "",
+      desOffice: "",
+      remarks: "",
+    });
+
     setTimeout(() => setShowPopup(false), 1000);
   };
 
@@ -179,8 +181,8 @@ const Completing = () => {
               </div>
               <div className="submitbuttons">
                 <div className="ClearBtn secondarybtn">
-                  <button type="button" onClick={handleClearForm2}>
-                    Clear
+                  <button type="button" onClick={handleCancel}>
+                    Cancel
                   </button>
                 </div>
                 <div className="ForwardBtn primarybtn">
