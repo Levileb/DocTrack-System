@@ -16,6 +16,7 @@ import Tracking from "./Components/client/navigation/Tracking";
 import InternalLogs from "./Components/client/navigation/InternalLogs";
 import ViewCompleted from "./Components/client/navigation/ViewCompleted";
 import Completing from "./Components/client/navigation/Completing";
+import Archive from "./Components/client/navigation/Archive";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/track-document" element={<DocTrack />} />
         <Route path="/internal-logs" element={<Internal />} />
         <Route path="/view-completed" element={<ViewComplete />} />
+        <Route path="/archived-files" element={<Archived />} />
         <Route
           path="*"
           element={
@@ -110,5 +112,9 @@ function ViewComplete() {
 // Inserted on Aug 13, 2024
 function Internal() {
   return <InternalLogs />;
+}
+// Inserted on Aug 14, 2024
+function Archived() {
+  return <Archive />;
 }
 export default App;

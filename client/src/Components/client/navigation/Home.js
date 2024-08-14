@@ -15,6 +15,7 @@ import qrCode from "qrcode";
 import logo from "../assets/kabankalan-logo.png";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
+import { LuArchive } from "react-icons/lu";
 
 const Home = () => {
   const [docs, setDocs] = useState([]);
@@ -264,6 +265,7 @@ const Home = () => {
     } catch (error) {
       console.error("Error archiving document:", error);
     }
+    setTimeout(() => setShowPopup(false), 1000);
   };
 
   const handleFilterChange = (event) => {
@@ -324,28 +326,38 @@ const Home = () => {
           </div>
           <div className="contents">
             <div className="content-table">
-              <div className="docFilter-container">
-                <select
-                  value={filterValue}
-                  onChange={handleFilterChange}
-                  className="docFilter"
-                >
-                  <option className="selection" value="">
-                    All
-                  </option>
-                  <option className="selection" value="Created">
-                    Created
-                  </option>
-                  <option className="selection" value="Received">
-                    Received
-                  </option>
-                  <option className="selection" value="Forwarded">
-                    Forwarded
-                  </option>
-                  <option className="selection" value="Completed">
-                    Completed
-                  </option>
-                </select>
+              <div className="arc-doc-container">
+                <div className="archived-btn">
+                  <Link to="/archived-files">
+                    <button>
+                      <LuArchive className="icon" />
+                      <p> Archive</p>
+                    </button>
+                  </Link>
+                </div>
+                <div className="docFilter-container">
+                  <select
+                    value={filterValue}
+                    onChange={handleFilterChange}
+                    className="docFilter"
+                  >
+                    <option className="selection" value="">
+                      All
+                    </option>
+                    <option className="selection" value="Created">
+                      Created
+                    </option>
+                    <option className="selection" value="Received">
+                      Received
+                    </option>
+                    <option className="selection" value="Forwarded">
+                      Forwarded
+                    </option>
+                    <option className="selection" value="Completed">
+                      Completed
+                    </option>
+                  </select>
+                </div>
               </div>
               <table>
                 <thead>

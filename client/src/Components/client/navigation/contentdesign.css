@@ -460,6 +460,7 @@ td {
 }
 .view-user button {
   color: var(--blue);
+  background: none;
   font-size: 15px;
   font-weight: 700;
   width: fit-content;
@@ -807,18 +808,66 @@ input::-webkit-inner-spin-button {
   color: #000000;
 }
 
-/* New Inserted CSS by Aug 13*/
-.docFilter-container {
+.arc-doc-container {
+  display: flex;
   width: 100%;
+  align-items: center;
+  flex-direction: row;
+  margin: 0 0 10px 0;
+  justify-content: end;
+}
+.archived-btn button {
+  width: 100px;
+  height: 30px;
+  padding: 5px;
+  border: 1px solid #00162d;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  margin-right: 10px;
+  background: #fff;
+  display: inline-flex;
+  justify-content: center;
+}
+.archived-btn button .icon {
+  font-size: 18px;
+  margin-right: 2px;
+}
+.archived-btn button p {
+  font-size: 14px;
+  margin: auto 0;
+  text-decoration: none;
+}
+.AddUserHeader.arc {
+  overflow: hidden;
+}
+.AddUserHeader.arc .search {
+  display: flex;
+  margin: 0 20px 0 auto;
+}
+.AddUserHeader .search .search-bar {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  background: none;
+}
+.AddUserHeader .search .search-border {
+  padding: 2.5px 10px 2.5px 8px;
+  display: flex;
+  border: 1.5px solid var(--darkblue);
+  border-radius: 15px;
+}
+.AddUserHeader .search .search-border .searchIcon {
+  font-size: 22px;
+}
+.docFilter-container {
   display: flex;
   align-items: center;
-  justify-content: end;
 }
 .docFilter {
   width: 120px;
   height: 30px;
   padding: 5px;
-  margin: 0 0 10px 0;
   border: 1px solid #00162d;
   border-radius: 5px;
   font-size: 14px;

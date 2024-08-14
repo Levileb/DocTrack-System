@@ -527,6 +527,7 @@ ul li {
 }
 .Arch-Btn button {
   color: var(--blue);
+  background: none;
   font-size: 15px;
   font-weight: 700;
   width: fit-content;
