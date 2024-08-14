@@ -3,10 +3,11 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const Forwarding = () => {
   const { docId } = useParams();
+  const navigate = useNavigate();
 
   const getCurrentDateTime = () => {
     const today = new Date();
@@ -87,24 +88,14 @@ const Forwarding = () => {
     }));
   };
 
-  const handleClearForm2 = () => {
-    setFormData({
-      date: getCurrentDateTime(),
-      title: formData.title,
-      sender: "",
-      orgOffice: "",
-      recipient: "",
-      desOffice: "",
-      remarks: "",
-    });
-    setSelectedEmployee("");
-    setSelectedOffice("");
+  const handleCancel = () => {
+    navigate("/home");
   };
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
     setShowPopup(true);
-  
+
     try {
       await axios.post("http://localhost:3001/api/docs/log-forwarding", {
         docId: docId,
@@ -120,11 +111,19 @@ const Forwarding = () => {
       console.error("Error forwarding document:", error);
       // Handle error message
     }
-  
-    handleClearForm2();
+
+    // Clear the Recipient, Designated Office, and remarks fields
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      recipient: "",
+      desOffice: "",
+      remarks: "",
+    }));
+    setSelectedEmployee("");
+    setSelectedOffice("");
+
     setTimeout(() => setShowPopup(false), 1000);
   };
-  
 
   const handleEmployeeSelect = (event) =>
     setSelectedEmployee(event.target.value);
@@ -222,9 +221,9 @@ const Forwarding = () => {
                 </div>
               </div>
               <div className="submitbuttons">
-                <div className="ClearBtn secondarybtn">
-                  <button type="button" onClick={handleClearForm2}>
-                    Clear
+                <div className="CancelBtn secondarybtn">
+                  <button type="button" onClick={handleCancel}>
+                    Cancel
                   </button>
                 </div>
                 <div className="ForwardBtn primarybtn">

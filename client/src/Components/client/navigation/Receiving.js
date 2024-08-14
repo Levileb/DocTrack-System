@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 
 const Receiving = () => {
   const { docId } = useParams();
+  const navigate = useNavigate();
 
   const getCurrentDateTime = () => {
     const today = new Date();
@@ -69,16 +70,8 @@ const Receiving = () => {
     }));
   };
 
-  const handleClearForm2 = () => {
-    setFormData({
-      date: getCurrentDateTime(),
-      title: formData.title,
-      sender: formData.sender,
-      orgOffice: formData.orgOffice,
-      recipient: "",
-      desOffice: "",
-      remarks: "",
-    });
+  const handleCancel = () => {
+    navigate("/home");
   };
 
   const handleSubmitForm = async (event) => {
@@ -99,7 +92,7 @@ const Receiving = () => {
       // Handle error message
     }
 
-    handleClearForm2();
+    handleCancel();
     setTimeout(() => setShowPopup(false), 1000);
   };
 
@@ -182,8 +175,8 @@ const Receiving = () => {
               </div>
               <div className="submitbuttons">
                 <div className="ClearBtn secondarybtn">
-                  <button type="button" onClick={handleClearForm2}>
-                    Clear
+                  <button type="button" onClick={handleCancel}>
+                    Cancel
                   </button>
                 </div>
                 <div className="ForwardBtn primarybtn">

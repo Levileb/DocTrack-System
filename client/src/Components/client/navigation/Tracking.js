@@ -35,9 +35,6 @@ const Tracking = () => {
         return new Date(timeA) - new Date(timeB);
       });
 
-      // Reverse the sorted array to have the newest logs last
-      combinedLogs.reverse();
-
       setTrackingInfo({ ...data, combinedLogs });
     } catch (error) {
       console.error("Error fetching tracking information:", error);
