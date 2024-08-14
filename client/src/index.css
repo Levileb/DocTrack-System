@@ -803,6 +803,12 @@ ul li {
   .AddUserHeader h2 {
     font-size: 15px;
   }
+  .PanelHeader {
+    justify-content: space-around;
+  }
+  .scannerIcon {
+    width: 150px;
+  }
 }
 /* @media screen and (max-width: 380px) {
   .essentials h5 {

@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import "../navigation/newcontent.css";
+import { GrCaretPrevious } from "react-icons/gr";
+import { GrCaretNext } from "react-icons/gr";
 
 const InternalLogs = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
@@ -47,11 +49,19 @@ const InternalLogs = () => {
   };
 
   const filteredData = data.filter((val) => {
-    if (filterValue === "") {
-      return true;
-    } else {
-      return val.status === filterValue;
-    }
+    // Check for filter value match
+    const filterMatch = filterValue === "" || val.status === filterValue;
+
+    // Check for search query match (case insensitive)
+    const searchMatch =
+      val.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.receipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.officefrom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.officeto.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return filterMatch && searchMatch;
   });
 
   return (
@@ -92,6 +102,9 @@ const InternalLogs = () => {
                     >
                       <option className="selection" value="">
                         All
+                      </option>
+                      <option className="selection" value="Created">
+                        Created
                       </option>
                       <option className="selection" value="Received">
                         Received

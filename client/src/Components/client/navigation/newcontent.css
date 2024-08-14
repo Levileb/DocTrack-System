@@ -110,3 +110,29 @@
   cursor: pointer;
   font-size: 15px;
 }
+.pagination-controls {
+  display: flex;
+  flex-direction: row;
+  margin: 5px 0;
+}
+.pagination-controls .next-btn,
+.prev-btn {
+  margin: 0 5px;
+  display: flex;
+  align-items: center;
+  background: #00366f;
+  color: #fff;
+  border-radius: 2px;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+}
+.pagination-controls .prev-btn:disabled {
+  background: #686868;
+}
+.pagination-controls .next-btn:disabled {
+  background: #686868;
+}
+.pagination-controls span {
+  font-size: 14px;
+}
