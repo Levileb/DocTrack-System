@@ -527,6 +527,7 @@ ul li {
 }
 .Arch-Btn button {
   color: var(--blue);
+  background: none;
   font-size: 15px;
   font-weight: 700;
   width: fit-content;
@@ -802,6 +803,12 @@ ul li {
   }
   .AddUserHeader h2 {
     font-size: 15px;
+  }
+  .PanelHeader {
+    justify-content: space-around;
+  }
+  .scannerIcon {
+    width: 150px;
   }
 }
 /* @media screen and (max-width: 380px) {

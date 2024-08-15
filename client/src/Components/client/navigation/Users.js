@@ -13,6 +13,7 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [showPopup2, setShowPopup2] = useState(false); // State for popup visibility
   const [popupUserData, setPopupUserData] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const navigate = useNavigate();
@@ -64,12 +65,16 @@ const Users = () => {
       .then((response) => {
         setShowPopup(false);
         setUsers(users.filter((user) => user._id !== selectedUserId));
-        alert(response.data.message);
+        // alert(response.data.message);
+        setShowPopup2(true);
       })
       .catch((error) => {
         console.error("Error archiving user:", error);
         alert("Failed to archive user.");
       });
+    setTimeout(() => {
+      setShowPopup2(false);
+    }, 1000);
   };
 
   const handleSearchChange = (event) => {
@@ -205,6 +210,13 @@ const Users = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {showPopup2 && (
+        <div className="popup-container">
+          <div className="popup-received">
+            <p>User Moved to Archive!</p>
           </div>
         </div>
       )}

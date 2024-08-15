@@ -13,14 +13,18 @@ import axios from "axios";
 import QrReader from "./QrReader";
 import qrCode from "qrcode";
 import logo from "../assets/kabankalan-logo.png";
+import { GrCaretPrevious } from "react-icons/gr";
+import { GrCaretNext } from "react-icons/gr";
+import { LuArchive } from "react-icons/lu";
 
 const Home = () => {
   const [docs, setDocs] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterValue, setFilterValue] = useState("");
   const [filteredDocs, setFilteredDocs] = useState([]);
-  const [showPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
   const dropdownRefs = useRef([]);
 
@@ -31,13 +35,13 @@ const Home = () => {
   useEffect(() => {
     const filtered = docs.filter(
       (doc) =>
-        doc.status !== "Archived" &&
+        (filterValue === "" || doc.status === filterValue) &&
         (doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.recipient.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     setFilteredDocs(filtered);
-  }, [searchQuery, docs]);
+  }, [searchQuery, docs, filterValue]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -59,7 +63,9 @@ const Home = () => {
     axios
       .get("http://localhost:3001/api/docs")
       .then((response) => {
-        const activeDocs = response.data.filter(doc => doc.status !== "Archived");
+        const activeDocs = response.data.filter(
+          (doc) => doc.status !== "Archived"
+        );
         setDocs(activeDocs);
         setFilteredDocs(activeDocs);
       })
@@ -255,10 +261,30 @@ const Home = () => {
       await axios.post("http://localhost:3001/archive-document", { docId });
       setDocs(docs.filter((doc) => doc._id !== docId));
       setFilteredDocs(filteredDocs.filter((doc) => doc._id !== docId));
+      setShowPopup(true);
     } catch (error) {
       console.error("Error archiving document:", error);
     }
+    setTimeout(() => setShowPopup(false), 1000);
   };
+
+  const handleFilterChange = (event) => {
+    setFilterValue(event.target.value);
+  };
+
+  // This is for the list of displayed documents in the table
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const docsPerPage = 15;
+
+  const startIndex = (currentPage - 1) * docsPerPage;
+  const endIndex = startIndex + docsPerPage;
+  const paginatedDocs = filteredDocs.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    const totalPages = Math.ceil(filteredDocs.length / docsPerPage);
+    setTotalPages(totalPages);
+  }, [filteredDocs]);
 
   return (
     <>
@@ -300,6 +326,39 @@ const Home = () => {
           </div>
           <div className="contents">
             <div className="content-table">
+              <div className="arc-doc-container">
+                <div className="archived-btn">
+                  <Link to="/archived-files">
+                    <button>
+                      <LuArchive className="icon" />
+                      <p> Archive</p>
+                    </button>
+                  </Link>
+                </div>
+                <div className="docFilter-container">
+                  <select
+                    value={filterValue}
+                    onChange={handleFilterChange}
+                    className="docFilter"
+                  >
+                    <option className="selection" value="">
+                      All
+                    </option>
+                    <option className="selection" value="Created">
+                      Created
+                    </option>
+                    <option className="selection" value="Received">
+                      Received
+                    </option>
+                    <option className="selection" value="Forwarded">
+                      Forwarded
+                    </option>
+                    <option className="selection" value="Completed">
+                      Completed
+                    </option>
+                  </select>
+                </div>
+              </div>
               <table>
                 <thead>
                   <tr>
@@ -311,7 +370,7 @@ const Home = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDocs.map((val, key) => (
+                  {paginatedDocs.map((val, key) => (
                     <tr key={key}>
                       <td>{val.date.substring(0, 10)}</td>
                       <td>{val.title}</td>
@@ -360,6 +419,29 @@ const Home = () => {
                   ))}
                 </tbody>
               </table>
+              <div className="pagination-controls">
+                <button
+                  className="prev-btn"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                >
+                  <GrCaretPrevious />
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  className="next-btn"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  <GrCaretNext />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -436,7 +518,7 @@ const Home = () => {
       {showPopup && (
         <div className="popup-container">
           <div className="popup-received">
-            <p>Document Received!</p>
+            <p>Document Moved to Archive!</p>
           </div>
         </div>
       )}

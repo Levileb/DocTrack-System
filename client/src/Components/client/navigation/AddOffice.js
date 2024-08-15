@@ -4,6 +4,7 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 
@@ -12,9 +13,11 @@ const AddOffice = () => {
   const [offices, setOffices] = useState([]); // State to hold fetched offices
 
   const [showPopup, setShowPopup] = useState(false); // State for popup visibility
+  const [showPopup2, setShowPopup2] = useState(false); // State for popup visibility
   const [isOfficeSaved, setIsOfficeSaved] = useState(false); // State to track office save success
   const saveSuccess = true;
   const saveUnsuccessful = false;
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch offices when the component mounts
@@ -54,18 +57,14 @@ const AddOffice = () => {
 
     setTimeout(() => {
       setShowPopup(false);
-    }, 2000);
-  };
-
-  const handleClear = () => {
-    // Clear form fields
-    setOffice("");
+    }, 1000);
   };
 
   const handleArchive = (id) => {
     axios
       .post(`http://localhost:3001/archive-office/${id}`)
       .then((res) => {
+        setShowPopup2(true);
         console.log("Office archived:", res.data);
         // Fetch updated list of offices after archiving
         fetchOffices();
@@ -73,6 +72,9 @@ const AddOffice = () => {
       .catch((err) => {
         console.error("Error archiving office:", err);
       });
+    setTimeout(() => {
+      setShowPopup2(false);
+    }, 1000);
   };
 
   const Tooltip = ({ text, children }) => {
@@ -87,6 +89,9 @@ const AddOffice = () => {
         {isVisible && <div className="tooltip2">{text}</div>}
       </div>
     );
+  };
+  const handleCancel = () => {
+    navigate("/view-user");
   };
 
   return (
@@ -125,7 +130,12 @@ const AddOffice = () => {
                         <td>{val.office}</td>
                         <td>
                           <div className="Arch-Btn">
-                            <button type="button" onClick={() => handleArchive(val._id)}>Archive</button>
+                            <button
+                              type="button"
+                              onClick={() => handleArchive(val._id)}
+                            >
+                              Archive
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -151,8 +161,8 @@ const AddOffice = () => {
                 </div>
                 <div className="adduserbuttons">
                   <div className="Clr-Btn">
-                    <button type="button" onClick={handleClear}>
-                      Clear
+                    <button type="button" onClick={handleCancel}>
+                      Cancel
                     </button>
                   </div>
                   <div className="Sub-Btn">
@@ -178,6 +188,13 @@ const AddOffice = () => {
                 ? "Office saved successfully!"
                 : "Failed to save office!"}
             </p>
+          </div>
+        </div>
+      )}
+      {showPopup2 && (
+        <div className="popup-container">
+          <div className="popup-received">
+            <p>Office Moved to Archive!</p>
           </div>
         </div>
       )}

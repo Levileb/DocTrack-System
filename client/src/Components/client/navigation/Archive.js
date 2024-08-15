@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
+import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
-import { GrCaretPrevious } from "react-icons/gr";
-import { GrCaretNext } from "react-icons/gr";
+import { Link } from "react-router-dom";
 
-const InternalLogs = () => {
+const Archive = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [filterValue, setFilterValue] = useState("");
 
@@ -19,7 +19,7 @@ const InternalLogs = () => {
       officefrom: "Admin Office",
       receipient: "Kyle Bryan",
       officeto: "GovNet",
-      status: "Received",
+      status: "Archived",
       codenum: "12345678",
     },
     {
@@ -29,7 +29,7 @@ const InternalLogs = () => {
       officefrom: "Free WiFi Office",
       receipient: "Bruce Lee",
       officeto: "Planning",
-      status: "Forwarded",
+      status: "Archived",
       codenum: "12345678",
     },
     {
@@ -39,14 +39,10 @@ const InternalLogs = () => {
       officefrom: "ILCDB",
       receipient: "Jonas Sacarias",
       officeto: "IRM Unit",
-      status: "Completed",
+      status: "Archived",
       codenum: "12345678",
     },
   ]);
-
-  const handleFilterChange = (event) => {
-    setFilterValue(event.target.value);
-  };
 
   const filteredData = data.filter((val) => {
     // Check for filter value match
@@ -64,6 +60,20 @@ const InternalLogs = () => {
     return filterMatch && searchMatch;
   });
 
+  const Tooltip = ({ text, children }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    return (
+      <div
+        className="tooltip2-container"
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+        {isVisible && <div className="tooltip2">{text}</div>}
+      </div>
+    );
+  };
+
   return (
     <>
       <Header />
@@ -71,9 +81,18 @@ const InternalLogs = () => {
       <div>
         <div className="MainPanel">
           <div className="PanelWrapper">
-            <div className="PanelHeader">
+            <div className="AddUserHeader arc">
+              <div className="back-btn">
+                <Link to="/home">
+                  <button>
+                    <Tooltip text={"Click to go back, Home page"}>
+                      <RiArrowGoBackFill className="back-icon" />
+                    </Tooltip>{" "}
+                  </button>
+                </Link>
+              </div>
               <div className="filter">
-                <p>Internal Logs</p>
+                <p>Archive</p>
               </div>
               <div className="search">
                 <div className="search-border">
@@ -90,33 +109,9 @@ const InternalLogs = () => {
                 </div>
               </div>
             </div>
-
             <div className="logList-container">
               <div className="contents">
                 <div className="content-table">
-                  <div className="docFilter-container">
-                    <select
-                      value={filterValue}
-                      onChange={handleFilterChange}
-                      className="docFilter"
-                    >
-                      <option className="selection" value="">
-                        All
-                      </option>
-                      <option className="selection" value="Created">
-                        Created
-                      </option>
-                      <option className="selection" value="Received">
-                        Received
-                      </option>
-                      <option className="selection" value="Forwarded">
-                        Forwarded
-                      </option>
-                      <option className="selection" value="Completed">
-                        Completed
-                      </option>
-                    </select>
-                  </div>
                   <table>
                     <thead>
                       <tr>
@@ -137,7 +132,7 @@ const InternalLogs = () => {
                             <td>{val.receipient}</td>
                             <td>
                               <div className="viewbtn">
-                                <button>View</button>
+                                <button>Restore</button>
                               </div>
                             </td>
                           </tr>
@@ -156,4 +151,4 @@ const InternalLogs = () => {
   );
 };
 
-export default InternalLogs;
+export default Archive;
