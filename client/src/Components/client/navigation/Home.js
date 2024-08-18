@@ -275,7 +275,7 @@ const Home = () => {
   // This is for the list of displayed documents in the table
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const docsPerPage = 15;
+  const docsPerPage = 20;
 
   const startIndex = (currentPage - 1) * docsPerPage;
   const endIndex = startIndex + docsPerPage;

@@ -17,15 +17,19 @@ const Tracking = () => {
       const data = response.data;
 
       // Ensure receivingLogs and forwardingLogs are arrays
-      const receivingLogs = Array.isArray(data.receivingLogs) ? data.receivingLogs : [];
-      const forwardingLogs = Array.isArray(data.forwardingLogs) ? data.forwardingLogs : [];
+      const receivingLogs = Array.isArray(data.receivingLogs)
+        ? data.receivingLogs
+        : [];
+      const forwardingLogs = Array.isArray(data.forwardingLogs)
+        ? data.forwardingLogs
+        : [];
       const completedLog = data.completedLog ? [data.completedLog] : [];
 
       // Combine receiving, forwarding, and completed logs into a single array
       const combinedLogs = [
-        ...receivingLogs.map(log => ({ ...log, type: 'receiving' })),
-        ...forwardingLogs.map(log => ({ ...log, type: 'forwarding' })),
-        ...completedLog.map(log => ({ ...log, type: 'completed' }))
+        ...receivingLogs.map((log) => ({ ...log, type: "receiving" })),
+        ...forwardingLogs.map((log) => ({ ...log, type: "forwarding" })),
+        ...completedLog.map((log) => ({ ...log, type: "completed" })),
       ];
 
       // Sort combined logs by their respective timestamps
@@ -53,7 +57,7 @@ const Tracking = () => {
       <div>
         <div className="MainPanel">
           <div className="PanelWrapper">
-            <div className="PanelHeader">
+            <div className="AddUserHeader">
               <div className="filter">
                 <p>Document Tracking</p>
               </div>
@@ -93,27 +97,72 @@ const Tracking = () => {
                           }`}
                         >
                           <div className="track-content">
-                            {log.type === 'receiving' ? (
+                            {log.type === "receiving" ? (
                               <>
-                                <p>Received At: {new Date(log.receivedAt).toLocaleString()}</p>
+                                <p>
+                                  <strong
+                                    style={{
+                                      color: "#0060bf",
+                                      textShadow:
+                                        "1px 1px 1px rgba(0, 0, 0, 0.5)",
+                                    }}
+                                  >
+                                    Received
+                                  </strong>{" "}
+                                  At:{" "}
+                                  {new Date(log.receivedAt).toLocaleString()}
+                                </p>
                                 <p>Received By: {log.receivedBy}</p>
                                 <p>Document Title: {log.documentTitle}</p>
-                                <p className="remarks">Remarks: {log.remarks}</p> {/* Apply the CSS class here */}
+                                <p className="remarks">
+                                  Remarks: {log.remarks}
+                                </p>{" "}
+                                {/* Apply the CSS class here */}
                               </>
-                            ) : log.type === 'forwarding' ? (
+                            ) : log.type === "forwarding" ? (
                               <>
-                                <p>Forwarded At: {new Date(log.forwardedAt).toLocaleString()}</p>
+                                <p>
+                                  <strong
+                                    style={{
+                                      color: "#fab905",
+                                      textShadow:
+                                        "1px 1px 1px rgba(0, 0, 0, 0.9)",
+                                    }}
+                                  >
+                                    Forwarded
+                                  </strong>{" "}
+                                  At:{" "}
+                                  {new Date(log.forwardedAt).toLocaleString()}
+                                </p>
                                 <p>Forwarded By: {log.forwardedBy}</p>
                                 <p>Forwarded To: {log.forwardedTo}</p>
                                 <p>Document Title: {log.documentTitle}</p>
-                                <p className="remarks">Remarks: {log.remarks}</p> {/* Apply the CSS class here */}
+                                <p className="remarks">
+                                  Remarks: {log.remarks}
+                                </p>{" "}
+                                {/* Apply the CSS class here */}
                               </>
                             ) : (
                               <>
-                                <p>Completed At: {new Date(log.completedAt).toLocaleString()}</p>
+                                <p>
+                                  <strong
+                                    style={{
+                                      color: "#109903",
+                                      textShadow:
+                                        "1px 1px 1px rgba(0, 0, 0, 0.5)",
+                                    }}
+                                  >
+                                    Completed
+                                  </strong>{" "}
+                                  At:{" "}
+                                  {new Date(log.completedAt).toLocaleString()}
+                                </p>
                                 <p>Completed By: {log.completedBy}</p>
                                 <p>Document Title: {log.documentTitle}</p>
-                                <p className="remarks">Remarks: {log.remarks}</p> {/* Apply the CSS class here */}
+                                <p className="remarks">
+                                  Remarks: {log.remarks}
+                                </p>{" "}
+                                {/* Apply the CSS class here */}
                               </>
                             )}
                           </div>

@@ -17,6 +17,7 @@ import InternalLogs from "./Components/client/navigation/InternalLogs";
 import ViewCompleted from "./Components/client/navigation/ViewCompleted";
 import Completing from "./Components/client/navigation/Completing";
 import Archive from "./Components/client/navigation/Archive";
+import UserProfile from "./Components/client/navigation/UserProfile";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
         <Route path="/internal-logs" element={<Internal />} />
         <Route path="/view-completed" element={<ViewComplete />} />
         <Route path="/archived-files" element={<Archived />} />
+        <Route path="/user-profile" element={<ViewProfile />} />
         <Route
           path="*"
           element={
@@ -116,5 +118,9 @@ function Internal() {
 // Inserted on Aug 14, 2024
 function Archived() {
   return <Archive />;
+}
+// Inserted on Aug 14, 2024
+function ViewProfile() {
+  return <UserProfile />;
 }
 export default App;
