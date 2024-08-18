@@ -935,6 +935,9 @@ input::-webkit-inner-spin-button {
     width: fit-content;
     font-size: 13px;
   }
+  .dropdownBtn .ddown-menu ul li {
+    padding: 5px 5px;
+  }
 }
 @media screen and (max-width: 650px) {
   .PanelHeader .submitdocuBtn.secondarybtn button {
@@ -1000,6 +1003,6 @@ input::-webkit-inner-spin-button {
 }
 /* styles.css */
 .remarks {
-  color: #007bff; /* Choose your desired color */
+  color: #002a56; /* Choose your desired color */
   font-style: bold; /* Optional: Add italic style for emphasis */
 }
