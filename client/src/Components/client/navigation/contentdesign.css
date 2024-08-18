@@ -812,8 +812,6 @@ input::-webkit-inner-spin-button {
   display: flex;
   width: 100%;
   align-items: center;
-  flex-direction: row;
-  margin: 0 0 10px 0;
   justify-content: end;
 }
 .archived-btn button {
