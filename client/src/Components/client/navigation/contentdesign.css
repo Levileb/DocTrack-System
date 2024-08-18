@@ -812,7 +812,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   width: 100%;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
 }
 .archived-btn button {
   width: 100px;
