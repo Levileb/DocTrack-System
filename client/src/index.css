@@ -159,6 +159,14 @@ ul li {
   position: fixed;
   padding-left: 20px;
 }
+.sidebar .user .username .user-fullname {
+  color: #000;
+  text-decoration: none;
+}
+.sidebar .user .username .user-fullname:hover {
+  cursor: pointer;
+  color: #129bff;
+}
 
 .menus {
   margin-top: 15px;
@@ -275,6 +283,7 @@ ul li {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  cursor: pointer;
 }
 
 .sidebar.collapsed .user .username {
@@ -721,11 +730,37 @@ ul li {
   min-width: 150px;
   font-size: 11px;
 }
+.tooltipUser-container {
+  position: relative;
+  display: inline-block;
+}
+.tooltipUser {
+  position: absolute;
+  top: calc(-10% - -100%);
+  transform: translateX(90%);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  padding: 2px;
+  border-radius: 3px;
+  z-index: 10;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  min-width: 100px;
+  font-size: 11px;
+}
 
 /* Media Queries for mobile screens */
 @media (max-width: 426px) {
   .qr-reader {
     width: 100%;
+  }
+  .track-results h2 {
+    font-size: 18px;
+    padding: 0 5px;
+  }
+  .track-results p {
+    padding: 0 5px;
   }
 }
 /* -------------------------------------- */

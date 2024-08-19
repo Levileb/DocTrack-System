@@ -216,7 +216,6 @@ const Forwarding = () => {
                     value={formData.remarks}
                     onChange={handleInputChange}
                     autoComplete="off"
-                    required
                   />
                 </div>
               </div>

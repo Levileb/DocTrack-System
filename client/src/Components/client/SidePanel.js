@@ -8,6 +8,7 @@ import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { GrDocumentTime } from "react-icons/gr";
+import { useNavigate } from "react-router-dom";
 
 const SidePanel = () => {
   const [collapsed, setCollapsed] = useState(true);
@@ -18,6 +19,7 @@ const SidePanel = () => {
     role: "",
   });
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserDetails();
@@ -95,9 +97,26 @@ const SidePanel = () => {
       </div>
     );
   };
+  const TooltipUser = ({ text, children }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    return (
+      <div
+        className="tooltipUser-container"
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+        {isVisible && <div className="tooltipUser">{text}</div>}
+      </div>
+    );
+  };
 
   const firstLetter = firstname ? firstname.charAt(0).toUpperCase() : "";
   const capitalizeRole = (role) => role.toUpperCase();
+
+  const handleGotoProfile = () => {
+    navigate("/user-profile");
+  };
 
   return (
     <>
@@ -107,21 +126,23 @@ const SidePanel = () => {
       >
         <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
           <div className="user">
-            {/* <img src={user} alt="user profile"></img> */}
             <div className="user-acro">
               <h1>{firstLetter}</h1>
             </div>
             <div className="username">
               <ul>
                 <li
+                  className="user-fullname"
+                  onClick={handleGotoProfile}
                   style={{
                     fontFamily: "Poppins",
                     fontSize: "18px",
                     fontWeight: "bold",
                   }}
                 >
-                  {firstname} {lastname}
+                  <TooltipUser text={"View Profile"}>{firstname}</TooltipUser>
                 </li>
+
                 <li>
                   <small>{capitalizeRole(role)}</small>
                 </li>
