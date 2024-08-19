@@ -331,7 +331,7 @@ const Home = () => {
                   <Link to="/archived-document">
                     <button>
                       <LuArchive className="icon" />
-                      <p> Archive</p>
+                      <p> Archived</p>
                     </button>
                   </Link>
                 </div>

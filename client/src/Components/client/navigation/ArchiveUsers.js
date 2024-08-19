@@ -6,24 +6,53 @@ import { IoSearch } from "react-icons/io5";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 const ArchiveUsers = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
 
+  useEffect(() => {
+    // Fetch archived users from the backend
+    const fetchArchivedUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/archived-users'); // Corrected URL
+        console.log('Fetched archived users:', response.data); // Log response data
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching archived users", error);
+      }
+    };
+
+    fetchArchivedUsers();
+  }, []);
+
+  const handleRestore = async (userId) => {
+    try {
+      await axios.post(`http://localhost:3001/restore-user/${userId}`); // Corrected URL
+      // Update the local state to reflect the restored user
+      setData(data.filter(user => user._id !== userId));
+      console.log('User restored:', userId); // Log restored user ID
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
+    } catch (error) {
+      console.error("Error restoring user", error);
+    }
+  };
+
   const filteredData = data.filter((val) => {
     // Check for search query match (case insensitive)
     const searchMatch =
-      val.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.recipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.originating.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.destination.toLowerCase().includes(searchQuery.toLowerCase());
+      val.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.office.toLowerCase().includes(searchQuery.toLowerCase());
 
     return searchMatch;
   });
+
   const Tooltip = ({ text, children }) => {
     const [isVisible, setIsVisible] = useState(false);
     return (
@@ -37,6 +66,7 @@ const ArchiveUsers = () => {
       </div>
     );
   };
+
   return (
     <>
       <Header />
@@ -78,10 +108,11 @@ const ArchiveUsers = () => {
                   <table>
                     <thead>
                       <tr>
-                        <td>Date</td>
-                        <td>Title</td>
-                        <td>From</td>
-                        <td>To</td>
+                        <td>First Name</td>
+                        <td>Last Name</td>
+                        <td>Email</td>
+                        <td>Position</td>
+                        <td>Office</td>
                         <td>Action</td>
                       </tr>
                     </thead>
@@ -89,13 +120,14 @@ const ArchiveUsers = () => {
                       {filteredData.map((val, key) => {
                         return (
                           <tr key={key}>
-                            <td>{new Date(val.date).toLocaleDateString()}</td>
-                            <td>{val.title}</td>
-                            <td>{val.sender}</td>
-                            <td>{val.recipient}</td>
+                            <td>{val.firstname}</td>
+                            <td>{val.lastname}</td>
+                            <td>{val.email}</td>
+                            <td>{val.position}</td>
+                            <td>{val.office}</td>
                             <td>
                               <div className="viewbtn">
-                                <button>Restore</button>
+                                <button onClick={() => handleRestore(val._id)}>Restore</button>
                               </div>
                             </td>
                           </tr>

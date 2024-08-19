@@ -109,6 +109,30 @@ app.post('/archive-user/:userId', async (req, res) => {
     }
 });
 
+// Route to fetch archived users
+app.get('/archived-users', async (req, res) => {
+    try {
+        const archivedUsers = await UserModel.find({ isArchived: true });
+        res.status(200).json(archivedUsers);
+    } catch (error) {
+        console.error("Error fetching archived users:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+// New route to restore a user
+app.post('/restore-user/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        await UserModel.findByIdAndUpdate(userId, { isArchived: false });
+        res.status(200).json({ message: "User restored successfully." });
+    } catch (error) {
+        console.error("Error restoring user:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+
 // Endpoint to fetch all documents
 app.get('/api/docs', (req, res) => {
     DocModel.find()
@@ -229,6 +253,27 @@ app.post('/archive-office/:id', (req, res) => {
         .then(updatedOffice => res.json(updatedOffice))
         .catch(err => res.status(500).json({ error: "Failed to archive office" }));
 });
+
+// Endpoint to restore an office
+app.post('/restore-office/:id', (req, res) => {
+    const officeId = req.params.id;
+
+    OfficeModel.findByIdAndUpdate(officeId, { isArchived: false }, { new: true })
+        .then(updatedOffice => res.json(updatedOffice))
+        .catch(err => res.status(500).json({ error: "Failed to restore office" }));
+});
+
+// Route to fetch archived offices
+app.get('/archived-offices', async (req, res) => {
+    try {
+        const archivedOffices = await OfficeModel.find({ isArchived: true });
+        res.status(200).json(archivedOffices);
+    } catch (error) {
+        console.error("Error fetching archived offices:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 app.post('/api/docs/update-status', async (req, res) => {
     try {
