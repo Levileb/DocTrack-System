@@ -6,42 +6,11 @@ import { IoSearch } from "react-icons/io5";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
-import axios from "axios";
 
-const ArchiveDocument = () => {
+const ArchiveUsers = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-
-  useEffect(() => {
-    // Fetch archived documents from the backend
-    const fetchArchivedDocuments = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3001/archived-document"
-        ); // Corrected URL
-        console.log("Fetched archived documents:", response.data); // Log response data
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching archived documents", error);
-      }
-    };
-
-    fetchArchivedDocuments();
-  }, []);
-
-  const handleRestore = async (docId) => {
-    try {
-      await axios.post("http://localhost:3001/restore-document", { docId }); // Corrected URL
-      // Update the local state to reflect the restored document
-      setData(data.filter((doc) => doc._id !== docId));
-      console.log("Document restored:", docId); // Log restored document ID
-      setShowPopup(true);
-    } catch (error) {
-      console.error("Error restoring document", error);
-    }
-    setTimeout(() => setShowPopup(false), 1000);
-  };
 
   const filteredData = data.filter((val) => {
     // Check for search query match (case insensitive)
@@ -55,7 +24,6 @@ const ArchiveDocument = () => {
 
     return searchMatch;
   });
-
   const Tooltip = ({ text, children }) => {
     const [isVisible, setIsVisible] = useState(false);
     return (
@@ -69,7 +37,6 @@ const ArchiveDocument = () => {
       </div>
     );
   };
-
   return (
     <>
       <Header />
@@ -79,7 +46,7 @@ const ArchiveDocument = () => {
           <div className="PanelWrapper">
             <div className="AddUserHeader arc">
               <div className="back-btn">
-                <Link to="/home">
+                <Link to="/add-office">
                   <button>
                     <Tooltip text={"Click to go back, Home page"}>
                       <RiArrowGoBackFill className="back-icon" />
@@ -88,7 +55,7 @@ const ArchiveDocument = () => {
                 </Link>
               </div>
               <div className="filter">
-                <p>Archived Document</p>
+                <p>Archived Users</p>
               </div>
               <div className="search">
                 <div className="search-border">
@@ -128,9 +95,7 @@ const ArchiveDocument = () => {
                             <td>{val.recipient}</td>
                             <td>
                               <div className="viewbtn">
-                                <button onClick={() => handleRestore(val._id)}>
-                                  Restore
-                                </button>
+                                <button>Restore</button>
                               </div>
                             </td>
                           </tr>
@@ -148,7 +113,7 @@ const ArchiveDocument = () => {
       {showPopup && (
         <div className="popup-container">
           <div className="popup forwarding">
-            <p>Document Restored!</p>
+            <p>Office Restored!</p>
           </div>
         </div>
       )}
@@ -156,4 +121,4 @@ const ArchiveDocument = () => {
   );
 };
 
-export default ArchiveDocument;
+export default ArchiveUsers;

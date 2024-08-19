@@ -6,6 +6,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { RiArrowGoBackFill } from "react-icons/ri";
+import { LuArchive } from "react-icons/lu";
 import "../navigation/newcontent.css";
 
 const AddOffice = () => {
@@ -110,6 +111,14 @@ const AddOffice = () => {
               </Link>
             </div>
             <p>Add Office</p>
+            <div className="adduserbtn nf secondarybtn">
+              <Link to="/archived-offices" style={{ textDecoration: "none" }}>
+                <button>
+                  <LuArchive className="icon" />
+                  <p>Archived</p>
+                </button>
+              </Link>
+            </div>
           </div>
           <div className="noContainer">
             <div className="listofficetable content-table">

@@ -8,6 +8,7 @@ import { IoSearch } from "react-icons/io5";
 import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsBuildingAdd } from "react-icons/bs";
+import { LuArchive } from "react-icons/lu";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -110,6 +111,14 @@ const Users = () => {
                   <button>
                     <BsBuildingAdd className="icon" />
                     <p>New Office</p>
+                  </button>
+                </Link>
+              </div>
+              <div className="adduserbtn nf secondarybtn">
+                <Link to="/archived-users" style={{ textDecoration: "none" }}>
+                  <button>
+                    <LuArchive className="icon" />
+                    <p>Archived</p>
                   </button>
                 </Link>
               </div>

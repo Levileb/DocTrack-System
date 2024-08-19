@@ -18,8 +18,8 @@ import ViewCompleted from "./Components/client/navigation/ViewCompleted";
 import Completing from "./Components/client/navigation/Completing";
 import ArchiveDocument from "./Components/client/navigation/ArchiveDocument";
 import UserProfile from "./Components/client/navigation/UserProfile";
-
-
+import ArchiveUsers from "./Components/client/navigation/ArchiveUsers";
+import ArchiveOffice from "./Components/client/navigation/ArchiveOffice";
 
 function App() {
   return (
@@ -46,6 +46,8 @@ function App() {
         <Route path="/user-profile" element={<ViewProfile />} />
         <Route path="/archived-document" element={<ArchiveDocu />} />
         <Route path="/view-complete" element={<ViewComplete />} />
+        <Route path="/archived-users" element={<ArchivedUser />} />
+        <Route path="/archived-offices" element={<ArchivedOffices />} />
         <Route
           path="*"
           element={
@@ -124,5 +126,13 @@ function ArchiveDocu() {
 // Inserted on Aug 14, 2024
 function ViewProfile() {
   return <UserProfile />;
+}
+// Inserted on Aug 19, 2024
+function ArchivedUser() {
+  return <ArchiveUsers />;
+}
+// Inserted on Aug 19, 2024
+function ArchivedOffices() {
+  return <ArchiveOffice />;
 }
 export default App;
