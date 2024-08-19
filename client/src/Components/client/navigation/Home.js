@@ -328,7 +328,7 @@ const Home = () => {
             <div className="content-table">
               <div className="arc-doc-container">
                 <div className="archived-btn">
-                  <Link to="/archived-files">
+                  <Link to="/archived-document">
                     <button>
                       <LuArchive className="icon" />
                       <p> Archive</p>

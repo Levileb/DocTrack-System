@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
@@ -6,58 +6,49 @@ import { IoSearch } from "react-icons/io5";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
-const Archive = () => {
+const ArchiveDocument = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
-  const [filterValue, setFilterValue] = useState("");
+  const [data, setData] = useState([]);
 
-  const [data, setData] = useState([
-    {
-      date: "07/10/2024",
-      title: "Sample Title 1",
-      sender: "Adam White",
-      officefrom: "Admin Office",
-      receipient: "Kyle Bryan",
-      officeto: "GovNet",
-      status: "Archived",
-      codenum: "12345678",
-    },
-    {
-      date: "07/10/2024",
-      title: "Sample Title 2",
-      sender: "Jhon Lou",
-      officefrom: "Free WiFi Office",
-      receipient: "Bruce Lee",
-      officeto: "Planning",
-      status: "Archived",
-      codenum: "12345678",
-    },
-    {
-      date: "07/10/2024",
-      title: "Sample Title 3",
-      sender: "Jez Garcia",
-      officefrom: "ILCDB",
-      receipient: "Jonas Sacarias",
-      officeto: "IRM Unit",
-      status: "Archived",
-      codenum: "12345678",
-    },
-  ]);
+  useEffect(() => {
+    // Fetch archived documents from the backend
+    const fetchArchivedDocuments = async () => {
+      try {
+        const response = await axios.get('/archived-documents');
+        console.log('Fetched archived documents:', response.data); // Log response data
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching archived documents", error);
+      }
+    };
+
+    fetchArchivedDocuments();
+  }, []);
+
+  const handleRestore = async (docId) => {
+    try {
+      await axios.post('/restore-document', { docId });
+      // Update the local state to reflect the restored document
+      setData(data.filter(doc => doc._id !== docId));
+      console.log('Document restored:', docId); // Log restored document ID
+    } catch (error) {
+      console.error("Error restoring document", error);
+    }
+  };
 
   const filteredData = data.filter((val) => {
-    // Check for filter value match
-    const filterMatch = filterValue === "" || val.status === filterValue;
-
     // Check for search query match (case insensitive)
     const searchMatch =
       val.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.receipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.officefrom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.officeto.toLowerCase().includes(searchQuery.toLowerCase());
+      val.recipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.originating.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.destination.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return filterMatch && searchMatch;
+    return searchMatch;
   });
 
   const Tooltip = ({ text, children }) => {
@@ -126,13 +117,13 @@ const Archive = () => {
                       {filteredData.map((val, key) => {
                         return (
                           <tr key={key}>
-                            <td>{val.date}</td>
+                            <td>{new Date(val.date).toLocaleDateString()}</td>
                             <td>{val.title}</td>
                             <td>{val.sender}</td>
-                            <td>{val.receipient}</td>
+                            <td>{val.recipient}</td>
                             <td>
                               <div className="viewbtn">
-                                <button>Restore</button>
+                                <button onClick={() => handleRestore(val._id)}>Restore</button>
                               </div>
                             </td>
                           </tr>
@@ -151,4 +142,4 @@ const Archive = () => {
   );
 };
 
-export default Archive;
+export default ArchiveDocument;

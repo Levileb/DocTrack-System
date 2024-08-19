@@ -812,7 +812,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   width: 100%;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
 }
 .archived-btn button {
   width: 100px;
@@ -1001,3 +1001,4 @@ input::-webkit-inner-spin-button {
   color: #007bff; /* Choose your desired color */
   font-style: bold; /* Optional: Add italic style for emphasis */
 }
+  
