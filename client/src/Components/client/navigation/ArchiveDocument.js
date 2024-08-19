@@ -11,12 +11,14 @@ import axios from 'axios';
 const ArchiveDocument = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+
 
   useEffect(() => {
     // Fetch archived documents from the backend
     const fetchArchivedDocuments = async () => {
       try {
-        const response = await axios.get('/archived-documents');
+        const response = await axios.get('http://localhost:3001/archived-document'); // Corrected URL
         console.log('Fetched archived documents:', response.data); // Log response data
         setData(response.data);
       } catch (error) {
@@ -29,13 +31,15 @@ const ArchiveDocument = () => {
 
   const handleRestore = async (docId) => {
     try {
-      await axios.post('/restore-document', { docId });
+      await axios.post('http://localhost:3001/restore-document', { docId }); // Corrected URL
       // Update the local state to reflect the restored document
       setData(data.filter(doc => doc._id !== docId));
       console.log('Document restored:', docId); // Log restored document ID
+      setShowPopup(true);
     } catch (error) {
       console.error("Error restoring document", error);
     }
+    setTimeout(() => setShowPopup(false), 1000);
   };
 
   const filteredData = data.filter((val) => {
@@ -138,6 +142,13 @@ const ArchiveDocument = () => {
         </div>
       </div>
       <Footer />
+      {showPopup && (
+        <div className="popup-container">
+          <div className="popup forwarding">
+            <p>Document Restored!</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

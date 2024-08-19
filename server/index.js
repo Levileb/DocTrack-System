@@ -418,6 +418,7 @@ app.post('/submit-document', (req, res) => {
         .catch(err => res.json(err));
 });
 
+// Route to archive a document
 app.post('/archive-document', (req, res) => {
     const { docId } = req.body;
   
@@ -430,7 +431,29 @@ app.post('/archive-document', (req, res) => {
       })
       .catch(err => res.status(500).json({ error: err.message }));
   });
-
+  
+  // Route to restore a document
+  app.post('/restore-document', (req, res) => {
+    const { docId } = req.body;
+  
+    DocModel.findByIdAndUpdate(docId, { status: 'Restored' }, { new: true })
+      .then(updatedDoc => {
+        if (!updatedDoc) {
+          return res.status(404).json({ error: 'Document not found' });
+        }
+        res.json({ message: 'Document restored successfully', document: updatedDoc });
+      })
+      .catch(err => res.status(500).json({ error: err.message }));
+  });
+  
+ // Route to fetch archived documents
+app.get('/archived-document', (req, res) => {
+    DocModel.find({ status: 'Archived' })
+        .then(documents => {
+            res.json(documents);
+        })
+        .catch(err => res.status(500).json({ error: err.message }));
+});
 
 app.post('/', (req, res) => {
     const { email, password } = req.body;
