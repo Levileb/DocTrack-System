@@ -811,6 +811,7 @@ input::-webkit-inner-spin-button {
 .arc-doc-container {
   display: flex;
   width: 100%;
+  margin-bottom: 5px;
   align-items: center;
   justify-content: flex-end;
 }

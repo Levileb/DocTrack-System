@@ -7,10 +7,33 @@ import logo from "../assets/kabankalan-logo.png";
 
 const UserProfile = () => {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match!");
+      return;
+    }
+
+    // Passwords match, proceed with your form submission logic
+    setErrorMessage(""); // Clear the error message
+    setShowPopup(true);
+    console.log("Password changed successfully!");
+
+    // Reset the form (optional)
+    setPassword("");
+    setConfirmPassword("");
+    setTimeout(() => setShowPopup(false), 1500);
   };
 
   return (
@@ -35,7 +58,7 @@ const UserProfile = () => {
                 <p>Email: user@mail.com</p>
               </div>
               <div className="change-pass">
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="password-container">
                     <label htmlFor="password">Change Password:</label>
                     <input
@@ -45,15 +68,17 @@ const UserProfile = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter new password"
+                      required
                     />
 
                     <input
-                      type={isPasswordVisible ? "text" : "cpassword"}
-                      id="cpassword"
-                      name="cpassword"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      type={isPasswordVisible ? "text" : "password"}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm password"
+                      required
                     />
                     <span
                       className="toggle-password"
@@ -63,6 +88,14 @@ const UserProfile = () => {
                     </span>
                   </div>
 
+                  {errorMessage && (
+                    <p
+                      style={{ color: "red", fontSize: "15px" }}
+                      className="error-message"
+                    >
+                      {errorMessage}
+                    </p>
+                  )}
                   <div className="savePass-btn">
                     <button type="submit">Save Password</button>
                   </div>
@@ -76,6 +109,13 @@ const UserProfile = () => {
         </div>
       </div>
       <Footer />
+      {showPopup && (
+        <div className="popup-container">
+          <div className="popup savepass">
+            <p className="message">Password changed successfully!</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

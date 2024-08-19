@@ -234,6 +234,30 @@
   margin: 70px;
   transition: ease 0.4s;
 }
+
+.popup.savepass {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  margin: auto;
+  flex-direction: column;
+  min-width: 300px;
+  height: auto;
+  color: #00162d;
+  background: #ffffff;
+  z-index: 11111;
+  transform: translate(25px, 10px);
+}
+.popup.savepass .message {
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 15px;
+  font-weight: 600;
+  width: max-content;
+  display: flex;
+}
+
 @media screen and (max-width: 730px) {
   .logo-user-container {
     display: none;
