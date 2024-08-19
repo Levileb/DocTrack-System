@@ -11,9 +11,40 @@ const UserProfile = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState("");
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  const evaluatePasswordStrength = (password) => {
+    let strength = "";
+
+    // New criteria: At least one letter and one number, and a minimum of 8 characters.
+    const regexStrong =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    // New criteria: At least one letter and one number, and a minimum of 6 characters.
+    const regexMedium = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+    if (regexStrong.test(password)) {
+      strength = "Strong Password";
+      console.log("Strong");
+    } else if (regexMedium.test(password)) {
+      strength = "Medium Password";
+      console.log("Medium");
+    } else {
+      strength = "Weak Password";
+      console.log("Weak");
+    }
+
+    return strength;
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setPasswordStrength(evaluatePasswordStrength(newPassword));
   };
 
   const handleSubmit = (e) => {
@@ -25,14 +56,15 @@ const UserProfile = () => {
       return;
     }
 
-    // Passwords match, proceed with your form submission logic
-    setErrorMessage(""); // Clear the error message
+    // Passwords match and strong enough, proceed with form submission logic
+    setErrorMessage(""); // Clear any error messages
     setShowPopup(true);
     console.log("Password changed successfully!");
 
     // Reset the form (optional)
     setPassword("");
     setConfirmPassword("");
+    setPasswordStrength("");
     setTimeout(() => setShowPopup(false), 1500);
   };
 
@@ -66,10 +98,23 @@ const UserProfile = () => {
                       id="password"
                       name="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={handlePasswordChange}
                       placeholder="Enter new password"
                       required
                     />
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        color:
+                          passwordStrength === "Strong Password"
+                            ? "green"
+                            : passwordStrength === "Medium Password"
+                            ? "orange"
+                            : "red",
+                      }}
+                    >
+                      {passwordStrength}
+                    </p>
 
                     <input
                       type={isPasswordVisible ? "text" : "password"}
