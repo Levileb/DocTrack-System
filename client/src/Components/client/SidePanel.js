@@ -56,7 +56,7 @@ const SidePanel = () => {
     return location.pathname === path;
   };
 
-  const { firstname, lastname, role } = userDetails;
+  const { firstname, role } = userDetails;
 
   const handleLogout = () => {
     const confirmLogout = handlePopup;

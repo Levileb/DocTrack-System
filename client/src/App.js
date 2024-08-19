@@ -16,7 +16,10 @@ import Tracking from "./Components/client/navigation/Tracking";
 import InternalLogs from "./Components/client/navigation/InternalLogs";
 import ViewCompleted from "./Components/client/navigation/ViewCompleted";
 import Completing from "./Components/client/navigation/Completing";
-import Archive from "./Components/client/navigation/Archive";
+import ArchiveDocument from "./Components/client/navigation/ArchiveDocument";
+import UserProfile from "./Components/client/navigation/UserProfile";
+
+
 
 function App() {
   return (
@@ -40,8 +43,9 @@ function App() {
         <Route path="/receiving-document" element={<ReceivingTo />} />
         <Route path="/track-document" element={<DocTrack />} />
         <Route path="/internal-logs" element={<Internal />} />
-        <Route path="/view-completed" element={<ViewComplete />} />
-        <Route path="/archived-files" element={<Archived />} />
+        <Route path="/user-profile" element={<ViewProfile />} />
+        <Route path="/archived-document" element={<ArchiveDocu />} />
+        <Route path="/view-complete" element={<ViewComplete />} />
         <Route
           path="*"
           element={
@@ -114,8 +118,8 @@ function Internal() {
   return <InternalLogs />;
 }
 // Inserted on Aug 14, 2024
-function ArchiveDocument() {
-  return <Archive />;
+function ArchiveDocu() {
+  return <ArchiveDocument />;
 }
 // Inserted on Aug 14, 2024
 function ViewProfile() {
