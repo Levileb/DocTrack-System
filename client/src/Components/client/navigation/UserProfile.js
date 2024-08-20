@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import "../navigation/newcontent.css";
 import logo from "../assets/kabankalan-logo.png";
+import axios from "axios";
 
 const UserProfile = () => {
+  const [user, setUser] = useState({});
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -13,6 +15,17 @@ const UserProfile = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
 
+  useEffect(() => {
+    axios.get("http://localhost:3001/api/user/details")
+      .then((res) => {
+        console.log(res.data); // Log to check if 'email' is present
+        setUser(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching user details:", err);
+      });
+  }, []);
+  
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
@@ -20,11 +33,9 @@ const UserProfile = () => {
   const evaluatePasswordStrength = (password) => {
     let strength = "";
 
-    // New criteria: At least one letter and one number, and a minimum of 8 characters.
     const regexStrong =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    // New criteria: At least one letter and one number, and a minimum of 6 characters.
     const regexMedium = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
 
     if (regexStrong.test(password)) {
@@ -50,22 +61,26 @@ const UserProfile = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match!");
       return;
     }
 
-    // Passwords match and strong enough, proceed with form submission logic
-    setErrorMessage(""); // Clear any error messages
-    setShowPopup(true);
-    console.log("Password changed successfully!");
+    axios.post("http://localhost:3001/api/user/update-password", { password })
+      .then(() => {
+        setErrorMessage("");
+        setShowPopup(true);
+        console.log("Password changed successfully!");
 
-    // Reset the form (optional)
-    setPassword("");
-    setConfirmPassword("");
-    setPasswordStrength("");
-    setTimeout(() => setShowPopup(false), 1500);
+        setPassword("");
+        setConfirmPassword("");
+        setPasswordStrength("");
+        setTimeout(() => setShowPopup(false), 1500);
+      })
+      .catch((err) => {
+        console.error("Error updating password:", err);
+        setErrorMessage("Failed to change password. Please try again.");
+      });
   };
 
   return (
@@ -83,11 +98,13 @@ const UserProfile = () => {
           <div className="profile-container">
             <div className="display-user-info">
               <div className="view-user-info">
-                <p className="user-fullname">Theuser S. Fullname</p>
-                <p className="user-position">IT Officer II </p>
-                <p>Office: Plannning</p>
-                <p>Role: User</p>
-                <p>Email: user@mail.com</p>
+                <p className="user-fullname">
+                  {user.firstname} {user.lastname}
+                </p>
+                <p className="user-position">{user.role}</p>
+                <p>Office: {user.office}</p>
+                <p>Role: {user.role}</p>
+                <p>Email: {user.email}</p>
               </div>
               <div className="change-pass">
                 <form onSubmit={handleSubmit}>

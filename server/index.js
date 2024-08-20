@@ -25,44 +25,47 @@ mongoose.connect('mongodb://127.0.0.1:27017/doc_track');
 
 const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
+
     if (!token) {
         return res.status(401).json({ error: "Token is missing" });
-    } else {
-        jwt.verify(token, "jwt-secret-key", (err, decoded) => {
-            if (err) {
-                return res.status(401).json({ error: "Error with token" });
-            } else {
-                UserModel.findOne({ email: decoded.email }) // Assuming email is unique
-                    .then(user => {
-                        if (!user) {
-                            return res.status(401).json({ error: "User not found" });
-                        }
-                        req.user = {
-                            id: user._id, // Add user ID to request object
-                            firstname: user.firstname,
-                            lastname: user.lastname,
-                            role: user.role,
-                            office: user.office
-                        }; 
-                        next();
-                    })
-                    .catch(err => {
-                        console.error("Error finding user:", err);
-                        return res.status(500).json({ error: "Internal server error" });
-                    });
-            }
-        });
     }
+
+    jwt.verify(token, "jwt-secret-key", (err, decoded) => {
+        if (err) {
+            console.error("Token verification error:", err);
+            return res.status(401).json({ error: "Invalid token" });
+        }
+
+        UserModel.findOne({ email: decoded.email }) // Ensure email is unique
+            .then(user => {
+                if (!user) {
+                    return res.status(401).json({ error: "User not found" });
+                }
+
+                req.user = {
+                    _id: user._id, // Consistent with usage elsewhere
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    role: user.role,
+                    office: user.office,
+                    email: user.email
+                };
+
+                next();
+            })
+            .catch(err => {
+                console.error("Error finding user:", err);
+                res.status(500).json({ error: "Internal server error" });
+            });
+    });
 };
 
 
 
-// Update the '/api/user/details' endpoint to send user details along with the response
-app.get('/api/user/details', verifyUser, (req, res) => {
-    // Extract user details from the request object (you can modify this based on your user schema)
-    const { firstname, lastname, role, email, office } = req.user;
 
-    // Send the user details in the response
+app.get('/api/user/details', verifyUser, (req, res) => {
+    const { firstname, lastname, role, email, office } = req.user;
+    console.log({ firstname, lastname, role, email, office }); // Log to check the values
     res.json({ firstname, lastname, role, email, office });
 });
 
@@ -223,6 +226,42 @@ app.post('/add-user', (req, res) => {
             res.status(500).json({ error: "Internal server error" });
         });
 });
+
+app.post('/api/user/update-password', verifyUser, (req, res) => {
+    const { password } = req.body;
+
+    if (!password) {
+        return res.status(400).json({ error: "Password is required" });
+    }
+
+    console.log("Received request to update password for user:", req.user._id);
+
+    // Hash the new password
+    bcrypt.hash(password, 10)
+        .then(hash => {
+            // Update the user's password in the database
+            UserModel.findByIdAndUpdate(req.user._id, { password: hash }, { new: true })
+                .then(updatedUser => {
+                    if (!updatedUser) {
+                        console.log("User not found or update failed");
+                        return res.status(404).json({ error: "User not found" });
+                    }
+                    console.log("Password updated successfully for user:", updatedUser._id);
+                    res.json({ message: "Password updated successfully" });
+                })
+                .catch(err => {
+                    console.error("Error updating password in database:", err);
+                    res.status(500).json({ error: "Internal server error" });
+                });
+        })
+        .catch(err => {
+            console.error("Error hashing password:", err);
+            res.status(500).json({ error: "Internal server error" });
+        });
+});
+
+
+
 
 app.post('/add-office', (req, res) => {
     const { office } = req.body;
