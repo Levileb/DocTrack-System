@@ -69,6 +69,14 @@
   transform: translateY(-50%);
   font-size: 25px;
 }
+.input-box .icon.eye {
+  position: absolute;
+  right: 50px;
+  top: 50%;
+  transform: translateY(-40%);
+  font-size: 25px;
+  cursor: pointer;
+}
 .loginBtn {
   color: #fff;
   font-size: 18px;
