@@ -45,7 +45,7 @@ function App() {
         <Route path="/internal-logs" element={<Internal />} />
         <Route path="/user-profile" element={<ViewProfile />} />
         <Route path="/archived-document" element={<ArchiveDocu />} />
-        <Route path="/view-complete" element={<ViewComplete />} />
+        <Route path="/view-complete/:docId" element={<ViewComplete />} />
         <Route path="/archived-users" element={<ArchivedUser />} />
         <Route path="/archived-offices" element={<ArchivedOffices />} />
         <Route

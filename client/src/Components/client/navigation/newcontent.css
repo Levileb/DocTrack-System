@@ -40,10 +40,10 @@
 .view-document {
   font-size: 15px;
 }
-.docu-qrcode img {
-  height: 100%;
-  width: 200px;
-  border: 1px solid #000;
+.docu-qrcode {
+  height: auto;
+  display: flex;
+  align-items: center;
 }
 
 .filter.vd {
