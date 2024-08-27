@@ -1,35 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
-import { AiFillCloseCircle } from "react-icons/ai";
 import { Link } from "react-router-dom";
 
-const Forwarded = () => {
-  const data = [
-    {
-      date: "07/10/2024",
-      title: "OJT Application",
-      sender: "Adam White",
-      officefrom: "HR Section",
-      receipient: "Kyle Bryan",
-      officeto: "GovNet",
-      status: "Completed",
-    },
-  ];
+const Completed = () => {
+  const [data, setData] = useState([]); // State to hold fetched documents
 
-  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
-
-  const handlePopup = (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
-    // Add your form submission logic here
-
-    // Show popup notification
-    setShowPopup(true);
+  // Function to fetch completed documents
+  const fetchDocs = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/api/docs");
+      const completedDocs = response.data.filter(
+        (doc) => doc.status === "Completed"
+      );
+      setData(completedDocs);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    }
   };
-  const closePopup = () => {
-    setShowPopup(false);
+
+  useEffect(() => {
+    fetchDocs(); // Fetch documents when the component mounts
+  }, []);
+
+  const formatDate = (dateString) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    return new Date(dateString).toLocaleString("en-US", options);
   };
 
   return (
@@ -53,7 +56,6 @@ const Forwarded = () => {
             </div>
           </div>
           <div className="contents">
-            {/* <p>Contents will be displayed here.</p> */}
             <div className="content-table">
               <table>
                 <thead>
@@ -61,33 +63,26 @@ const Forwarded = () => {
                     <td>Date</td>
                     <td>Title</td>
                     <td>From</td>
-                    {/* <td>Originating Office</td>  */}
                     <td>To</td>
-                    {/* <td>Destination Office</td>  */}
                     <td>Action</td>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((val, key) => {
-                    return (
-                      <tr key={key}>
-                        <td>{val.date}</td>
-                        <td>{val.title}</td>
-                        <td>{val.sender}</td>
-                        {/* <td>{val.officefrom}</td>  */}
-                        <td>{val.receipient}</td>
-                        {/* <td>{val.officeto}</td> */}
-                        <td>
-                          <div className="viewbtn" href="/view-completed">
-                            {/* <button href="/view-completed">View</button> */}
-                            <Link to={`/view-completed`}>
-                              <button href="/view-completed">View</button>
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {data.map((doc) => (
+                    <tr key={doc._id}>
+                      <td>{formatDate(doc.date)}</td>
+                      <td>{doc.title}</td>
+                      <td>{doc.sender}</td>
+                      <td>{doc.recipient}</td>
+                      <td>
+                        <div className="viewbtn">
+                          <Link to={`/view-complete/${doc._id}`}>
+                            <button>View</button>
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -96,48 +91,8 @@ const Forwarded = () => {
       </div>
       <SidePanel />
       <Footer />
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup comp">
-            <p>User Information</p>
-            {data.map((val) => {
-              return (
-                <ul className="view-userinfo">
-                  <li>
-                    Date: <strong>{val.date}</strong>
-                  </li>
-                  <li>
-                    Title: <strong>{val.title}</strong>
-                  </li>
-                  <li>
-                    From: <strong>{val.sender}</strong>
-                  </li>
-                  <li>
-                    Office From: <strong>{val.officefrom}</strong>
-                  </li>
-                  <li>
-                    To: <strong>{val.receipient}</strong>
-                  </li>
-                  <li>
-                    Office to: <strong>{val.officeto}</strong>
-                  </li>
-                  <li>
-                    Status:{" "}
-                    <strong style={{ color: "#d4a300" }}>{val.status}</strong>
-                  </li>
-                </ul>
-              );
-            })}
-
-            <button className="closebtn" onClick={closePopup}>
-              <AiFillCloseCircle className="closeicon" />
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 };
 
-export default Forwarded;
+export default Completed;

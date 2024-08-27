@@ -353,9 +353,6 @@ const Home = () => {
                     <option className="selection" value="Forwarded">
                       Forwarded
                     </option>
-                    <option className="selection" value="Completed">
-                      Completed
-                    </option>
                   </select>
                 </div>
               </div>

@@ -1,82 +1,40 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import axios from "axios";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import "../navigation/newcontent.css";
-import { Link } from "react-router-dom";
 import logo from "../assets/kabankalan-logo.png";
-import SampleQRcode from "../assets/sample-qrcode.jpg";
 import { RiArrowGoBackFill } from "react-icons/ri";
+import QRCode from "qrcode.react";
 
 const ViewCompleted = () => {
-  const data = [
-    {
-      date: "07/10/2024",
-      title: "OJT Application",
-      sender: "Adam White",
-      officefrom: "HR Section",
-      receipient: "Kyle Bryan",
-      officeto: "GovNet",
-      status: "Completed",
-      codenum: "12345678",
-    },
-  ];
+  const { docId } = useParams(); // Get the document ID from URL parameters
+  const [document, setDocument] = useState(null);
 
-  const dummylogs = [
-    {
-      status: "Received",
-      datetime: "08/09/2024, 8:55:12 AM",
-      from: "Adam White",
-      receipient: "Kyle Bryan",
-      title: "Sample Title",
-      remarks:
-        "Lorem ipsum dolor sit amet, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      status: "Forwarded",
-      datetime: "08/09/2024, 9:07:42 AM",
-      from: "Adam White",
-      receipient: "Adam White",
-      title: "Sample Title",
-      remarks:
-        "Lorem ipsum dolor sit amet, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      status: "Completed",
-      datetime: "08/10/2024, 3:28:55 PM",
-      from: "Adam White",
-      receipient: "Adam White",
-      title: "Sample Title",
-      remarks:
-        "Lorem ipsum dolor sit amet, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-  ];
+  useEffect(() => {
+    const fetchDocument = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/docs/${docId}`
+        );
+        setDocument(response.data);
+      } catch (error) {
+        console.error(
+          "Error fetching document:",
+          error.response ? error.response.data : error.message
+        );
+      }
+    };
 
-  const componentRef = useRef();
+    fetchDocument();
+  }, [docId]);
 
-  const handlePrint = () => {
-    const printContents = componentRef.current.innerHTML;
-    const originalContents = document.body.innerHTML;
-
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    window.location.reload(); // Reload the page to restore original content
-  };
-
-  const Tooltip = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    return (
-      <div
-        className="tooltip2-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-      >
-        {children}
-        {isVisible && <div className="tooltip2">{text}</div>}
-      </div>
-    );
-  };
+  // Check if document is still loading
+  if (!document) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -89,18 +47,16 @@ const ViewCompleted = () => {
               <div className="filter vd">
                 <Link to="/completed">
                   <button className="back-btn">
-                    <Tooltip text={"Click to go back, Completed"}>
-                      <RiArrowGoBackFill className="back-icon" />
-                    </Tooltip>
+                    <RiArrowGoBackFill className="back-icon" />
                   </button>
                 </Link>
                 <p>View Document</p>
               </div>
             </div>
 
-            <div className="view-doc-info" ref={componentRef}>
+            <div className="view-doc-info">
               <div className="doc-header">
-                <img src={logo} alt="logo"></img>
+                <img src={logo} alt="logo" />
                 <div className="doc-header-title">
                   <h3>City Government of Kabankalan</h3>
                   <p>Document Routing Slip</p>
@@ -110,28 +66,26 @@ const ViewCompleted = () => {
               <p>
                 <small>
                   Control Number:
-                  <strong> {data[0].codenum}</strong>
+                  <strong> {document.codeNumber}</strong>
                 </small>
               </p>
               <div className="docu-info-head-container">
                 <div className="doc-information">
                   <h4>Document Information</h4>
-                  {data.map((val) => {
-                    return (
-                      <ul className="view-document" key={val.codenum}>
-                        <li>Date: {val.date}</li>
-                        <li>Title: {val.title}</li>
-                        <li>From: {val.sender}</li>
-                        <li>Office From: {val.officefrom}</li>
-                        <li>To: {val.receipient}</li>
-                        <li>Office to: {val.officeto}</li>
-                        <li>Status: {val.status}</li>
-                      </ul>
-                    );
-                  })}
+                  <ul className="view-document">
+                    <li>
+                      Date: {new Date(document.date).toLocaleDateString()}
+                    </li>
+                    <li>Title: {document.title}</li>
+                    <li>From: {document.sender}</li>
+                    <li>Office From: {document.originating}</li>
+                    <li>To: {document.recipient}</li>
+                    <li>Office to: {document.destination}</li>
+                    <li>Status: {document.status}</li>
+                  </ul>
                 </div>
                 <div className="docu-qrcode">
-                  <img src={SampleQRcode} alt="QR Code"></img>
+                  <QRCode id="qrCode" value={JSON.stringify(document)} />
                 </div>
               </div>
               <div className="docu-logs">
@@ -145,22 +99,18 @@ const ViewCompleted = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {dummylogs.map((val, key) => {
-                      return (
-                        <tr key={key}>
-                          <td>{val.datetime}</td>
-                          <td>{val.status}</td>
-                          <td>{val.receipient}</td>
-                          <td>{val.remarks}</td>
-                        </tr>
-                      );
-                    })}
+                    <tr>
+                      <td>Not Available</td>
+                      <td>Not Available</td>
+                      <td>Not Available</td>
+                      <td>Not Available</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
             </div>
             <div className="print-btn">
-              <button onClick={handlePrint}>Print</button>
+              <button>Print</button>
             </div>
           </div>
         </div>
