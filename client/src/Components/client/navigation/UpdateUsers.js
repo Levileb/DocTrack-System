@@ -12,7 +12,6 @@ const UpdateUsers = () => {
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [position, setPosition] = useState("");
   const [office, setOffice] = useState("");
 
@@ -25,7 +24,6 @@ const UpdateUsers = () => {
         setFirstName(result.data.firstname || ""); // Set initial name value or empty string
         setLastName(result.data.lastname || "");
         setEmail(result.data.email || ""); // Set initial email value or empty string
-        setPassword(result.data.password || "");
         setPosition(result.data.position || "");
         setOffice(result.data.office || "");
       })
@@ -39,7 +37,6 @@ const UpdateUsers = () => {
         firstname,
         lastname,
         email,
-        password,
         position,
         office,
       })
@@ -57,7 +54,6 @@ const UpdateUsers = () => {
     setFirstName("");
     setLastName("");
     setEmail("");
-    setPassword("");
     setPosition("");
     setOffice("");
   };
@@ -128,16 +124,7 @@ const UpdateUsers = () => {
                   />
                 </div>
 
-                <p>Password:</p>
-                <div className="input-new">
-                  <input
-                    type="password"
-                    id="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
+                
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">
