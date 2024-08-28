@@ -133,9 +133,6 @@ const Home = () => {
               ul li {
                 margin-bottom: 5px;
               }
-              label {
-                font-weight: bold;
-              }
               img {
                 display: flex;
                 max-width: 100px;
@@ -144,7 +141,7 @@ const Home = () => {
               header {
                 display: flex;
                 justify-content: center;
-                margin-bottom: 10px;
+                margin-bottom: 30px;
               }
               #logoImg {
                 height: 100px;
@@ -163,7 +160,13 @@ const Home = () => {
               #drs {
                 display: flex;
                 width: 100%;
-                max-height: 45px;
+                max-height: 20px;
+              }
+              #qrCode {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
               }
             </style>
           </head>
@@ -174,12 +177,12 @@ const Home = () => {
               </div>
               <div id="companyTitle">
                 <h2 class="title">City Government of Kabankalan</h2>
-                <h5 class="title">Document Tracking System</h5>
+                <h4 class="title">Document Routing Slip</h4>
               </div>
             </header>
 
             <div id="drs">
-              <h4>Document Routing Slip</h4>
+                <label>Code No: ${doc.codeNumber}</label>
             </div>
             <main>
               <div>
@@ -198,10 +201,8 @@ const Home = () => {
                   }</strong></li>
                 </ul>
               </div>
-              <div>
-                <label>QR Code:</label>
+              <div id="qrCode">
                 <img src="${url}" alt="QR Code" />
-                <label>Code Number: ${doc.codeNumber}</label>
               </div>
             </main>
           </body>

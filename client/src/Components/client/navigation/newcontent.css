@@ -294,3 +294,34 @@
     max-height: 500px;
   }
 }
+
+/* Printing */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .view-doc-info,
+  .view-doc-info * {
+    visibility: visible;
+  }
+  .view-doc-info {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 12px;
+  }
+  .view-doc-info h3 {
+    font-size: 12px; /* Adjust header font size */
+  }
+
+  .view-doc-info h4 {
+    font-size: 12px; /* Adjust sub-header font size */
+  }
+
+  .view-doc-info p,
+  .view-doc-info li,
+  .view-doc-info thead td,
+  .view-doc-info tbody td {
+    font-size: 11px; /* Adjust paragraph and list item font sizes */
+  }
+}

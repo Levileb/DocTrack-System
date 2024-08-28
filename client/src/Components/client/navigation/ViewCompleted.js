@@ -12,6 +12,7 @@ import QRCode from "qrcode.react";
 const ViewCompleted = () => {
   const { docId } = useParams(); // Get the document ID from URL parameters
   const [document, setDocument] = useState(null);
+  const [trackingInfo, setTrackingInfo] = useState(null);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -31,9 +32,69 @@ const ViewCompleted = () => {
     fetchDocument();
   }, [docId]);
 
-  // Check if document is still loading
-  if (!document) {
-    return <div>Loading...</div>;
+  useEffect(() => {
+    const fetchTrackingInfo = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/docs/view-complete/${docId}`
+        );
+        const data = response.data;
+
+        // Ensure receivingLogs and forwardingLogs are arrays
+        const receivingLogs = Array.isArray(data.receivingLogs)
+          ? data.receivingLogs
+          : [];
+        const forwardingLogs = Array.isArray(data.forwardingLogs)
+          ? data.forwardingLogs
+          : [];
+        const completedLog = data.completedLog ? [data.completedLog] : [];
+
+        // Combine receiving, forwarding, and completed logs into a single array
+        const combinedLogs = [
+          ...receivingLogs.map((log) => ({ ...log, type: "receiving" })),
+          ...forwardingLogs.map((log) => ({ ...log, type: "forwarding" })),
+          ...completedLog.map((log) => ({ ...log, type: "completed" })),
+        ];
+
+        // Sort combined logs by their respective timestamps
+        combinedLogs.sort((a, b) => {
+          const timeA = a.receivedAt || a.forwardedAt || a.completedAt;
+          const timeB = b.receivedAt || b.forwardedAt || b.completedAt;
+          return new Date(timeA) - new Date(timeB);
+        });
+
+        setTrackingInfo({ ...data, combinedLogs });
+      } catch (error) {
+        console.error("Error fetching tracking information:", error);
+        setTrackingInfo(null);
+      }
+    };
+
+    fetchTrackingInfo();
+  }, [docId]);
+
+  // Handle printing
+  const handlePrint = () => {
+    window.print();
+  };
+
+  // Check if document or tracking info is still loading
+  if (!document || !trackingInfo) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+        }}
+      >
+        <label>Document Not Found...</label>
+        <Link to="/completed">Go Back</Link>
+      </div>
+    );
   }
 
   return (
@@ -94,23 +155,47 @@ const ViewCompleted = () => {
                     <tr>
                       <td>Date</td>
                       <td>Status</td>
-                      <td>For</td>
+                      <td>Recipient</td>
                       <td>Remarks</td>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Not Available</td>
-                      <td>Not Available</td>
-                      <td>Not Available</td>
-                      <td>Not Available</td>
-                    </tr>
+                    {trackingInfo.combinedLogs.length > 0 ? (
+                      trackingInfo.combinedLogs.map((log, index) => (
+                        <tr key={index}>
+                          <td>
+                            {new Date(
+                              log.receivedAt ||
+                                log.forwardedAt ||
+                                log.completedAt
+                            ).toLocaleString()}
+                          </td>
+                          <td>
+                            {log.type === "receiving"
+                              ? "Received"
+                              : log.type === "forwarding"
+                              ? "Forwarded To"
+                              : "Completed"}
+                          </td>
+                          <td>
+                            {log.receivedBy ||
+                              log.forwardedTo ||
+                              log.completedBy}
+                          </td>
+                          <td>{log.remarks || " "}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4">No Logs Available</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
             <div className="print-btn">
-              <button>Print</button>
+              <button onClick={handlePrint}>Print</button>
             </div>
           </div>
         </div>
