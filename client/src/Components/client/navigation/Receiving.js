@@ -92,9 +92,12 @@ const Receiving = () => {
       // Handle error message
     }
 
-    handleCancel();
-    setTimeout(() => setShowPopup(false), 1000);
-  };
+    // Delay hiding the popup for 3 seconds
+    setTimeout(() => {
+      setShowPopup(false);
+      handleCancel(); // Navigate after the popup is hidden
+  }, 1000); // Popup will be shown for 3 seconds
+};
 
   return (
     <>
