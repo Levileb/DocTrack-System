@@ -4,7 +4,6 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
-//import { Link } from "react-router-dom";
 import axios from "axios"; // Import axios for making HTTP requests
 
 const Received = () => {
@@ -20,13 +19,14 @@ const Received = () => {
 
   const fetchReceivingLogs = async () => {
     try {
-      // Make a GET request to fetch receiving logs data
-      const response = await axios.get("/api/receivingLogs"); // Assuming your backend API endpoint for receiving logs is '/api/receivingLogs'
-      setData(response.data); // Update data state with the fetched data
+        // Make a GET request to fetch received documents for the logged-in user
+        const response = await axios.get("/api/docs/received");
+        setData(response.data); // Update the state with received documents
     } catch (error) {
-      console.error("Error fetching receiving logs:", error);
+        console.error("Error fetching received documents:", error);
     }
-  };
+};
+
 
   const handlePopup = (selectedItem) => {
     setShowPopup(true);
@@ -63,8 +63,6 @@ const Received = () => {
                 <IoSearch className="searchIcon" />
                 <input
                   type="search"
-                  name=""
-                  id=""
                   placeholder="Search.."
                   className="search-bar"
                   value={searchQuery}
@@ -85,22 +83,20 @@ const Received = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((val, key) => {
-                    return (
-                      <tr key={key}>
-                        <td>{val.date}</td>
-                        <td>{val.title}</td>
-                        <td>{val.sender}</td>
-                        <td>
-                          <div className="viewbtn">
-                            <button onClick={() => handlePopup(val)}>
-                              View
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {data.map((val, key) => (
+                    <tr key={key}>
+                      <td>{val.date}</td>
+                      <td>{val.title}</td>
+                      <td>{val.sender}</td>
+                      <td>
+                        <div className="viewbtn">
+                          <button onClick={() => handlePopup(val)}>
+                            View
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -112,23 +108,15 @@ const Received = () => {
       {showPopup && (
         <div className="popup-container">
           <div className="popup">
-            <p>User Information</p>
+            <p>Document Information</p>
             <ul className="view-userinfo">
-              <li>
-                Date: <strong>{selectedItem.date}</strong>
-              </li>
-              <li>
-                Title: <strong>{selectedItem.title}</strong>
-              </li>
-              <li>
-                From: <strong>{selectedItem.sender}</strong>
-              </li>
-              {/* Include other fields as needed */}
+              <li>Date: <strong>{selectedItem.date}</strong></li>
+              <li>Title: <strong>{selectedItem.title}</strong></li>
+              <li>From: <strong>{selectedItem.sender}</strong></li>
             </ul>
             <button className="closebtn" onClick={closePopup}>
               <AiFillCloseCircle className="closeicon" />
             </button>
-            <div className="actionbtn">{/* Action buttons */}</div>
           </div>
         </div>
       )}

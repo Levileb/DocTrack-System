@@ -97,33 +97,38 @@ const Forwarding = () => {
     setShowPopup(true);
 
     try {
-      await axios.post("http://localhost:3001/api/docs/log-forwarding", {
-        docId: docId,
-        forwardedTo: selectedEmployee,
-        remarks: formData.remarks,
-      });
-      await axios.post("http://localhost:3001/api/docs/update-status", {
-        docId: docId,
-        status: "Forwarded",
-      });
-      // Handle success message and clear form
+        // Send the forwarding log data
+        await axios.post("http://localhost:3001/api/docs/log-forwarding", {
+            docId: docId,
+            forwardedTo: selectedEmployee, // Ensure this is correctly set
+            remarks: formData.remarks,
+        });
+
+        // Update document status
+        await axios.post("http://localhost:3001/api/docs/update-status", {
+            docId: docId,
+            status: "Forwarded",
+        });
+
+        // Handle success message and clear form
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            recipient: "",
+            desOffice: "",
+            remarks: "",
+        }));
+        setSelectedEmployee("");
+        setSelectedOffice("");
+
     } catch (error) {
-      console.error("Error forwarding document:", error);
-      // Handle error message
+        console.error("Error forwarding document:", error);
+        // Handle error message
     }
 
-    // Clear the Recipient, Designated Office, and remarks fields
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      recipient: "",
-      desOffice: "",
-      remarks: "",
-    }));
-    setSelectedEmployee("");
-    setSelectedOffice("");
-
+    // Hide the popup after 1 second
     setTimeout(() => setShowPopup(false), 1000);
-  };
+};
+
 
   const handleEmployeeSelect = (event) =>
     setSelectedEmployee(event.target.value);
