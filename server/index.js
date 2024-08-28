@@ -184,6 +184,26 @@ app.get("/getUser/:id", (req, res) => {
     .catch((err) => res.json(err));
 });
 
+app.get("/api/docs/received", verifyUser, (req, res) => {
+  const loggedInUserId = req.user._id; // Ensure _id is used
+
+  ForwardingLogModel.find({ forwardedTo: loggedInUserId })
+    .populate("doc_id") // Populate the related document details
+    .then((forwardingLogs) => {
+      if (forwardingLogs.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No forwarded documents found" });
+      }
+      const doc = forwardingLogs.map((log) => log.doc_id);
+      res.json(doc); // Return the documents
+    })
+    .catch((err) => {
+      console.error("Error fetching forwarded documents:", err);
+      res.status(500).json({ error: "Internal server error" });
+    });
+});
+
 app.put("/updateUser/:id", (req, res) => {
   const id = req.params.id;
 
@@ -354,26 +374,29 @@ app.get("/api/receivingLogs", verifyUser, async (req, res) => {
   }
 });
 
-// Add this to your backend routes
-app.post("/api/docs/log-receipt", verifyUser, async (req, res) => {
-  try {
-    const { docId, remarks } = req.body;
-    const userId = req.user.id;
+app.post("/api/docs/log-receipt", verifyUser, (req, res) => {
+  console.log(req.user); // This should log the authenticated user
 
-    const newLog = await ReceivingLogModel.create({
-      user_id: userId,
-      doc_id: docId,
-      remarks: remarks,
-      receivedAt: new Date(),
-    });
-
-    res
-      .status(201)
-      .json({ message: "Receipt logged successfully.", log: newLog });
-  } catch (error) {
-    console.error("Error logging receipt:", error);
-    res.status(500).json({ error: "Internal server error" });
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
+
+  const { docId, remarks } = req.body;
+
+  const newReceivingLog = new ReceivingLogModel({
+    user_id: req.user._id, // Attach the user_id from the logged-in user
+    doc_id: docId,
+    remarks: remarks,
+    receivedAt: new Date(),
+  });
+
+  newReceivingLog
+    .save()
+    .then((log) => res.json({ message: "Log created successfully", log }))
+    .catch((err) => {
+      console.error("Error logging receipt:", err);
+      res.status(500).json({ error: err.message || "Internal server error" });
+    });
 });
 
 app.post("/api/docs/update-received", verifyUser, async (req, res) => {
@@ -392,9 +415,16 @@ app.post("/api/docs/update-received", verifyUser, async (req, res) => {
 
 app.post("/api/docs/log-forwarding", verifyUser, async (req, res) => {
   try {
-    console.log(req.body); // Add this line to log the request body
+    console.log(req.body); // To check if you're receiving docId, forwardedTo, and remarks
     const { docId, forwardedTo, remarks } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id; // Corrected to _id
+
+    // Validate the request body
+    if (!docId || !forwardedTo || !remarks || !userId) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
+    // Create a new forwarding log
     const newLog = await ForwardingLogModel.create({
       user_id: userId,
       doc_id: docId,
@@ -402,14 +432,15 @@ app.post("/api/docs/log-forwarding", verifyUser, async (req, res) => {
       remarks: remarks,
       forwardedAt: new Date(),
     });
+
+    // Update document status
     await DocModel.findByIdAndUpdate(docId, { status: "Forwarded" });
-    res
-      .status(201)
-      .json({
-        message:
-          "Forwarding log created and document status updated successfully.",
-        log: newLog,
-      });
+
+    res.status(201).json({
+      message:
+        "Forwarding log created and document status updated successfully.",
+      log: newLog,
+    });
   } catch (error) {
     console.error("Error logging forwarding:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -418,7 +449,7 @@ app.post("/api/docs/log-forwarding", verifyUser, async (req, res) => {
 
 app.post("/api/docs/complete", verifyUser, async (req, res) => {
   const { docId, remarks } = req.body; // Include remarks in the request body
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   try {
     // Fetch the document's receiving and forwarding logs
@@ -596,6 +627,89 @@ app.get("/archived-document", (req, res) => {
       res.json(documents);
     })
     .catch((err) => res.status(500).json({ error: err.message }));
+});
+
+//view document
+app.get("/api/docs/view-complete/:docId", async (req, res) => {
+  try {
+    const { docId } = req.params;
+
+    // Find the document using docId
+    const document = await DocModel.findById(docId);
+    if (!document) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    const receivingLogs = await ReceivingLogModel.find({ doc_id: document._id })
+      .sort({ receivedAt: -1 })
+      .populate("user_id", "firstname lastname")
+      .populate("doc_id", "title")
+      .select("user_id doc_id receivedAt remarks");
+
+    const forwardingLogs = await ForwardingLogModel.find({
+      doc_id: document._id,
+    })
+      .sort({ forwardedAt: -1 })
+      .populate("user_id", "firstname lastname")
+      .populate("doc_id", "title")
+      .populate("forwardedTo", "firstname lastname")
+      .select("user_id doc_id forwardedTo forwardedAt remarks");
+
+    const completedLog = await CompletedLogModel.findOne({
+      docId: document._id,
+    })
+      .populate("userId", "firstname lastname")
+      .populate("docId", "title")
+      .select("userId docId completedAt remarks");
+
+    if (!completedLog || !completedLog.userId) {
+      console.error("Completed log or userId not found:", completedLog);
+    }
+
+    const formatDateTime = (dateTime) => {
+      return new Date(dateTime).toLocaleString(); // This will format to "MM/DD/YYYY, HH:MM:SS AM/PM"
+    };
+
+    const trackingInfo = {
+      codeNumber: document.codeNumber,
+      status: document.status,
+      documentTitle: document.title,
+      receivingLogs: receivingLogs.map((log) => ({
+        receivedBy: log.user_id
+          ? `${log.user_id.firstname} ${log.user_id.lastname}`
+          : "Unknown User",
+        receivedAt: formatDateTime(log.receivedAt), // Formatting date and time
+        documentTitle: log.doc_id.title,
+        remarks: log.remarks,
+      })),
+      forwardingLogs: forwardingLogs.map((log) => ({
+        forwardedBy: log.user_id
+          ? `${log.user_id.firstname} ${log.user_id.lastname}`
+          : "Unknown User",
+        forwardedTo: log.forwardedTo
+          ? `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`
+          : "Unknown User",
+        forwardedAt: formatDateTime(log.forwardedAt), // Formatting date and time
+        documentTitle: log.doc_id.title,
+        remarks: log.remarks,
+      })),
+      completedLog: completedLog
+        ? {
+            completedBy: completedLog.userId
+              ? `${completedLog.userId.firstname} ${completedLog.userId.lastname}`
+              : "Unknown User",
+            completedAt: formatDateTime(completedLog.completedAt), // Formatting date and time
+            documentTitle: completedLog.docId.title,
+            remarks: completedLog.remarks,
+          }
+        : null,
+    };
+
+    res.status(200).json(trackingInfo);
+  } catch (error) {
+    console.error("Error fetching tracking information:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.post("/", (req, res) => {
