@@ -20,7 +20,7 @@ function LoginForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setShowPassword(true);
+
     if (!email || !password) {
       window.alert("Please enter both email and password");
       return;

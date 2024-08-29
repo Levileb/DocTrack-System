@@ -213,6 +213,26 @@ app.get("/getUser/:id", (req, res) => {
     .catch((err) => res.json(err));
 });
 
+app.get("/api/docs/received", verifyUser, (req, res) => {
+  const loggedInUserId = req.user._id; // Ensure _id is used
+
+  ForwardingLogModel.find({ forwardedTo: loggedInUserId })
+    .populate("doc_id") // Populate the related document details
+    .then((forwardingLogs) => {
+      if (forwardingLogs.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No forwarded documents found" });
+      }
+      const doc = forwardingLogs.map((log) => log.doc_id);
+      res.json(doc); // Return the documents
+    })
+    .catch((err) => {
+      console.error("Error fetching forwarded documents:", err);
+      res.status(500).json({ error: "Internal server error" });
+    });
+});
+
 app.put("/updateUser/:id", (req, res) => {
   const id = req.params.id;
 

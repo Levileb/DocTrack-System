@@ -38,7 +38,9 @@ const SubmitDocument = () => {
   useEffect(() => {
     const fetchUserDetails = () => {
       axios
-        .get("http://localhost:3001/api/user/details", { withCredentials: true })
+        .get("http://localhost:3001/api/user/details", {
+          withCredentials: true,
+        })
         .then((res) => {
           const { firstname, lastname, office } = res.data;
           const fullName = `${firstname} ${lastname}`;
@@ -202,9 +204,6 @@ const SubmitDocument = () => {
             ul li {
               margin-bottom: 5px;
             }
-            label {
-              font-weight: bold;
-            }
             img {
               display: flex;
               max-width: 100px;
@@ -234,6 +233,12 @@ const SubmitDocument = () => {
               width: 100%;
               max-height: 45px;
             }
+            #qrCode {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            }
           </style>
         </head>
         <body onload="window.print();">
@@ -243,18 +248,16 @@ const SubmitDocument = () => {
             </div>
             <div id="companyTitle">
               <h2 class="title">City Government of Kabankalan</h2>
-              <h5 class="title">Document Tracking System</h5>
+              <h4 class="title">Document Routing Slip</h4>
             </div>
           </header>
-          <div id="drs"><h4>Document Routing Slip</h4></div>
+          <label>${codeNum}</label>
           <main>
             <div>
               ${content}
             </div>
-            <div>
-              <label>QR Code:</label>
-              <img style="margin-bottom: 10px;" src="${qrCodeImage}" alt="QR Code" />
-              <label>${codeNum}</label>
+            <div id="qrCode">
+              <img src="${qrCodeImage}" alt="QR Code" />
             </div>
           </main>
         </body>
@@ -356,16 +359,12 @@ const SubmitDocument = () => {
                     id="remarks"
                     value={formData.remarks}
                     onChange={handleInputChange}
-                    required
                   />
                 </div>
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">
-                  <button
-                    type="button"
-                    onClick={handleClear}
-                  >
+                  <button type="button" onClick={handleClear}>
                     Clear
                   </button>
                 </div>
@@ -406,13 +405,12 @@ const SubmitDocument = () => {
               </ul>
             </div>
             <div className="qrCodeImage">
-              <label>
-                <small>QR Code:</small>
-              </label>
               <QRCode id="qrCode" value={JSON.stringify(formData)} />
               <br />
               <label id="codeNum">
-                <small>Code Number: {codeNumber}</small>
+                <small>
+                  Code No.: <strong>{codeNumber}</strong>
+                </small>
               </label>
             </div>
             <div className="actionbtn primarybtn">
