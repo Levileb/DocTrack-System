@@ -97,38 +97,36 @@ const Forwarding = () => {
     setShowPopup(true);
 
     try {
-        // Send the forwarding log data
-        await axios.post("http://localhost:3001/api/docs/log-forwarding", {
-            docId: docId,
-            forwardedTo: selectedEmployee, // Ensure this is correctly set
-            remarks: formData.remarks,
-        });
+      // Send the forwarding log data
+      await axios.post("http://localhost:3001/api/docs/log-forwarding", {
+        docId: docId,
+        forwardedTo: selectedEmployee, // Ensure this is correctly set
+        remarks: formData.remarks,
+      });
 
-        // Update document status
-        await axios.post("http://localhost:3001/api/docs/update-status", {
-            docId: docId,
-            status: "Forwarded",
-        });
+      // Update document status
+      await axios.post("http://localhost:3001/api/docs/update-status", {
+        docId: docId,
+        status: "Forwarded",
+      });
 
-        // Handle success message and clear form
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            recipient: "",
-            desOffice: "",
-            remarks: "",
-        }));
-        setSelectedEmployee("");
-        setSelectedOffice("");
-
+      // Handle success message and clear form
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recipient: "",
+        desOffice: "",
+        remarks: "",
+      }));
+      setSelectedEmployee("");
+      setSelectedOffice("");
     } catch (error) {
-        console.error("Error forwarding document:", error);
-        // Handle error message
+      console.error("Error forwarding document:", error);
+      // Handle error message
     }
 
     // Hide the popup after 1 second
     setTimeout(() => setShowPopup(false), 1000);
-};
-
+  };
 
   const handleEmployeeSelect = (event) =>
     setSelectedEmployee(event.target.value);
@@ -221,6 +219,7 @@ const Forwarding = () => {
                     value={formData.remarks}
                     onChange={handleInputChange}
                     autoComplete="off"
+                    required
                   />
                 </div>
               </div>
