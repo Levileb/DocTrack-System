@@ -4,29 +4,33 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
-import axios from "axios"; // Import axios for making HTTP requests
+import axios from "axios";
 
 const Received = () => {
   const [showPopup, setShowPopup] = useState(false);
-  const [data, setData] = useState([]); // Initialize data state as an empty array
+  const [data, setData] = useState([]); // This will hold the filtered data
+  const [originalData, setOriginalData] = useState([]); // This will hold the original data
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    // Fetch receiving logs data when the component mounts
-    fetchReceivingLogs();
-  }, []); // Empty dependency array to ensure this effect runs only once on component mount
+    fetchReceivedDocuments();
+  }, []);
 
-  const fetchReceivingLogs = async () => {
+  const fetchReceivedDocuments = async () => {
     try {
-        // Make a GET request to fetch received documents for the logged-in user
-        const response = await axios.get("/api/docs/received");
-        setData(response.data); // Update the state with received documents
+      const response = await axios.get(
+        "http://localhost:3001/api/docs/received",
+        {
+          withCredentials: true,
+        }
+      );
+      setData(response.data); // Assuming the response is already the list of documents
+      setOriginalData(response.data); // Store the original data separately
     } catch (error) {
-        console.error("Error fetching received documents:", error);
+      console.error("Error fetching received documents:", error);
     }
-};
-
+  };
 
   const handlePopup = (selectedItem) => {
     setShowPopup(true);
@@ -40,8 +44,9 @@ const Received = () => {
   const handleSearchChange = (event) => {
     const query = event.target.value;
     setSearchQuery(query);
-    // Filter data based on search query
-    const filteredData = data.filter((item) =>
+
+    // Filter data based on search query, but use originalData for reference
+    const filteredData = originalData.filter((item) =>
       Object.values(item).some((value) =>
         value.toString().toLowerCase().includes(query.toLowerCase())
       )
@@ -67,7 +72,7 @@ const Received = () => {
                   className="search-bar"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                ></input>
+                />
               </div>
             </div>
           </div>
@@ -78,21 +83,19 @@ const Received = () => {
                   <tr>
                     <td>Date</td>
                     <td>Title</td>
-                    <td>From</td>
+                    <td>Sender</td>
                     <td>Action</td>
                   </tr>
                 </thead>
                 <tbody>
                   {data.map((val, key) => (
                     <tr key={key}>
-                      <td>{val.date}</td>
+                      <td>{new Date(val.date).toLocaleDateString()}</td>
                       <td>{val.title}</td>
                       <td>{val.sender}</td>
                       <td>
                         <div className="viewbtn">
-                          <button onClick={() => handlePopup(val)}>
-                            View
-                          </button>
+                          <button onClick={() => handlePopup(val)}>View</button>
                         </div>
                       </td>
                     </tr>
@@ -105,14 +108,27 @@ const Received = () => {
       </div>
       <SidePanel />
       <Footer />
-      {showPopup && (
+      {showPopup && selectedItem && (
         <div className="popup-container">
           <div className="popup">
             <p>Document Information</p>
             <ul className="view-userinfo">
-              <li>Date: <strong>{selectedItem.date}</strong></li>
-              <li>Title: <strong>{selectedItem.title}</strong></li>
-              <li>From: <strong>{selectedItem.sender}</strong></li>
+              <li>
+                Date:{" "}
+                <strong>
+                  {new Date(selectedItem.date).toLocaleDateString()}
+                </strong>
+              </li>
+              <li>
+                Title: <strong>{selectedItem.title}</strong>
+              </li>
+              <li>
+                From: <strong>{selectedItem.sender}</strong>
+              </li>
+              <li>
+                Remarks: <strong>{selectedItem.remarks}</strong>{" "}
+                {/* New field */}
+              </li>
             </ul>
             <button className="closebtn" onClick={closePopup}>
               <AiFillCloseCircle className="closeicon" />
