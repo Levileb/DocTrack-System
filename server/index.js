@@ -143,6 +143,35 @@ app.get("/api/docs", (req, res) => {
     });
 });
 
+// Define /api/docs/received first to avoid conflicts with /api/docs/:id
+app.get("/api/docs/received", verifyUser, async (req, res) => {
+  const loggedInUserId = req.user._id;
+  console.log("Fetching documents for user ID:", loggedInUserId);
+
+  try {
+    const forwardingLogs = await ForwardingLogModel.find({
+      forwardedTo: loggedInUserId,
+    })
+      .populate("doc_id", "date title sender") // Ensure we populate necessary fields
+      .exec();
+
+    if (forwardingLogs.length === 0) {
+      return res.status(404).json({ message: "No forwarded documents found" });
+    }
+
+    const documents = forwardingLogs.map((log) => ({
+      date: log.doc_id.date,
+      title: log.doc_id.title,
+      sender: log.doc_id.sender,
+      remarks: log.remarks,
+    }));
+    res.json(documents);
+  } catch (err) {
+    console.error("Error fetching forwarded documents:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Endpoint to fetch a single document by its ID
 app.get("/api/docs/:docId", verifyUser, (req, res) => {
   const docId = req.params.docId;
@@ -627,89 +656,6 @@ app.get("/archived-document", (req, res) => {
       res.json(documents);
     })
     .catch((err) => res.status(500).json({ error: err.message }));
-});
-
-//view document
-app.get("/api/docs/view-complete/:docId", async (req, res) => {
-  try {
-    const { docId } = req.params;
-
-    // Find the document using docId
-    const document = await DocModel.findById(docId);
-    if (!document) {
-      return res.status(404).json({ error: "Document not found" });
-    }
-
-    const receivingLogs = await ReceivingLogModel.find({ doc_id: document._id })
-      .sort({ receivedAt: -1 })
-      .populate("user_id", "firstname lastname")
-      .populate("doc_id", "title")
-      .select("user_id doc_id receivedAt remarks");
-
-    const forwardingLogs = await ForwardingLogModel.find({
-      doc_id: document._id,
-    })
-      .sort({ forwardedAt: -1 })
-      .populate("user_id", "firstname lastname")
-      .populate("doc_id", "title")
-      .populate("forwardedTo", "firstname lastname")
-      .select("user_id doc_id forwardedTo forwardedAt remarks");
-
-    const completedLog = await CompletedLogModel.findOne({
-      docId: document._id,
-    })
-      .populate("userId", "firstname lastname")
-      .populate("docId", "title")
-      .select("userId docId completedAt remarks");
-
-    if (!completedLog || !completedLog.userId) {
-      console.error("Completed log or userId not found:", completedLog);
-    }
-
-    const formatDateTime = (dateTime) => {
-      return new Date(dateTime).toLocaleString(); // This will format to "MM/DD/YYYY, HH:MM:SS AM/PM"
-    };
-
-    const trackingInfo = {
-      codeNumber: document.codeNumber,
-      status: document.status,
-      documentTitle: document.title,
-      receivingLogs: receivingLogs.map((log) => ({
-        receivedBy: log.user_id
-          ? `${log.user_id.firstname} ${log.user_id.lastname}`
-          : "Unknown User",
-        receivedAt: formatDateTime(log.receivedAt), // Formatting date and time
-        documentTitle: log.doc_id.title,
-        remarks: log.remarks,
-      })),
-      forwardingLogs: forwardingLogs.map((log) => ({
-        forwardedBy: log.user_id
-          ? `${log.user_id.firstname} ${log.user_id.lastname}`
-          : "Unknown User",
-        forwardedTo: log.forwardedTo
-          ? `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`
-          : "Unknown User",
-        forwardedAt: formatDateTime(log.forwardedAt), // Formatting date and time
-        documentTitle: log.doc_id.title,
-        remarks: log.remarks,
-      })),
-      completedLog: completedLog
-        ? {
-            completedBy: completedLog.userId
-              ? `${completedLog.userId.firstname} ${completedLog.userId.lastname}`
-              : "Unknown User",
-            completedAt: formatDateTime(completedLog.completedAt), // Formatting date and time
-            documentTitle: completedLog.docId.title,
-            remarks: completedLog.remarks,
-          }
-        : null,
-    };
-
-    res.status(200).json(trackingInfo);
-  } catch (error) {
-    console.error("Error fetching tracking information:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 app.post("/", (req, res) => {
