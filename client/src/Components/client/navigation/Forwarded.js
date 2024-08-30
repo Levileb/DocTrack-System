@@ -1,35 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Forwarded = () => {
-  const data = [
-    {
-      date: "2024/03/12",
-      title: "OJT Application",
-      sender: "Harvey John Abello",
-      officefrom: "HR Section",
-      receipient: "Kyle Bryan Valencia",
-      officeto: "Cyber Security",
-      status: "Forwarded",
-    },
-  ];
+  const [showPopup, setShowPopup] = useState(false);
+  const [data, setData] = useState([]); // Filtered data
+  const [originalData, setOriginalData] = useState([]); // Original data
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
+  useEffect(() => {
+    fetchForwardedDocuments();
+  }, []);
 
-  const handlePopup = (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
-    // Add your form submission logic here
-
-    // Show popup notification
-    setShowPopup(true);
+  const fetchForwardedDocuments = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/api/docs/forwarded",
+        {
+          withCredentials: true,
+        }
+      );
+      setData(response.data); // Set filtered data
+      setOriginalData(response.data); // Set original data
+    } catch (error) {
+      console.error("Error fetching forwarded documents:", error);
+    }
   };
+
+  const handlePopup = (selectedItem) => {
+    setShowPopup(true);
+    setSelectedItem(selectedItem);
+  };
+
   const closePopup = () => {
     setShowPopup(false);
+  };
+
+  const handleSearchChange = (event) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+
+    const filteredData = originalData.filter((item) =>
+      Object.values(item).some((value) =>
+        value.toString().toLowerCase().includes(query.toLowerCase())
+      )
+    );
+    setData(filteredData);
   };
 
   return (
@@ -46,47 +67,39 @@ const Forwarded = () => {
                 <IoSearch className="searchIcon" />
                 <input
                   type="search"
-                  name=""
-                  id=""
                   placeholder="Search.."
                   className="search-bar"
-                ></input>
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
               </div>
             </div>
           </div>
           <div className="contents">
-            {/* <p>Contents will be displayed here.</p> */}
             <div className="content-table">
               <table>
                 <thead>
                   <tr>
                     <td>Date</td>
                     <td>Title</td>
-                    <td>From</td>
-                    {/* <td>Originating Office </td>  */}
-                    <td>To</td>
-                    {/* <td>Destination Office</td>  */}
+                    <td>Recipient</td>
                     <td>Action</td>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((val, key) => {
-                    return (
-                      <tr key={key}>
-                        <td>{val.date}</td>
-                        <td>{val.title}</td>
-                        <td>{val.sender}</td>
-                        {/* <td>{val.officefrom}</td>  */}
-                        <td>{val.receipient}</td>
-                        {/* <td>{val.officeto}</td>  */}
-                        <td>
-                          <div className="viewbtn">
-                            <button onClick={handlePopup}>View</button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {data.map((val, key) => (
+                    <tr key={key}>
+                      <td>{new Date(val.date).toLocaleDateString()}</td>
+                      <td>{val.title}</td>
+                      <td>{val.forwardedTo}</td>{" "}
+                      {/* Now displays the full name */}
+                      <td>
+                        <div className="viewbtn">
+                          <button onClick={() => handlePopup(val)}>View</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -95,56 +108,31 @@ const Forwarded = () => {
       </div>
       <SidePanel />
       <Footer />
-
-      {showPopup && (
+      {showPopup && selectedItem && (
         <div className="popup-container">
           <div className="popup">
-            <p>User Information</p>
-            {data.map((val) => {
-              return (
-                <ul className="view-userinfo">
-                  <li>
-                    Date: <strong>{val.date}</strong>
-                  </li>
-                  <li>
-                    Title: <strong>{val.title}</strong>
-                  </li>
-                  <li>
-                    From: <strong>{val.sender}</strong>
-                  </li>
-                  <li>
-                    Office From: <strong>{val.officefrom}</strong>
-                  </li>
-                  <li>
-                    To: <strong>{val.receipient}</strong>
-                  </li>
-                  <li>
-                    Office to: <strong>{val.officeto}</strong>
-                  </li>
-                  <li>
-                    Status:{" "}
-                    <strong style={{ color: "#d4a300" }}>{val.status}</strong>
-                  </li>
-                </ul>
-              );
-            })}
-
+            <p>Document Information</p>
+            <ul className="view-userinfo">
+              <li>
+                Date:{" "}
+                <strong>
+                  {new Date(selectedItem.date).toLocaleDateString()}
+                </strong>
+              </li>
+              <li>
+                Title: <strong>{selectedItem.title}</strong>
+              </li>
+              <li>
+                Recipient: <strong>{selectedItem.forwardedTo}</strong>{" "}
+                {/* Display full name */}
+              </li>
+              <li>
+                Remarks: <strong>{selectedItem.remarks}</strong>
+              </li>
+            </ul>
             <button className="closebtn" onClick={closePopup}>
               <AiFillCloseCircle className="closeicon" />
             </button>
-            <div className="actionbtn">
-              <div className="archivebtn secondarybtn">
-                <button className="ack-btn">Acknowledge</button>
-              </div>
-              <div className="archivebtn secondarybtn">
-                <button className="comp-btn">Complete</button>
-              </div>
-              <div className="archivebtn secondarybtn">
-                <Link to={"/forwarding-document"}>
-                  <button className="forw-btn">Forward</button>
-                </Link>{" "}
-              </div>
-            </div>
           </div>
         </div>
       )}

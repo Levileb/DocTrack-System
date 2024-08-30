@@ -3,9 +3,12 @@ const mongoose = require("mongoose");
 const DocSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   title: String,
-  sender: String,
+  sender: String, // This could be a String for the sender's email
   originating: String,
-  recipient: String,
+  recipient: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users", // Reference to the users collection
+  },
   destination: String,
   qrCode: String,
   codeNumber: String,

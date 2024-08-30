@@ -172,6 +172,38 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
   }
 });
 
+app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
+  const loggedInUserId = req.user._id;
+
+  try {
+    const forwardingLogs = await ForwardingLogModel.find({
+      user_id: loggedInUserId,
+    })
+      .populate("doc_id", "date title") // Populate the document details
+      .populate("forwardedTo", "firstname lastname") // Populate the first and last name of the recipient
+      .exec();
+
+    if (forwardingLogs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No documents forwarded by the user" });
+    }
+
+    // Constructing the response
+    const documents = forwardingLogs.map((log) => ({
+      date: log.doc_id.date,
+      title: log.doc_id.title,
+      forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`, // Combine the first and last name
+      remarks: log.remarks,
+    }));
+
+    res.json(documents);
+  } catch (err) {
+    console.error("Error fetching forwarded documents:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Endpoint to fetch a single document by its ID
 app.get("/api/docs/:docId", verifyUser, (req, res) => {
   const docId = req.params.docId;
