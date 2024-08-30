@@ -96,8 +96,8 @@ const Receiving = () => {
     setTimeout(() => {
       setShowPopup(false);
       handleCancel(); // Navigate after the popup is hidden
-  }, 1000); // Popup will be shown for 3 seconds
-};
+    }, 1000); // Popup will be shown for 3 seconds
+  };
 
   return (
     <>
@@ -172,6 +172,7 @@ const Receiving = () => {
                     value={formData.remarks}
                     onChange={handleInputChange}
                     autoComplete="off"
+                    required
                   />
                 </div>
               </div>
