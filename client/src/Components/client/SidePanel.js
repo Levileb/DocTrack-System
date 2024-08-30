@@ -22,30 +22,36 @@ const SidePanel = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchUserDetails = () => {
+      const token = localStorage.getItem("token");
+      console.log("Token Retrieved", token);
+      if (!token) {
+        console.error("Token is missing");
+        navigate("/"); // Redirect to login page if token is missing
+        return;
+      }
+
+      axios
+        .get("http://localhost:3001/api/user/details", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setUserDetails(response.data);
+          console.log("User details fetched:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user details:", error);
+          if (error.response && error.response.status === 401) {
+            // Handle unauthorized error (e.g., redirect to login)
+            navigate("/");
+          }
+        });
+    };
+
     fetchUserDetails();
-  }, []);
-
-  const fetchUserDetails = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("Token is missing");
-      return;
-    }
-
-    axios
-      .get("http://localhost:3001/api/user/details", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        setUserDetails(response.data);
-        console.log("User details fetched:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching user details:", error);
-      });
-  };
+  }, [navigate]); // Dependency array should include 'navigate'
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -97,6 +103,7 @@ const SidePanel = () => {
       </div>
     );
   };
+
   const TooltipUser = ({ text, children }) => {
     const [isVisible, setIsVisible] = useState(false);
     return (
@@ -159,8 +166,7 @@ const SidePanel = () => {
                   <Tooltip text={"Home"}>
                     <LuHome className="icon" />
                   </Tooltip>
-
-                  <p href="/home">Home</p>
+                  <p>Home</p>
                 </li>
               </Link>
 
@@ -181,8 +187,7 @@ const SidePanel = () => {
                   <Tooltip text={"Submit Document"}>
                     <RiMailSendLine className="icon" />
                   </Tooltip>
-
-                  <p href="/submit-document">Submit Document</p>
+                  <p>Submit Document</p>
                 </li>
               </Link>
 
@@ -194,8 +199,7 @@ const SidePanel = () => {
                   <Tooltip text={"Incoming"}>
                     <RiFolderReceivedLine className="icon" />
                   </Tooltip>
-
-                  <p href="/incoming">Incoming</p>
+                  <p>Incoming</p>
                 </li>
               </Link>
 
@@ -207,8 +211,7 @@ const SidePanel = () => {
                   <Tooltip text={"Outgoing"}>
                     <FaRegShareFromSquare className="icon" />
                   </Tooltip>
-
-                  <p href="/outgoing">Outgoing</p>
+                  <p>Outgoing</p>
                 </li>
               </Link>
 
@@ -217,8 +220,7 @@ const SidePanel = () => {
                   <Tooltip text={"Completed"}>
                     <LuFolderCheck className="icon" />
                   </Tooltip>
-
-                  <p href="/completed">Completed</p>
+                  <p>Completed</p>
                 </li>
               </Link>
 
@@ -231,7 +233,7 @@ const SidePanel = () => {
                     <Tooltip text={"Internal Logs"}>
                       <GrDocumentTime className="icon" />
                     </Tooltip>
-                    <p href="/view-user">Internal Logs</p>
+                    <p>Internal Logs</p>
                   </li>
                 </Link>
               )}
@@ -244,7 +246,7 @@ const SidePanel = () => {
                     <Tooltip text={"View Users"}>
                       <LuUserSquare2 className="icon" />
                     </Tooltip>
-                    <p href="/view-user">View Users</p>
+                    <p>View Users</p>
                   </li>
                 </Link>
               )}

@@ -24,6 +24,10 @@ app.use(cookieParser());
 
 mongoose.connect("mongodb://127.0.0.1:27017/doc_track");
 
+// JWT secret key (you should store this in an environment variable)
+const JWT_SECRET = "jwt-secret-key";
+
+// Middleware to verify token
 const verifyUser = (req, res, next) => {
   const token = req.cookies.token;
 
@@ -31,7 +35,7 @@ const verifyUser = (req, res, next) => {
     return res.status(401).json({ error: "Token is missing" });
   }
 
-  jwt.verify(token, "jwt-secret-key", (err, decoded) => {
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       console.error("Token verification error:", err);
       return res.status(401).json({ error: "Invalid token" });
@@ -44,7 +48,7 @@ const verifyUser = (req, res, next) => {
         }
 
         req.user = {
-          _id: user._id, // Consistent with usage elsewhere
+          _id: user._id,
           firstname: user.firstname,
           lastname: user.lastname,
           role: user.role,
@@ -60,6 +64,39 @@ const verifyUser = (req, res, next) => {
       });
   });
 };
+
+// New: User login route
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+
+  // Find the user by email
+  UserModel.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Compare the provided password with the stored hash
+      bcrypt.compare(password, user.password).then((isMatch) => {
+        if (!isMatch) {
+          return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        // Generate a JWT token
+        const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+          expiresIn: "1h", // Token expires in 1 hour
+        });
+
+        // Set token in cookies
+        res.cookie("token", token, { httpOnly: true });
+        res.json({ message: "Login successful", token });
+      });
+    })
+    .catch((err) => {
+      console.error("Error during login:", err);
+      res.status(500).json({ error: "Internal server error" });
+    });
+});
 
 app.get("/api/user/details", verifyUser, (req, res) => {
   const { firstname, lastname, role, email, office } = req.user;
@@ -288,7 +325,7 @@ app.put("/updateUser/:id", (req, res) => {
     .catch((err) => res.status(500).json({ error: "Internal server error" }));
 });
 
-// Endpoint to add a new user
+// Updated: Add user and generate token
 app.post("/add-user", (req, res) => {
   const { firstname, lastname, email, password, position, office } = req.body;
 
@@ -305,7 +342,16 @@ app.post("/add-user", (req, res) => {
         position,
         office,
       })
-        .then((user) => res.json({ message: "User added successfully" }))
+        .then((user) => {
+          // Generate a token after creating the user
+          const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+            expiresIn: "1h",
+          });
+
+          // Set token in cookies
+          res.cookie("token", token, { httpOnly: true });
+          res.json({ message: "User added successfully", token });
+        })
         .catch((err) =>
           res.status(500).json({ error: "Internal server error" })
         );
@@ -692,30 +738,65 @@ app.get("/archived-document", (req, res) => {
     })
     .catch((err) => res.status(500).json({ error: err.message }));
 });
+// Logout route to clear cookies
+app.post("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.json({ message: "Logged out successfully" });
+});
 
 app.post("/", (req, res) => {
   const { email, password } = req.body;
-  UserModel.findOne({ email: email }).then((user) => {
-    if (user) {
-      bcrypt.compare(password, user.password, (err, response) => {
-        if (response) {
-          const token = jwt.sign(
-            { email: user.email, role: user.role },
-            "jwt-secret-key",
-            { expiresIn: "1d" }
-          );
-          res.cookie("token", token);
-          return res.json({ Status: "Success", role: user.role });
-        } else {
-          return res.json("The password is incorrect");
-        }
-      });
-    } else {
-      return res.json("No record existed");
-    }
-  });
-});
 
+  // Find user by email
+  UserModel.findOne({ email: email })
+    .then((user) => {
+      if (user) {
+        // Compare provided password with hashed password in the database
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ Status: "Error", message: "Internal server error" });
+          }
+
+          if (isMatch) {
+            // Generate JWT token if password matches
+            const token = jwt.sign(
+              { email: user.email, role: user.role },
+              "jwt-secret-key", // Replace this with a more secure secret key
+              { expiresIn: "1d" }
+            );
+
+            // Send the token as a cookie
+            res.cookie("token", token, { httpOnly: true, secure: true });
+
+            // Send success response with user role
+            return res.json({
+              Status: "Success",
+              token: token,
+              role: user.role,
+            });
+          } else {
+            // Incorrect password
+            return res
+              .status(401)
+              .json({ Status: "Error", message: "Incorrect password" });
+          }
+        });
+      } else {
+        // User not found
+        return res
+          .status(404)
+          .json({ Status: "Error", message: "No user found with this email" });
+      }
+    })
+    .catch((error) => {
+      // Handle database or other errors
+      return res
+        .status(500)
+        .json({ Status: "Error", message: "Internal server error" });
+    });
+});
 app.listen(3001, () => {
   console.log("Server is Running");
 });
