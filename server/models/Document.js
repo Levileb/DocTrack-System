@@ -5,10 +5,7 @@ const DocSchema = new mongoose.Schema({
   title: String,
   sender: String, // This could be a String for the sender's email
   originating: String,
-  recipient: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "users", // Reference to the users collection
-  },
+  recipient: String,
   destination: String,
   qrCode: String,
   codeNumber: String,

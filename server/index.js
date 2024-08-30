@@ -143,7 +143,6 @@ app.get("/api/docs", (req, res) => {
     });
 });
 
-// Define /api/docs/received first to avoid conflicts with /api/docs/:id
 app.get("/api/docs/received", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
   console.log("Fetching documents for user ID:", loggedInUserId);
@@ -152,7 +151,11 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       forwardedTo: loggedInUserId,
     })
-      .populate("doc_id", "date title sender") // Ensure we populate necessary fields
+      .populate("doc_id", "date title") // Populate the document fields
+      .populate({
+        path: "user_id", // Populate the sender's name
+        select: "firstname lastname",
+      })
       .exec();
 
     if (forwardingLogs.length === 0) {
@@ -162,7 +165,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     const documents = forwardingLogs.map((log) => ({
       date: log.doc_id.date,
       title: log.doc_id.title,
-      sender: log.doc_id.sender,
+      sender: `${log.user_id.firstname} ${log.user_id.lastname}`, // Sender's full name
       remarks: log.remarks,
     }));
     res.json(documents);

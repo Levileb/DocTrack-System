@@ -92,7 +92,7 @@ const Received = () => {
                     <tr key={key}>
                       <td>{new Date(val.date).toLocaleDateString()}</td>
                       <td>{val.title}</td>
-                      <td>{val.sender}</td>
+                      <td>{val.sender}</td> {/* Full name of the sender */}
                       <td>
                         <div className="viewbtn">
                           <button onClick={() => handlePopup(val)}>View</button>
