@@ -39,6 +39,8 @@ function LoginForm() {
             setShowPopup(false);
           }, 1000);
         } else {
+          setEmail("");
+          setPassword("");
           setLoginStatus("Incorrect email or password. Please try again.");
         }
       })
@@ -46,6 +48,7 @@ function LoginForm() {
         console.log(err);
         setEmail("");
         setPassword("");
+        setLoginStatus("Incorrect email or password. Please try again.");
       });
   };
 

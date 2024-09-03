@@ -2,53 +2,50 @@ import React, { useState, useEffect } from "react";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
+import axios from "axios";
 import { IoSearch } from "react-icons/io5";
 import "../navigation/newcontent.css";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
 
 const InternalLogs = () => {
+  const [docs, setDocs] = useState([]);
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [filterValue, setFilterValue] = useState("");
+  const [filteredDocs, setFilteredDocs] = useState([]);
 
-  const [data, setData] = useState([
-    {
-      date: "07/10/2024",
-      title: "Sample Title 1",
-      sender: "Adam White",
-      officefrom: "Admin Office",
-      receipient: "Kyle Bryan",
-      officeto: "GovNet",
-      status: "Received",
-      codenum: "12345678",
-    },
-    {
-      date: "07/10/2024",
-      title: "Sample Title 2",
-      sender: "Jhon Lou",
-      officefrom: "Free WiFi Office",
-      receipient: "Bruce Lee",
-      officeto: "Planning",
-      status: "Forwarded",
-      codenum: "12345678",
-    },
-    {
-      date: "07/10/2024",
-      title: "Sample Title 3",
-      sender: "Jez Garcia",
-      officefrom: "ILCDB",
-      receipient: "Jonas Sacarias",
-      officeto: "IRM Unit",
-      status: "Completed",
-      codenum: "12345678",
-    },
-  ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const docsPerPage = 20;
+
+  useEffect(() => {
+    fetchDocs();
+  }, []);
+
+  const fetchDocs = () => {
+    axios
+      .get("http://localhost:3001/api/docs")
+      .then((response) => {
+        const activeDocs = response.data.filter(
+          (doc) => doc.status !== "Archived"
+        );
+        setDocs(activeDocs);
+        setFilteredDocs(activeDocs);
+      })
+      .catch((error) => {
+        console.error("Error fetching documents:", error);
+      });
+  };
 
   const handleFilterChange = (event) => {
     setFilterValue(event.target.value);
   };
 
-  const filteredData = data.filter((val) => {
+  const startIndex = (currentPage - 1) * docsPerPage;
+  const endIndex = startIndex + docsPerPage;
+  const paginatedDocs = filteredDocs.slice(startIndex, endIndex);
+
+  const filteredData = paginatedDocs.filter((val) => {
     // Check for filter value match
     const filterMatch = filterValue === "" || val.status === filterValue;
 
@@ -63,6 +60,11 @@ const InternalLogs = () => {
 
     return filterMatch && searchMatch;
   });
+
+  useEffect(() => {
+    const totalPages = Math.ceil(filteredDocs.length / docsPerPage);
+    setTotalPages(totalPages);
+  }, [filteredDocs]);
 
   return (
     <>
@@ -131,10 +133,10 @@ const InternalLogs = () => {
                       {filteredData.map((val, key) => {
                         return (
                           <tr key={key}>
-                            <td>{val.date}</td>
+                            <td>{val.date.substring(0, 10)}</td>
                             <td>{val.title}</td>
                             <td>{val.sender}</td>
-                            <td>{val.receipient}</td>
+                            <td>{val.recipient}</td>
                             <td>
                               <div className="viewbtn">
                                 <button>View</button>
@@ -145,6 +147,29 @@ const InternalLogs = () => {
                       })}
                     </tbody>
                   </table>
+                  <div className="pagination-controls">
+                    <button
+                      className="prev-btn"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPage === 1}
+                    >
+                      <GrCaretPrevious />
+                    </button>
+                    <span>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      className="next-btn"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      <GrCaretNext />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

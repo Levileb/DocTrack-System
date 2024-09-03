@@ -53,6 +53,15 @@ const Forwarded = () => {
     setData(filteredData);
   };
 
+  const formatDate = (dateString) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    return new Date(dateString).toLocaleString("en-US", options);
+  };
+
   return (
     <>
       <Header />
@@ -89,7 +98,7 @@ const Forwarded = () => {
                 <tbody>
                   {data.map((val, key) => (
                     <tr key={key}>
-                      <td>{new Date(val.date).toLocaleDateString()}</td>
+                      <td>{formatDate(val.date)}</td>
                       <td>{val.title}</td>
                       <td>{val.forwardedTo}</td>{" "}
                       {/* Now displays the full name */}

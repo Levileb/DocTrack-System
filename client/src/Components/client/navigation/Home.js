@@ -269,9 +269,19 @@ const Home = () => {
     setTimeout(() => setShowPopup(false), 1000);
   };
 
-  const handleFilterChange = (event) => {
-    setFilterValue(event.target.value);
+  const formatDate = (dateString) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    return new Date(dateString).toLocaleString("en-US", options);
   };
+
+  // This is for the Dropdown Filter
+  // const handleFilterChange = (event) => {
+  //   setFilterValue(event.target.value);
+  // };
 
   // This is for the list of displayed documents in the table
   const [currentPage, setCurrentPage] = useState(1);
@@ -336,7 +346,7 @@ const Home = () => {
                     </button>
                   </Link>
                 </div>
-                <div className="docFilter-container">
+                {/* <div className="docFilter-container">
                   <select
                     value={filterValue}
                     onChange={handleFilterChange}
@@ -346,7 +356,7 @@ const Home = () => {
                       All
                     </option>
                     <option className="selection" value="Created">
-                      Created
+                      Submitted
                     </option>
                     <option className="selection" value="Received">
                       Received
@@ -355,7 +365,7 @@ const Home = () => {
                       Forwarded
                     </option>
                   </select>
-                </div>
+                </div> */}
               </div>
               <table>
                 <thead>
@@ -370,7 +380,7 @@ const Home = () => {
                 <tbody>
                   {paginatedDocs.map((val, key) => (
                     <tr key={key}>
-                      <td>{val.date.substring(0, 10)}</td>
+                      <td>{formatDate(val.date)}</td>
                       <td>{val.title}</td>
                       <td>{val.sender}</td>
                       <td>{val.recipient}</td>
