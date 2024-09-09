@@ -8,18 +8,32 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import logo from "../assets/kabankalan-logo.png";
 
 const SubmitDocument = () => {
-  const getCurrentDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    let month = today.getMonth() + 1;
-    let day = today.getDate();
-    month = month < 10 ? "0" + month : month;
-    day = day < 10 ? "0" + day : day;
-    return `${month}-${day}-${year}`;
+  const getCurrentDateTime = () => {
+    return new Date().toISOString(); // Returns a string in ISO 8601 format
+  };
+
+  // Convert ISO format date to display format for the read-only input
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   const [formData, setFormData] = useState({
-    date: getCurrentDate(),
+    date: getCurrentDateTime(),
     title: "",
     sender: "",
     originating: "",
@@ -114,13 +128,12 @@ const SubmitDocument = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const dateObject = parseDate(formData.date);
     const newCodeNumber = generateCodeNumber();
     setCodeNumber(newCodeNumber);
     const updatedFormData = {
       ...formData,
       codeNumber: newCodeNumber,
-      date: dateObject,
+      date: getCurrentDateTime(), // Use ISO format
     };
     setFormData(updatedFormData);
     axios
@@ -140,14 +153,14 @@ const SubmitDocument = () => {
     return codeNumber.toString();
   };
 
-  const parseDate = (dateString) => {
-    const [year, month, day] = dateString.split("-");
-    return new Date(year, month - 1, day);
-  };
+  // const parseDate = (dateString) => {
+  //   const [year, month, day] = dateString.split("-");
+  //   return new Date(year, month - 1, day);
+  // };
 
   const handleClear = () => {
     setFormData({
-      date: getCurrentDate(),
+      date: getCurrentDateTime(),
       title: "",
       sender: formData.sender,
       originating: formData.originating,
@@ -280,7 +293,12 @@ const SubmitDocument = () => {
               <div className="FormText">
                 <p>Date:</p>
                 <div className="input-new">
-                  <input type="text" id="date" value={formData.date} readOnly />
+                  <input
+                    type="text"
+                    id="date"
+                    value={formatDateForDisplay(formData.date)}
+                    readOnly
+                  />
                 </div>
                 <p>Title:</p>
                 <div className="input-new">
@@ -385,7 +403,7 @@ const SubmitDocument = () => {
             <div className="infoToPrint" id="divToPrint">
               <ul className="view-userinfo sd">
                 <li>
-                  Date: <strong>{formData.date.toLocaleDateString()}</strong>
+                  Date: <strong>{formatDateForDisplay(formData.date)}</strong>
                 </li>
                 <li>
                   Title: <strong>{formData.title}</strong>

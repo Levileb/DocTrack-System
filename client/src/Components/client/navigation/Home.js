@@ -66,6 +66,11 @@ const Home = () => {
         const activeDocs = response.data.filter(
           (doc) => doc.status !== "Archived"
         );
+
+        // Sort documents from most recent to oldest
+        activeDocs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Set the sorted documents in the state
         setDocs(activeDocs);
         setFilteredDocs(activeDocs);
       })
@@ -309,19 +314,19 @@ const Home = () => {
                 <p>QR Scanner</p>
               </button>
             </div>
-            <div className="scannerIcon secondarybtn">
+            {/*<div className="scannerIcon secondarybtn">
               <button onClick={qrButtonHandler}>
                 <MdQrCodeScanner className="qrIcon" />
               </button>
             </div>
-            <div className="submitdocuBtn secondarybtn ">
+             <div className="submitdocuBtn secondarybtn ">
               <Link to="/submit-document">
                 <button>
                   <RiMailSendLine className="icon" />
                   <p>Submit Document</p>
                 </button>
               </Link>
-            </div>
+            </div> */}
             <div className="search">
               <div className="search-border">
                 <IoSearch className="searchIcon" />
@@ -463,10 +468,7 @@ const Home = () => {
             <p>Document Information</p>
             <ul className="view-userinfo">
               <li>
-                Date:{" "}
-                <strong>
-                  {new Date(selectedDoc.date).toLocaleDateString()}
-                </strong>
+                Date: <strong>{formatDate(selectedDoc.date)}</strong>
               </li>
               <li>
                 Title: <strong>{selectedDoc.title}</strong>

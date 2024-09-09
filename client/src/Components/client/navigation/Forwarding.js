@@ -124,8 +124,10 @@ const Forwarding = () => {
       // Handle error message
     }
 
-    // Hide the popup after 1 second
-    setTimeout(() => setShowPopup(false), 1000);
+    setTimeout(() => {
+      setShowPopup(false);
+      handleCancel(); // Navigate after the popup is hidden
+    }, 1000);
   };
 
   const handleEmployeeSelect = (event) =>

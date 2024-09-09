@@ -25,6 +25,9 @@ const Forwarded = () => {
           withCredentials: true,
         }
       );
+      // Sort documents from most recent to oldest
+      response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
       setData(response.data); // Set filtered data
       setOriginalData(response.data); // Set original data
     } catch (error) {
@@ -123,10 +126,7 @@ const Forwarded = () => {
             <p>Document Information</p>
             <ul className="view-userinfo">
               <li>
-                Date:{" "}
-                <strong>
-                  {new Date(selectedItem.date).toLocaleDateString()}
-                </strong>
+                Date: <strong>{formatDate(selectedItem.date)}</strong>
               </li>
               <li>
                 Title: <strong>{selectedItem.title}</strong>

@@ -257,6 +257,16 @@
   width: max-content;
   display: flex;
 }
+.dateFilter-container {
+  display: flex;
+}
+.dateFilter-container input {
+  cursor: text;
+  margin: 5px;
+  border: solid 1px #000000;
+  border-radius: 4px;
+  font-size: 14px;
+}
 
 @media screen and (max-width: 730px) {
   .logo-user-container {

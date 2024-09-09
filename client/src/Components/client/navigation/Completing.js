@@ -99,7 +99,10 @@ const Completing = () => {
       remarks: "",
     });
 
-    setTimeout(() => setShowPopup(false), 1000);
+    setTimeout(() => {
+      setShowPopup(false);
+      handleCancel(); // Navigate after the popup is hidden
+    }, 1000);
   };
 
   return (

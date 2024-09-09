@@ -92,28 +92,70 @@ const SidePanel = () => {
 
   const Tooltip = ({ text, children }) => {
     const [isVisible, setIsVisible] = useState(false);
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
+    const handleMouseMove = (e) => {
+      setTooltipPosition({ x: e.clientX, y: e.clientY });
+    };
+
     return (
       <div
         className="tooltip-container"
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
+        onMouseMove={handleMouseMove}
       >
         {children}
-        {isVisible && <div className="tooltip">{text}</div>}
+        {isVisible && (
+          <div
+            className="tooltip"
+            style={{
+              top: `${tooltipPosition.y}px`,
+              left: `${tooltipPosition.x}px`,
+            }}
+          >
+            {text}
+          </div>
+        )}
       </div>
     );
   };
 
   const TooltipUser = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+    const [visible, setVisible] = useState(false);
+
+    const handleMouseMove = (e) => {
+      setTooltipPosition({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseEnter = () => {
+      setVisible(true);
+    };
+
+    const handleMouseLeave = () => {
+      setVisible(false);
+    };
+
     return (
       <div
         className="tooltipUser-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {children}
-        {isVisible && <div className="tooltipUser">{text}</div>}
+        {visible && (
+          <div
+            className="tooltipUser"
+            style={{
+              top: `${tooltipPosition.y}px`,
+              left: `${tooltipPosition.x}px`,
+            }}
+          >
+            {text}
+          </div>
+        )}
       </div>
     );
   };
@@ -134,7 +176,9 @@ const SidePanel = () => {
         <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
           <div className="user">
             <div className="user-acro">
-              <h1>{firstLetter}</h1>
+              <TooltipUser text={"View Profile"}>
+                <h1>{firstLetter}</h1>
+              </TooltipUser>
             </div>
             <div className="username">
               <ul>

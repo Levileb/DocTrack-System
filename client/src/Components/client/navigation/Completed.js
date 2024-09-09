@@ -16,6 +16,9 @@ const Completed = () => {
       const completedDocs = response.data.filter(
         (doc) => doc.status === "Completed"
       );
+      // Sort documents from most recent to oldest
+      completedDocs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
       setData(completedDocs);
     } catch (error) {
       console.error("Error fetching documents:", error);

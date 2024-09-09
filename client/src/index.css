@@ -696,21 +696,23 @@ ul li {
   position: relative;
   display: inline-block;
 }
+
 .tooltip {
-  position: absolute;
-  top: calc(-100% - -100%);
-  transform: translateX(40%);
+  position: fixed; /* Use fixed to position relative to the viewport */
   background-color: rgba(0, 0, 0, 0.6);
   color: #ffffff;
-  padding: 5px;
-  border-radius: 5px;
-  z-index: 10;
-  display: flex;
+  padding: 5px 8px;
+  border-radius: 3px;
+  z-index: 1000;
   text-align: center;
-  justify-content: center;
-  min-width: 100px;
   font-size: 11px;
+  pointer-events: none; /* Ensure the tooltip doesn't interfere with pointer events */
+  transform: translate(
+    10px,
+    10px
+  ); /* Offset to the bottom-right of the cursor */
 }
+
 .tooltip2-container {
   position: relative;
   display: inline-block;
@@ -734,20 +736,21 @@ ul li {
   position: relative;
   display: inline-block;
 }
+
 .tooltipUser {
-  position: absolute;
-  top: calc(-10% - -100%);
-  transform: translateX(90%);
+  position: fixed; /* Use fixed to position relative to the viewport */
   background-color: rgba(0, 0, 0, 0.6);
   color: #ffffff;
-  padding: 2px;
+  padding: 5px 8px;
   border-radius: 3px;
-  z-index: 10;
-  display: flex;
+  z-index: 1000;
   text-align: center;
-  justify-content: center;
-  min-width: 100px;
   font-size: 11px;
+  pointer-events: none; /* Ensure the tooltip doesn't interfere with pointer events */
+  transform: translate(
+    10px,
+    10px
+  ); /* Offset to the bottom-right of the cursor */
 }
 
 /* Media Queries for mobile screens */
@@ -778,7 +781,7 @@ ul li {
 /* Login Page Media query for very small screens, e.g., tablets, mobile phones */
 @media screen and (max-width: 570px) {
   .PanelHeader .scanner {
-    display: none;
+    display: flex;
   }
   .header .logo h1 {
     display: none;

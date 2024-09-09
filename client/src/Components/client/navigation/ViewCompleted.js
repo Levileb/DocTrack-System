@@ -97,6 +97,15 @@ const ViewCompleted = () => {
     );
   }
 
+  const formatDate = (dateString) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    return new Date(dateString).toLocaleString("en-US", options);
+  };
+
   return (
     <>
       <Header />
@@ -134,9 +143,7 @@ const ViewCompleted = () => {
                 <div className="doc-information">
                   <h4>Document Information</h4>
                   <ul className="view-document">
-                    <li>
-                      Date: {new Date(document.date).toLocaleDateString()}
-                    </li>
+                    <li>Date: {formatDate(document.date)}</li>
                     <li>Title: {document.title}</li>
                     <li>From: {document.sender}</li>
                     <li>Office From: {document.originating}</li>
@@ -164,11 +171,11 @@ const ViewCompleted = () => {
                       trackingInfo.combinedLogs.map((log, index) => (
                         <tr key={index}>
                           <td>
-                            {new Date(
+                            {formatDate(
                               log.receivedAt ||
                                 log.forwardedAt ||
                                 log.completedAt
-                            ).toLocaleString()}
+                            )}
                           </td>
                           <td>
                             {log.type === "receiving"
