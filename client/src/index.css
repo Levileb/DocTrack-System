@@ -509,6 +509,33 @@ ul li {
   padding-left: 5px;
 }
 
+.FormText.submitdocument {
+  width: 400px;
+  position: relative;
+}
+.FormText.submitdocument .input-new {
+  width: 100%;
+}
+.input-new .inp-remarks {
+  height: 100px; /* Adjust height as needed */
+  width: 100%;
+  font-size: 16px;
+  background: #ebf1f5;
+  border: 2px solid #00162d;
+  border-radius: 15px;
+  padding: 10px;
+  padding-left: 15px;
+  resize: none; /* Allows vertical resizing */
+}
+.adduserbuttons.submit {
+  /* width: 220px; */
+  height: 40px;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: row;
+  margin: auto;
+  padding-top: 70px; /* adjusted from 35px*/
+}
 .img-upload {
   width: 260px;
   height: 350px;
@@ -808,6 +835,19 @@ ul li {
   }
   .PanelHeader .search {
     margin-right: 0;
+  }
+  .FormText.submitdocument {
+    width: 300px;
+    position: relative;
+  }
+  .AddUserHeader.arc .filter p {
+    font-size: 16px;
+  }
+  .AddUserHeader.arc .search-bar {
+    width: 150px;
+  }
+  .AddUserHeader.arc .back-btn {
+    margin-right: 10px;
   }
 }
 @media screen and (max-width: 490px) {

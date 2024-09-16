@@ -123,7 +123,7 @@ const UpdateDocument = () => {
                   />
                 </div>
 
-                <p>Sender:</p>
+                {/* <p>Sender:</p>
                 <div className="input-new">
                   <input
                     type="text"
@@ -141,7 +141,7 @@ const UpdateDocument = () => {
                     value={formData.originating}
                     readOnly
                   />
-                </div>
+                </div> */}
 
                 <p>Recipient:</p>
                 <div className="input-new">

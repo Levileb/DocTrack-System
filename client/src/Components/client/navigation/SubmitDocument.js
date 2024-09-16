@@ -290,7 +290,7 @@ const SubmitDocument = () => {
           </div>
           <div className="FormWrapper">
             <form action="" className="AddUserForm" onSubmit={handleSubmit}>
-              <div className="FormText">
+              <div className="FormText submitdocument">
                 <p>Date:</p>
                 <div className="input-new">
                   <input
@@ -310,7 +310,7 @@ const SubmitDocument = () => {
                     required
                   />
                 </div>
-                <p>Sender:</p>
+                {/* <p>Sender:</p>
                 <div className="input-new">
                   {formData.sender && (
                     <input
@@ -331,7 +331,7 @@ const SubmitDocument = () => {
                       readOnly
                     />
                   )}
-                </div>
+                </div> */}
                 <p>Recipient:</p>
                 <div className="input-new">
                   <select
@@ -372,15 +372,16 @@ const SubmitDocument = () => {
                 </div>
                 <p>Remarks:</p>
                 <div className="input-new">
-                  <input
+                  <textarea
+                    className="inp-remarks"
                     type="text"
                     id="remarks"
                     value={formData.remarks}
                     onChange={handleInputChange}
-                  />
+                  ></textarea>
                 </div>
               </div>
-              <div className="adduserbuttons">
+              <div className="adduserbuttons submit">
                 <div className="ClearButton">
                   <button type="button" onClick={handleClear}>
                     Clear

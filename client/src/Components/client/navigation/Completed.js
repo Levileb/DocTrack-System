@@ -29,13 +29,23 @@ const Completed = () => {
     fetchDocs(); // Fetch documents when the component mounts
   }, []);
 
-  const formatDate = (dateString) => {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    };
-    return new Date(dateString).toLocaleString("en-US", options);
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -73,7 +83,7 @@ const Completed = () => {
                 <tbody>
                   {data.map((doc) => (
                     <tr key={doc._id}>
-                      <td>{formatDate(doc.date)}</td>
+                      <td>{formatDateForDisplay(doc.date)}</td>
                       <td>{doc.title}</td>
                       <td>{doc.sender}</td>
                       <td>{doc.recipient}</td>

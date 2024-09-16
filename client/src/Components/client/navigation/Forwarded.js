@@ -56,13 +56,23 @@ const Forwarded = () => {
     setData(filteredData);
   };
 
-  const formatDate = (dateString) => {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    };
-    return new Date(dateString).toLocaleString("en-US", options);
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -101,7 +111,7 @@ const Forwarded = () => {
                 <tbody>
                   {data.map((val, key) => (
                     <tr key={key}>
-                      <td>{formatDate(val.date)}</td>
+                      <td>{formatDateForDisplay(val.date)}</td>
                       <td>{val.title}</td>
                       <td>{val.forwardedTo}</td>{" "}
                       {/* Now displays the full name */}
@@ -126,7 +136,7 @@ const Forwarded = () => {
             <p>Document Information</p>
             <ul className="view-userinfo">
               <li>
-                Date: <strong>{formatDate(selectedItem.date)}</strong>
+                Date: <strong>{formatDateForDisplay(selectedItem.date)}</strong>
               </li>
               <li>
                 Title: <strong>{selectedItem.title}</strong>

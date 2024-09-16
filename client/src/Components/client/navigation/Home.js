@@ -192,9 +192,9 @@ const Home = () => {
             <main>
               <div>
                 <ul>
-                  <li>Date: <strong>${new Date(
+                  <li>Date: <strong>${formatDateForDisplay(
                     doc.date
-                  ).toLocaleDateString()}</strong></li>
+                  )}</strong></li>
                   <li>Title: <strong>${doc.title}</strong></li>
                   <li>From: <strong>${doc.sender}</strong></li>
                   <li>Originating Office: <strong>${
@@ -274,13 +274,23 @@ const Home = () => {
     setTimeout(() => setShowPopup(false), 1000);
   };
 
-  const formatDate = (dateString) => {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    };
-    return new Date(dateString).toLocaleString("en-US", options);
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   // This is for the Dropdown Filter
@@ -385,7 +395,7 @@ const Home = () => {
                 <tbody>
                   {paginatedDocs.map((val, key) => (
                     <tr key={key}>
-                      <td>{formatDate(val.date)}</td>
+                      <td>{formatDateForDisplay(val.date)}</td>
                       <td>{val.title}</td>
                       <td>{val.sender}</td>
                       <td>{val.recipient}</td>
@@ -468,7 +478,7 @@ const Home = () => {
             <p>Document Information</p>
             <ul className="view-userinfo">
               <li>
-                Date: <strong>{formatDate(selectedDoc.date)}</strong>
+                Date: <strong>{formatDateForDisplay(selectedDoc.date)}</strong>
               </li>
               <li>
                 Title: <strong>{selectedDoc.title}</strong>
