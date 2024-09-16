@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LuHome, LuFolderCheck } from "react-icons/lu";
-import { RiFolderReceivedLine, RiMailSendLine } from "react-icons/ri";
-import { FaRegShareFromSquare } from "react-icons/fa6";
+import { LuHome, LuUserSquare2 } from "react-icons/lu";
+import { BsBuildingAdd } from "react-icons/bs";
+
 import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
@@ -201,10 +201,10 @@ const SidePanel = () => {
           </div>
           <div className="menus">
             <ul>
-              <Link to="/home">
+              <Link to="/admin">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/home") ? "active" : ""}
+                  className={isActive("/admin") ? "active" : ""}
                 >
                   <Tooltip text={"Home"}>
                     <LuHome className="icon" />
@@ -213,8 +213,8 @@ const SidePanel = () => {
                 </li>
               </Link>
 
-              <Link onClick={scrollToTop} to="/track-document">
-                <li className={isActive("/track-document") ? "active" : ""}>
+              <Link onClick={scrollToTop} to="/document-tracking">
+                <li className={isActive("/document-tracking") ? "active" : ""}>
                   <Tooltip text={"Track Document"}>
                     <MdOutlineContentPasteSearch className="icon" />
                   </Tooltip>
@@ -222,48 +222,48 @@ const SidePanel = () => {
                 </li>
               </Link>
 
-              <Link to="/submit-document">
-                <li
-                  onClick={scrollToTop}
-                  className={isActive("/submit-document") ? "active" : ""}
-                >
-                  <Tooltip text={"Submit Document"}>
-                    <RiMailSendLine className="icon" />
-                  </Tooltip>
-                  <p>Submit Document</p>
-                </li>
-              </Link>
-
-              <Link to="/incoming">
-                <li
-                  onClick={scrollToTop}
-                  className={isActive("/incoming") ? "active" : ""}
-                >
-                  <Tooltip text={"Incoming"}>
-                    <RiFolderReceivedLine className="icon" />
-                  </Tooltip>
-                  <p>Incoming</p>
-                </li>
-              </Link>
-
-              <Link to="/outgoing">
-                <li
-                  onClick={scrollToTop}
-                  className={isActive("/outgoing") ? "active" : ""}
-                >
-                  <Tooltip text={"Outgoing"}>
-                    <FaRegShareFromSquare className="icon" />
-                  </Tooltip>
-                  <p>Outgoing</p>
-                </li>
-              </Link>
-
-              <Link onClick={scrollToTop} to="/completed">
+              {/* <Link onClick={scrollToTop} to="/completed">
                 <li className={isActive("/completed") ? "active" : ""}>
                   <Tooltip text={"Completed"}>
                     <LuFolderCheck className="icon" />
                   </Tooltip>
                   <p>Completed</p>
+                </li>
+              </Link> */}
+
+              {/* <Link to="/internal-logs">
+                <li
+                  onClick={scrollToTop}
+                  className={isActive("/internal-logs") ? "active" : ""}
+                >
+                  <Tooltip text={"Internal Logs"}>
+                    <GrDocumentTime className="icon" />
+                  </Tooltip>
+                  <p>Internal Logs</p>
+                </li>
+              </Link> */}
+
+              <Link to="/view-user">
+                <li
+                  onClick={scrollToTop}
+                  className={isActive("/view-user") ? "active" : ""}
+                >
+                  <Tooltip text={"View Users"}>
+                    <LuUserSquare2 className="icon" />
+                  </Tooltip>
+                  <p>View Users</p>
+                </li>
+              </Link>
+
+              <Link to="/add-office">
+                <li
+                  onClick={scrollToTop}
+                  className={isActive("/add-office") ? "active" : ""}
+                >
+                  <Tooltip text={"View Offices"}>
+                    <BsBuildingAdd className="icon" />
+                  </Tooltip>
+                  <p>View Offices</p>
                 </li>
               </Link>
             </ul>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import { FiUserPlus } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
@@ -106,14 +106,7 @@ const Users = () => {
                   </button>
                 </Link>
               </div>
-              <div className="adduserbtn nf secondarybtn">
-                <Link to="/add-office" style={{ textDecoration: "none" }}>
-                  <button>
-                    <BsBuildingAdd className="icon" />
-                    <p>New Office</p>
-                  </button>
-                </Link>
-              </div>
+
               <div className="adduserbtn nf secondarybtn">
                 <Link to="/archived-users" style={{ textDecoration: "none" }}>
                   <button>

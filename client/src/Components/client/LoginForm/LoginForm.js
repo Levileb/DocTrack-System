@@ -34,8 +34,13 @@ function LoginForm() {
           localStorage.setItem("token", res.data.token);
           localStorage.setItem("role", res.data.role);
 
+          // Navigate based on the user's role
           setTimeout(() => {
-            navigate("/home");
+            if (res.data.role === "admin") {
+              navigate("/admin");
+            } else if (res.data.role === "user") {
+              navigate("/home");
+            }
             setShowPopup(false);
           }, 1000);
         } else {

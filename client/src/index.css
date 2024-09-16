@@ -831,7 +831,7 @@ ul li {
   .adduserbuttons {
     margin: auto;
     position: relative;
-    padding-top: 20px;
+    padding-top: 0px;
   }
   .PanelHeader .search {
     margin-right: 0;

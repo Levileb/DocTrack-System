@@ -344,13 +344,13 @@ app.post("/add-user", (req, res) => {
       })
         .then((user) => {
           // Generate a token after creating the user
-          const token = jwt.sign({ email: user.email }, JWT_SECRET, {
-            expiresIn: "1h",
-          });
+          // const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+          //   expiresIn: "1h",
+          // });
 
           // Set token in cookies
-          res.cookie("token", token, { httpOnly: true });
-          res.json({ message: "User added successfully", token });
+          // res.cookie("token", token, { httpOnly: true });
+          res.json({ message: "User added successfully" });
         })
         .catch((err) =>
           res.status(500).json({ error: "Internal server error" })
@@ -744,6 +744,7 @@ app.post("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
+//Login Page
 app.post("/", (req, res) => {
   const { email, password } = req.body;
 

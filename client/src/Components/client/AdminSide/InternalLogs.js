@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { IoSearch } from "react-icons/io5";

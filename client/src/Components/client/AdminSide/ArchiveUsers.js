@@ -1,50 +1,56 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 
-const ArchiveOffice = () => {
+const ArchiveUsers = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // Fetch archived offices from the backend
-    const fetchArchivedOffices = async () => {
+    // Fetch archived users from the backend
+    const fetchArchivedUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/archived-offices'); // Corrected URL
-        console.log('Fetched archived offices:', response.data); // Log response data
+        const response = await axios.get(
+          "http://localhost:3001/archived-users"
+        ); // Corrected URL
+        console.log("Fetched archived users:", response.data); // Log response data
         setData(response.data);
       } catch (error) {
-        console.error("Error fetching archived offices", error);
+        console.error("Error fetching archived users", error);
       }
     };
 
-    fetchArchivedOffices();
+    fetchArchivedUsers();
   }, []);
 
-  const handleRestore = async (officeId) => {
+  const handleRestore = async (userId) => {
     try {
-      await axios.post(`http://localhost:3001/restore-office/${officeId}`); // Corrected URL
-      // Update the local state to reflect the restored office
-      setData(data.filter(office => office._id !== officeId));
-      console.log('Office restored:', officeId); // Log restored office ID
+      await axios.post(`http://localhost:3001/restore-user/${userId}`); // Corrected URL
+      // Update the local state to reflect the restored user
+      setData(data.filter((user) => user._id !== userId));
+      console.log("User restored:", userId); // Log restored user ID
       setShowPopup(true);
       setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
     } catch (error) {
-      console.error("Error restoring office", error);
+      console.error("Error restoring user", error);
     }
   };
 
   const filteredData = data.filter((val) => {
     // Check for search query match (case insensitive)
     const searchMatch =
-      (val.office && val.office.toLowerCase().includes(searchQuery.toLowerCase()));
+      val.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      val.office.toLowerCase().includes(searchQuery.toLowerCase());
 
     return searchMatch;
   });
@@ -72,7 +78,7 @@ const ArchiveOffice = () => {
           <div className="PanelWrapper">
             <div className="AddUserHeader arc">
               <div className="back-btn">
-                <Link to="/add-office">
+                <Link to="/view-user">
                   <button>
                     <Tooltip text={"Click to go back, Home page"}>
                       <RiArrowGoBackFill className="back-icon" />
@@ -81,7 +87,7 @@ const ArchiveOffice = () => {
                 </Link>
               </div>
               <div className="filter">
-                <p>Archived Offices</p>
+                <p>Archived Users</p>
               </div>
               <div className="search">
                 <div className="search-border">
@@ -104,7 +110,11 @@ const ArchiveOffice = () => {
                   <table>
                     <thead>
                       <tr>
-                        <td>Name</td>
+                        <td>First Name</td>
+                        <td>Last Name</td>
+                        <td>Email</td>
+                        <td>Position</td>
+                        <td>Office</td>
                         <td>Action</td>
                       </tr>
                     </thead>
@@ -112,10 +122,16 @@ const ArchiveOffice = () => {
                       {filteredData.map((val, key) => {
                         return (
                           <tr key={key}>
+                            <td>{val.firstname}</td>
+                            <td>{val.lastname}</td>
+                            <td>{val.email}</td>
+                            <td>{val.position}</td>
                             <td>{val.office}</td>
                             <td>
                               <div className="viewbtn">
-                                <button onClick={() => handleRestore(val._id)}>Restore</button>
+                                <button onClick={() => handleRestore(val._id)}>
+                                  Restore
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -133,7 +149,7 @@ const ArchiveOffice = () => {
       {showPopup && (
         <div className="popup-container">
           <div className="popup forwarding">
-            <p>Office Restored!</p>
+            <p>User Restored!</p>
           </div>
         </div>
       )}
@@ -141,4 +157,4 @@ const ArchiveOffice = () => {
   );
 };
 
-export default ArchiveOffice;
+export default ArchiveUsers;

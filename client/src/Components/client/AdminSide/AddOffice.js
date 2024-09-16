@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { RiArrowGoBackFill } from "react-icons/ri";
+import { IoSearch } from "react-icons/io5";
 import { LuArchive } from "react-icons/lu";
 import "../navigation/newcontent.css";
 
 const AddOffice = () => {
   const [office, setOffice] = useState("");
   const [offices, setOffices] = useState([]); // State to hold fetched offices
-
-  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
-  const [showPopup2, setShowPopup2] = useState(false); // State for popup visibility
-  const [isOfficeSaved, setIsOfficeSaved] = useState(false); // State to track office save success
-  const saveSuccess = true;
-  const saveUnsuccessful = false;
+  const [searchTerm, setSearchTerm] = useState(""); // State to hold search input
+  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup2, setShowPopup2] = useState(false);
+  const [isOfficeSaved, setIsOfficeSaved] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +27,6 @@ const AddOffice = () => {
     axios
       .get("http://localhost:3001/offices")
       .then((res) => {
-        // Filter out archived offices
         const activeOffices = res.data.filter((office) => !office.isArchived);
         setOffices(activeOffices);
       })
@@ -43,16 +40,14 @@ const AddOffice = () => {
     axios
       .post("http://localhost:3001/add-office", { office })
       .then((res) => {
-        setIsOfficeSaved(saveSuccess);
+        setIsOfficeSaved(true);
         setShowPopup(true);
-        // Resetting form fields
         setOffice("");
-        // Fetch updated list of offices after saving new office
-        fetchOffices();
+        fetchOffices(); // Fetch updated list of offices
       })
       .catch((err) => {
         console.log(err);
-        setIsOfficeSaved(saveUnsuccessful);
+        setIsOfficeSaved(false);
         setShowPopup(true);
       });
 
@@ -66,58 +61,58 @@ const AddOffice = () => {
       .post(`http://localhost:3001/archive-office/${id}`)
       .then((res) => {
         setShowPopup2(true);
-        console.log("Office archived:", res.data);
-        // Fetch updated list of offices after archiving
-        fetchOffices();
+        fetchOffices(); // Fetch updated list of offices
       })
       .catch((err) => {
         console.error("Error archiving office:", err);
       });
+
     setTimeout(() => {
       setShowPopup2(false);
     }, 1000);
   };
 
-  const Tooltip = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    return (
-      <div
-        className="tooltip2-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-      >
-        {children}
-        {isVisible && <div className="tooltip2">{text}</div>}
-      </div>
-    );
-  };
   const handleCancel = () => {
-    navigate("/view-user");
+    navigate("/admin");
   };
+
+  // Filter offices based on the search input
+  const filteredOffices = offices.filter((office) =>
+    office.office.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
       <Header />
       <div className="MainPanel">
         <div className="PanelWrapper">
-          <div className="AddUserHeader">
-            <div className="back-btn">
-              <Link to="/view-user">
-                <button>
-                  <Tooltip text={"Click to go back, View Users"}>
-                    <RiArrowGoBackFill className="back-icon" />
-                  </Tooltip>
-                </button>
-              </Link>
+          <div className="PanelHeader">
+            <div className="filter viewusers">
+              <p>View Offices</p>
             </div>
-            <p>Add Office</p>
-            <div className="adduserbtn nf secondarybtn">
-              <Link to="/archived-offices" style={{ textDecoration: "none" }}>
-                <button>
-                  <LuArchive className="icon" />
-                  <p>Archived</p>
-                </button>
-              </Link>
+            <div className="navbuttons">
+              <div className="adduserbtn nf secondarybtn">
+                <Link to="/archived-offices" style={{ textDecoration: "none" }}>
+                  <button>
+                    <LuArchive className="icon" />
+                    <p>Archived</p>
+                  </button>
+                </Link>
+              </div>
+            </div>
+            <div className="search">
+              <div className="search-border">
+                <IoSearch className="searchIcon" />
+                <input
+                  type="search"
+                  name="search"
+                  id="search"
+                  placeholder="Search.."
+                  className="search-bar"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Update search input
+                />
+              </div>
             </div>
           </div>
           <div className="noContainer">
@@ -131,31 +126,28 @@ const AddOffice = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {offices.map((val, index) => {
-                    return (
-                      <tr key={val._id}>
-                        <td>{index + 1}</td>{" "}
-                        {/* Display index starting from 1 */}
-                        <td>{val.office}</td>
-                        <td>
-                          <div className="Arch-Btn">
-                            <button
-                              type="button"
-                              onClick={() => handleArchive(val._id)}
-                            >
-                              Archive
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {filteredOffices.map((val, index) => (
+                    <tr key={val._id}>
+                      <td>{index + 1}</td>
+                      <td>{val.office}</td>
+                      <td>
+                        <div className="Arch-Btn">
+                          <button
+                            type="button"
+                            onClick={() => handleArchive(val._id)}
+                          >
+                            Archive
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
 
             <div className="FormWrapper noffice">
-              <form action="" className="AddOfficeForm" onSubmit={handleSubmit}>
+              <form className="AddOfficeForm" onSubmit={handleSubmit}>
                 <div className="FormText">
                   <p>New Office Name:</p>
                   <div className="input-new">
@@ -183,7 +175,7 @@ const AddOffice = () => {
           </div>
         </div>
       </div>
-      <SidePanel /> {/* Always render the SidePanel */}
+      <SidePanel />
       <Footer />
       {showPopup && (
         <div

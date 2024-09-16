@@ -151,7 +151,7 @@
   color: #00162d;
   background: #ffffff;
   z-index: 11111;
-  transform: translate(25px, 10px);
+  /* transform: translate(25px, 10px); */
 }
 .popuplogsuccess p {
   margin-bottom: 5px;

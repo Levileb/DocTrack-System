@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -26,7 +26,9 @@ const AddUsers = () => {
     axios
       .get("http://localhost:3001/offices")
       .then((res) => {
-        setOffices(res.data); // Assuming the response contains an array of offices
+        // Filter out archived offices
+        const activeOffices = res.data.filter((office) => !office.isArchived);
+        setOffices(activeOffices);
       })
       .catch((err) => {
         console.log(err);

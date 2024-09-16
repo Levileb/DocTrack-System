@@ -1,25 +1,26 @@
 import { Route, Routes } from "react-router-dom";
 import LoginForm from "../src/Components/client/LoginForm/LoginForm";
 import Home from "./Components/client/navigation/Home";
-import AddUsers from "./Components/client/navigation/AddUsers";
-import UpdateUsers from "./Components/client/navigation/UpdateUsers";
+import AddUsers from "./Components/client/AdminSide/AddUsers"; //Admin Side
+import UpdateUsers from "./Components/client/AdminSide/UpdateUsers"; //Admin Side
 import SubmitDocument from "./Components/client/navigation/SubmitDocument";
 import Received from "./Components/client/navigation/Received";
 import Receiving from "./Components/client/navigation/Receiving";
 import Forwarded from "./Components/client/navigation/Forwarded";
 import Completed from "./Components/client/navigation/Completed";
-import Users from "./Components/client/navigation/Users";
+import Users from "./Components/client/AdminSide/Users"; //Admin Side
 import UpdateDocument from "./Components/client/navigation/UpdateDocument";
 import Forwarding from "./Components/client/navigation/Forwarding";
-import AddOffice from "./Components/client/navigation/AddOffice";
+import AddOffice from "./Components/client/AdminSide/AddOffice"; //Admin Side
 import Tracking from "./Components/client/navigation/Tracking";
-import InternalLogs from "./Components/client/navigation/InternalLogs";
+import InternalLogs from "./Components/client/AdminSide/InternalLogs"; //Admin Side
 import ViewCompleted from "./Components/client/navigation/ViewCompleted";
 import Completing from "./Components/client/navigation/Completing";
 import ArchiveDocument from "./Components/client/navigation/ArchiveDocument";
 import UserProfile from "./Components/client/navigation/UserProfile";
-import ArchiveUsers from "./Components/client/navigation/ArchiveUsers";
-import ArchiveOffice from "./Components/client/navigation/ArchiveOffice";
+import ArchiveUsers from "./Components/client/AdminSide/ArchiveUsers"; //Admin Side
+import ArchiveOffice from "./Components/client/AdminSide/ArchiveOffice"; //Admin Side
+import AdminTracking from "./Components/client/AdminSide/AdminTracking";
 
 function App() {
   return (
@@ -48,6 +49,8 @@ function App() {
         <Route path="/view-complete/:docId" element={<ViewComplete />} />
         <Route path="/archived-users" element={<ArchivedUser />} />
         <Route path="/archived-offices" element={<ArchivedOffices />} />
+        <Route path="/admin" element={<AdminHomepage />} />
+        <Route path="/document-tracking" element={<AdminTrackingPage />} />
         <Route
           path="*"
           element={
@@ -134,5 +137,11 @@ function ArchivedUser() {
 // Inserted on Aug 19, 2024
 function ArchivedOffices() {
   return <ArchiveOffice />;
+}
+function AdminHomepage() {
+  return <InternalLogs />;
+}
+function AdminTrackingPage() {
+  return <AdminTracking />;
 }
 export default App;
