@@ -89,76 +89,6 @@ const SidePanel = () => {
     });
   };
 
-  const Tooltip = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-
-    const handleMouseMove = (e) => {
-      setTooltipPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    return (
-      <div
-        className="tooltip-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-        onMouseMove={handleMouseMove}
-      >
-        {children}
-        {isVisible && (
-          <div
-            className="tooltip"
-            style={{
-              top: `${tooltipPosition.y}px`,
-              left: `${tooltipPosition.x}px`,
-            }}
-          >
-            {text}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const TooltipUser = ({ text, children }) => {
-    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-    const [visible, setVisible] = useState(false);
-
-    const handleMouseMove = (e) => {
-      setTooltipPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleMouseEnter = () => {
-      setVisible(true);
-    };
-
-    const handleMouseLeave = () => {
-      setVisible(false);
-    };
-
-    return (
-      <div
-        className="tooltipUser-container"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {children}
-        {visible && (
-          <div
-            className="tooltipUser"
-            style={{
-              top: `${tooltipPosition.y}px`,
-              left: `${tooltipPosition.x}px`,
-            }}
-          >
-            {text}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const firstLetter = firstname ? firstname.charAt(0).toUpperCase() : "";
   const capitalizeRole = (role) => role.toUpperCase();
 
@@ -175,14 +105,13 @@ const SidePanel = () => {
         <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
           <div className="user">
             <div className="user-acro">
-              <TooltipUser text={"View Profile"}>
-                <h1>{firstLetter}</h1>
-              </TooltipUser>
+              <h1>{firstLetter}</h1>
             </div>
             <div className="username">
               <ul>
                 <li
                   className="user-fullname"
+                  title="Go to User Profile"
                   onClick={handleGotoProfile}
                   style={{
                     fontFamily: "Poppins",
@@ -190,7 +119,7 @@ const SidePanel = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  <TooltipUser text={"View Profile"}>{firstname}</TooltipUser>
+                  {firstname}
                 </li>
 
                 <li>
@@ -205,20 +134,10 @@ const SidePanel = () => {
                 <li
                   onClick={scrollToTop}
                   className={isActive("/home") ? "active" : ""}
+                  title="Home Page"
                 >
-                  <Tooltip text={"Home"}>
-                    <LuHome className="icon" />
-                  </Tooltip>
+                  <LuHome className="icon" title="Home Page" />
                   <p>Home</p>
-                </li>
-              </Link>
-
-              <Link onClick={scrollToTop} to="/track-document">
-                <li className={isActive("/track-document") ? "active" : ""}>
-                  <Tooltip text={"Track Document"}>
-                    <MdOutlineContentPasteSearch className="icon" />
-                  </Tooltip>
-                  <p>Track Document</p>
                 </li>
               </Link>
 
@@ -226,11 +145,26 @@ const SidePanel = () => {
                 <li
                   onClick={scrollToTop}
                   className={isActive("/submit-document") ? "active" : ""}
+                  title="Submit Document Page"
                 >
-                  <Tooltip text={"Submit Document"}>
-                    <RiMailSendLine className="icon" />
-                  </Tooltip>
+                  <RiMailSendLine
+                    className="icon"
+                    title="Submit Document Page"
+                  />
                   <p>Submit Document</p>
+                </li>
+              </Link>
+
+              <Link onClick={scrollToTop} to="/track-document">
+                <li
+                  className={isActive("/track-document") ? "active" : ""}
+                  title="Track Document Page"
+                >
+                  <MdOutlineContentPasteSearch
+                    className="icon"
+                    title="Track Document Page"
+                  />
+                  <p>Track Document</p>
                 </li>
               </Link>
 
@@ -238,10 +172,13 @@ const SidePanel = () => {
                 <li
                   onClick={scrollToTop}
                   className={isActive("/incoming") ? "active" : ""}
+                  title="Incoming Page"
                 >
-                  <Tooltip text={"Incoming"}>
-                    <RiFolderReceivedLine className="icon" />
-                  </Tooltip>
+                  <RiFolderReceivedLine
+                    className="icon"
+                    title="Incoming Page"
+                  />
+
                   <p>Incoming</p>
                 </li>
               </Link>
@@ -250,19 +187,22 @@ const SidePanel = () => {
                 <li
                   onClick={scrollToTop}
                   className={isActive("/outgoing") ? "active" : ""}
+                  title="Outgoing Page"
                 >
-                  <Tooltip text={"Outgoing"}>
-                    <FaRegShareFromSquare className="icon" />
-                  </Tooltip>
+                  <FaRegShareFromSquare
+                    className="icon"
+                    title="Outgoing Page"
+                  />
                   <p>Outgoing</p>
                 </li>
               </Link>
 
               <Link onClick={scrollToTop} to="/completed">
-                <li className={isActive("/completed") ? "active" : ""}>
-                  <Tooltip text={"Completed"}>
-                    <LuFolderCheck className="icon" />
-                  </Tooltip>
+                <li
+                  className={isActive("/completed") ? "active" : ""}
+                  title="Completed Page"
+                >
+                  <LuFolderCheck className="icon" title="Completed Page" />
                   <p>Completed</p>
                 </li>
               </Link>
@@ -276,10 +216,10 @@ const SidePanel = () => {
           </div>
 
           <div className="logout">
-            <Tooltip text={"Logout?"}>
-              <MdLogout className="icon" />
-            </Tooltip>
-            <button onClick={handlePopup}>Logout</button>
+            <MdLogout className="icon" title="Logout?" />
+            <button onClick={handlePopup} title="Logout?">
+              Logout
+            </button>
           </div>
         </div>
       </div>

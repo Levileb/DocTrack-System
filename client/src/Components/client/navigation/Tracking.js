@@ -57,9 +57,9 @@ const Tracking = () => {
       <div>
         <div className="MainPanel">
           <div className="PanelWrapper">
-            <div className="AddUserHeader">
+            <div className="PanelHeader">
               <div className="filter">
-                <p>Document Tracking</p>
+                <p>Track Document</p>
               </div>
             </div>
 

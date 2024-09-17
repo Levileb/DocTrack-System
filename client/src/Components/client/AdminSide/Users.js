@@ -7,7 +7,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoSearch } from "react-icons/io5";
 import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { BsBuildingAdd } from "react-icons/bs";
 import { LuArchive } from "react-icons/lu";
 
 const Users = () => {

@@ -116,7 +116,7 @@ const ViewCompleted = () => {
             <div className="PanelHeader">
               <div className="filter vd">
                 <Link to="/completed">
-                  <button className="back-btn">
+                  <button className="back-btn" title="Go back to Completed">
                     <RiArrowGoBackFill className="back-icon" />
                   </button>
                 </Link>

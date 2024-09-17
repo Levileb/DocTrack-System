@@ -16,6 +16,7 @@ const Receiving = () => {
     let day = today.getDate();
     let hours = today.getHours();
     let minutes = today.getMinutes();
+    let seconds = today.getSeconds();
     let ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
     hours = hours ? hours : 12;
@@ -24,9 +25,20 @@ const Receiving = () => {
     if (day < 10) day = "0" + day;
     if (hours < 10) hours = "0" + hours;
     if (minutes < 10) minutes = "0" + minutes;
+    if (seconds < 10) seconds = "0" + seconds;
 
-    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
+    return `${month}/${day}/${year} - ${hours}:${minutes}:${seconds} ${ampm}`;
   };
+
+  const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDateTime(getCurrentDateTime());
+    }, 1000);
+
+    return () => clearInterval(interval); // Clear the interval on component unmount
+  }, []);
 
   const [formData, setFormData] = useState({
     date: getCurrentDateTime(),
@@ -92,7 +104,7 @@ const Receiving = () => {
       // Handle error message
     }
 
-    // Delay hiding the popup for 1 seconds
+    // Delay hiding the popup for 1 second
     setTimeout(() => {
       setShowPopup(false);
       handleCancel(); // Navigate after the popup is hidden
@@ -108,75 +120,46 @@ const Receiving = () => {
             <div className="filter">
               <p>Receiving</p>
             </div>
+            <div className="date-time" style={{ marginRight: "5px" }}>
+              <small>Philippines | {currentDateTime}</small>
+            </div>
           </div>
           <div className="contents">
             <form className="SendingForm" onSubmit={handleSubmitForm}>
-              <div className="FormText">
-                <p>Date:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    required
-                    readOnly
-                    style={{ fontWeight: "bold" }}
-                  />
+              <div className="FormText submitdocument">
+                <div
+                  style={{
+                    borderBottom: "solid 1px black",
+                    paddingBottom: "5px",
+                    marginBottom: "5px",
+                  }}
+                >
+                  <p>
+                    Date Released: <strong>{formData.date}</strong>
+                  </p>
+                  <p>
+                    Title: <strong>{formData.title}</strong>
+                  </p>
+                  <p>
+                    Sender: <strong>{formData.sender}</strong>
+                  </p>
+                  <p>
+                    Originating Office: <strong>{formData.orgOffice}</strong>
+                  </p>
                 </div>
 
-                <p>Title:</p>
                 <div className="input-new">
-                  <input
-                    type="text"
-                    id="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    autoComplete="off"
-                    readOnly
-                    required
-                  />
-                </div>
-
-                <p>Sender:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="sender"
-                    value={formData.sender}
-                    onChange={handleInputChange}
-                    autoComplete="off"
-                    readOnly
-                    required
-                  />
-                </div>
-
-                <p>Originating Office:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="orgOffice"
-                    value={formData.orgOffice}
-                    onChange={handleInputChange}
-                    autoComplete="off"
-                    readOnly
-                    required
-                  />
-                </div>
-
-                <p>Remarks:</p>
-                <div className="input-new">
-                  <input
+                  <p>Remarks:</p>
+                  <textarea
+                    className="inp-remarks"
                     type="text"
                     id="remarks"
                     value={formData.remarks}
                     onChange={handleInputChange}
-                    autoComplete="off"
-                    required
-                  />
+                  ></textarea>
                 </div>
               </div>
-              <div className="submitbuttons">
+              <div className="adduserbuttons recfor">
                 <div className="ClearBtn secondarybtn">
                   <button type="button" onClick={handleCancel}>
                     Cancel

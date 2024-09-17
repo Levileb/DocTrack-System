@@ -285,8 +285,10 @@ const SubmitDocument = () => {
       <SidePanel />
       <div className="MainPanel">
         <div className="PanelWrapper">
-          <div className="AddUserHeader">
-            <h2>Submit Document</h2>
+          <div className="PanelHeader">
+            <div className="filter">
+              <p>Submit Document</p>
+            </div>
           </div>
           <div className="FormWrapper">
             <form action="" className="AddUserForm" onSubmit={handleSubmit}>
@@ -404,7 +406,8 @@ const SubmitDocument = () => {
             <div className="infoToPrint" id="divToPrint">
               <ul className="view-userinfo sd">
                 <li>
-                  Date: <strong>{formatDateForDisplay(formData.date)}</strong>
+                  Date Submitted:{" "}
+                  <strong>{formatDateForDisplay(formData.date)}</strong>
                 </li>
                 <li>
                   Title: <strong>{formData.title}</strong>

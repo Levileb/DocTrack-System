@@ -89,81 +89,11 @@ const SidePanel = () => {
     });
   };
 
-  const Tooltip = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-
-    const handleMouseMove = (e) => {
-      setTooltipPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    return (
-      <div
-        className="tooltip-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-        onMouseMove={handleMouseMove}
-      >
-        {children}
-        {isVisible && (
-          <div
-            className="tooltip"
-            style={{
-              top: `${tooltipPosition.y}px`,
-              left: `${tooltipPosition.x}px`,
-            }}
-          >
-            {text}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const TooltipUser = ({ text, children }) => {
-    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-    const [visible, setVisible] = useState(false);
-
-    const handleMouseMove = (e) => {
-      setTooltipPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleMouseEnter = () => {
-      setVisible(true);
-    };
-
-    const handleMouseLeave = () => {
-      setVisible(false);
-    };
-
-    return (
-      <div
-        className="tooltipUser-container"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {children}
-        {visible && (
-          <div
-            className="tooltipUser"
-            style={{
-              top: `${tooltipPosition.y}px`,
-              left: `${tooltipPosition.x}px`,
-            }}
-          >
-            {text}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const firstLetter = firstname ? firstname.charAt(0).toUpperCase() : "";
   const capitalizeRole = (role) => role.toUpperCase();
 
   const handleGotoProfile = () => {
-    navigate("/user-profile");
+    navigate("/user-profile-admin");
   };
 
   return (
@@ -175,14 +105,13 @@ const SidePanel = () => {
         <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
           <div className="user">
             <div className="user-acro">
-              <TooltipUser text={"View Profile"}>
-                <h1>{firstLetter}</h1>
-              </TooltipUser>
+              <h1>{firstLetter}</h1>
             </div>
             <div className="username">
               <ul>
                 <li
                   className="user-fullname"
+                  title="Go to User Profile?"
                   onClick={handleGotoProfile}
                   style={{
                     fontFamily: "Poppins",
@@ -190,7 +119,7 @@ const SidePanel = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  <TooltipUser text={"View Profile"}>{firstname}</TooltipUser>
+                  {firstname}
                 </li>
 
                 <li>
@@ -205,19 +134,19 @@ const SidePanel = () => {
                 <li
                   onClick={scrollToTop}
                   className={isActive("/admin") ? "active" : ""}
+                  title="Home Page"
                 >
-                  <Tooltip text={"Home"}>
-                    <LuHome className="icon" />
-                  </Tooltip>
+                  <LuHome className="icon" />
                   <p>Home</p>
                 </li>
               </Link>
 
               <Link onClick={scrollToTop} to="/document-tracking">
-                <li className={isActive("/document-tracking") ? "active" : ""}>
-                  <Tooltip text={"Track Document"}>
-                    <MdOutlineContentPasteSearch className="icon" />
-                  </Tooltip>
+                <li
+                  className={isActive("/document-tracking") ? "active" : ""}
+                  title="Track Document Page"
+                >
+                  <MdOutlineContentPasteSearch className="icon" />
                   <p>Track Document</p>
                 </li>
               </Link>
@@ -231,26 +160,14 @@ const SidePanel = () => {
                 </li>
               </Link> */}
 
-              {/* <Link to="/internal-logs">
-                <li
-                  onClick={scrollToTop}
-                  className={isActive("/internal-logs") ? "active" : ""}
-                >
-                  <Tooltip text={"Internal Logs"}>
-                    <GrDocumentTime className="icon" />
-                  </Tooltip>
-                  <p>Internal Logs</p>
-                </li>
-              </Link> */}
-
               <Link to="/view-user">
                 <li
                   onClick={scrollToTop}
                   className={isActive("/view-user") ? "active" : ""}
+                  title="View Users"
                 >
-                  <Tooltip text={"View Users"}>
-                    <LuUserSquare2 className="icon" />
-                  </Tooltip>
+                  <LuUserSquare2 className="icon" />
+
                   <p>View Users</p>
                 </li>
               </Link>
@@ -259,10 +176,10 @@ const SidePanel = () => {
                 <li
                   onClick={scrollToTop}
                   className={isActive("/add-office") ? "active" : ""}
+                  title="View Offices"
                 >
-                  <Tooltip text={"View Offices"}>
-                    <BsBuildingAdd className="icon" />
-                  </Tooltip>
+                  <BsBuildingAdd className="icon" />
+
                   <p>View Offices</p>
                 </li>
               </Link>
@@ -276,10 +193,10 @@ const SidePanel = () => {
           </div>
 
           <div className="logout">
-            <Tooltip text={"Logout?"}>
-              <MdLogout className="icon" />
-            </Tooltip>
-            <button onClick={handlePopup}>Logout</button>
+            <MdLogout className="icon" title="Logout?" />
+            <button onClick={handlePopup} title="Logout?">
+              Logout
+            </button>
           </div>
         </div>
       </div>

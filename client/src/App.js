@@ -21,6 +21,7 @@ import UserProfile from "./Components/client/navigation/UserProfile";
 import ArchiveUsers from "./Components/client/AdminSide/ArchiveUsers"; //Admin Side
 import ArchiveOffice from "./Components/client/AdminSide/ArchiveOffice"; //Admin Side
 import AdminTracking from "./Components/client/AdminSide/AdminTracking";
+import AdminProfile from "./Components/client/AdminSide/AdminProfile";
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
         <Route path="/archived-offices" element={<ArchivedOffices />} />
         <Route path="/admin" element={<AdminHomepage />} />
         <Route path="/document-tracking" element={<AdminTrackingPage />} />
+        <Route path="/user-profile-admin" element={<ProfileAdmin />} />
         <Route
           path="*"
           element={
@@ -143,5 +145,8 @@ function AdminHomepage() {
 }
 function AdminTrackingPage() {
   return <AdminTracking />;
+}
+function ProfileAdmin() {
+  return <AdminProfile />;
 }
 export default App;

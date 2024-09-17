@@ -7,7 +7,6 @@ import { MdQrCodeScanner } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { RiMailSendLine } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa6";
 import axios from "axios";
 import QrReader from "./QrReader";
@@ -16,13 +15,16 @@ import logo from "../assets/kabankalan-logo.png";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
 import { LuArchive } from "react-icons/lu";
+import { FaRegCopy } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const [docs, setDocs] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterValue, setFilterValue] = useState("");
+  const [filterValue] = useState("");
   const [filteredDocs, setFilteredDocs] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
@@ -192,7 +194,7 @@ const Home = () => {
             <main>
               <div>
                 <ul>
-                  <li>Date: <strong>${formatDateForDisplay(
+                  <li>Date Submitted: <strong>${formatDateForDisplay(
                     doc.date
                   )}</strong></li>
                   <li>Title: <strong>${doc.title}</strong></li>
@@ -293,10 +295,35 @@ const Home = () => {
     return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
-  // This is for the Dropdown Filter
-  // const handleFilterChange = (event) => {
-  //   setFilterValue(event.target.value);
-  // };
+  //Copy Code Number to clipboard
+  const handleCopyCode = (codeNumber) => {
+    navigator.clipboard
+      .writeText(codeNumber)
+      .then(() => {
+        toast.success("Copied to clipboard!", {
+          position: "top-center",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      })
+      .catch(() => {
+        toast.error("Failed to copy code number!", {
+          position: "top-center",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
+  };
 
   // This is for the list of displayed documents in the table
   const [currentPage, setCurrentPage] = useState(1);
@@ -387,7 +414,7 @@ const Home = () => {
                   <tr>
                     <td>Date</td>
                     <td>Title</td>
-                    <td>From</td>
+                    {/* <td>From</td> */}
                     <td>To</td>
                     <td>Action</td>
                   </tr>
@@ -397,7 +424,7 @@ const Home = () => {
                     <tr key={key}>
                       <td>{formatDateForDisplay(val.date)}</td>
                       <td>{val.title}</td>
-                      <td>{val.sender}</td>
+                      {/* <td>{val.sender}</td> */}
                       <td>{val.recipient}</td>
                       <td>
                         <div className="moreActions">
@@ -472,6 +499,8 @@ const Home = () => {
       <SidePanel />
       <Footer />
 
+      <ToastContainer />
+
       {selectedDoc && (
         <div className="popup-container">
           <div className="popup homeView">
@@ -479,6 +508,17 @@ const Home = () => {
             <ul className="view-userinfo">
               <li>
                 Date: <strong>{formatDateForDisplay(selectedDoc.date)}</strong>
+              </li>
+              <li>
+                Control Number:
+                <strong>{selectedDoc.codeNumber}</strong>
+                <button
+                  onClick={() => handleCopyCode(selectedDoc.codeNumber)}
+                  title="Copy Control Number"
+                  className="copy-btn"
+                >
+                  <FaRegCopy />
+                </button>
               </li>
               <li>
                 Title: <strong>{selectedDoc.title}</strong>
@@ -494,9 +534,6 @@ const Home = () => {
               </li>
               <li>
                 Destination Office: <strong>{selectedDoc.destination}</strong>
-              </li>
-              <li>
-                Code Number: <strong>{selectedDoc.codeNumber}</strong>
               </li>
               <li>
                 Status:{" "}
