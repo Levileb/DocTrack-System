@@ -7,11 +7,12 @@ import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ArchiveOffice = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     // Fetch archived offices from the backend
@@ -36,10 +37,29 @@ const ArchiveOffice = () => {
       // Update the local state to reflect the restored office
       setData(data.filter((office) => office._id !== officeId));
       console.log("Office restored:", officeId); // Log restored office ID
-      setShowPopup(true);
-      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
+
+      toast.success("Office Restored!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error restoring office", error);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
 
@@ -52,20 +72,6 @@ const ArchiveOffice = () => {
     return searchMatch;
   });
 
-  const Tooltip = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    return (
-      <div
-        className="tooltip2-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-      >
-        {children}
-        {isVisible && <div className="tooltip2">{text}</div>}
-      </div>
-    );
-  };
-
   return (
     <>
       <Header />
@@ -76,10 +82,8 @@ const ArchiveOffice = () => {
             <div className="AddUserHeader arc">
               <div className="back-btn">
                 <Link to="/add-office">
-                  <button>
-                    <Tooltip text={"Click to go back, Home page"}>
-                      <RiArrowGoBackFill className="back-icon" />
-                    </Tooltip>{" "}
+                  <button title="Go back to View Offices">
+                    <RiArrowGoBackFill className="back-icon" />
                   </button>
                 </Link>
               </div>
@@ -135,13 +139,7 @@ const ArchiveOffice = () => {
         </div>
       </div>
       <Footer />
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>Office Restored!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

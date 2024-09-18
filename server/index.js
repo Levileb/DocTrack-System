@@ -53,6 +53,7 @@ const verifyUser = (req, res, next) => {
           lastname: user.lastname,
           role: user.role,
           office: user.office,
+          position: user.position,
           email: user.email,
         };
 
@@ -99,9 +100,9 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/api/user/details", verifyUser, (req, res) => {
-  const { firstname, lastname, role, email, office } = req.user;
-  console.log({ firstname, lastname, role, email, office }); // Log to check the values
-  res.json({ firstname, lastname, role, email, office });
+  const { firstname, lastname, role, email, position, office } = req.user;
+  console.log({ firstname, lastname, role, email, position, office }); // Log to check the values
+  res.json({ firstname, lastname, role, email, position, office });
 });
 
 app.get("/api/user/details/:userId", verifyUser, (req, res) => {

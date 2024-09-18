@@ -4,6 +4,8 @@ import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Completing = () => {
   const { docId } = useParams();
@@ -50,8 +52,6 @@ const Completing = () => {
     remarks: "",
   });
 
-  const [showPopup, setShowPopup] = useState(false);
-
   useEffect(() => {
     if (docId) {
       const fetchDocument = async () => {
@@ -88,19 +88,36 @@ const Completing = () => {
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
-    setShowPopup(true);
-
     try {
       await axios.post("http://localhost:3001/api/docs/complete", {
         docId: docId,
         remarks: formData.remarks,
       });
       // Handle success message and clear form
+      toast.success("Document Process Completed!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error completing document:", error);
       // Handle error message
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
-
     setFormData({
       date: getCurrentDateTime(),
       title: formData.title,
@@ -110,11 +127,9 @@ const Completing = () => {
       desOffice: "",
       remarks: "",
     });
-
     setTimeout(() => {
-      setShowPopup(false);
       handleCancel(); // Navigate after the popup is hidden
-    }, 1000);
+    }, 2500);
   };
 
   return (
@@ -181,14 +196,7 @@ const Completing = () => {
       </div>
       <SidePanel />
       <Footer />
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>Completed Successfully!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

@@ -8,14 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { IoSearch } from "react-icons/io5";
 import { LuArchive } from "react-icons/lu";
 import "../navigation/newcontent.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddOffice = () => {
   const [office, setOffice] = useState("");
   const [offices, setOffices] = useState([]); // State to hold fetched offices
   const [searchTerm, setSearchTerm] = useState(""); // State to hold search input
-  const [showPopup, setShowPopup] = useState(false);
-  const [showPopup2, setShowPopup2] = useState(false);
-  const [isOfficeSaved, setIsOfficeSaved] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,36 +39,63 @@ const AddOffice = () => {
     axios
       .post("http://localhost:3001/add-office", { office })
       .then((res) => {
-        setIsOfficeSaved(true);
-        setShowPopup(true);
+        toast.success("A new Office is added successfully!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
         setOffice("");
         fetchOffices(); // Fetch updated list of offices
       })
       .catch((err) => {
         console.log(err);
-        setIsOfficeSaved(false);
-        setShowPopup(true);
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       });
-
-    setTimeout(() => {
-      setShowPopup(false);
-    }, 1000);
   };
 
   const handleArchive = (id) => {
     axios
       .post(`http://localhost:3001/archive-office/${id}`)
       .then((res) => {
-        setShowPopup2(true);
+        toast.success("Office moved to Archived!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
         fetchOffices(); // Fetch updated list of offices
       })
       .catch((err) => {
         console.error("Error archiving office:", err);
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       });
-
-    setTimeout(() => {
-      setShowPopup2(false);
-    }, 1000);
   };
 
   const handleCancel = () => {
@@ -93,7 +119,7 @@ const AddOffice = () => {
             <div className="navbuttons">
               <div className="adduserbtn nf secondarybtn">
                 <Link to="/archived-offices" style={{ textDecoration: "none" }}>
-                  <button>
+                  <button title="View Archived Offices">
                     <LuArchive className="icon" />
                     <p>Archived</p>
                   </button>
@@ -177,28 +203,7 @@ const AddOffice = () => {
       </div>
       <SidePanel />
       <Footer />
-      {showPopup && (
-        <div
-          className={`popup-container ${
-            isOfficeSaved ? "savesuccess" : "savefailure"
-          }`}
-        >
-          <div className="popup savesuccess">
-            <p>
-              {isOfficeSaved
-                ? "Office saved successfully!"
-                : "Failed to save office!"}
-            </p>
-          </div>
-        </div>
-      )}
-      {showPopup2 && (
-        <div className="popup-container">
-          <div className="popup-received">
-            <p>Office Moved to Archive!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

@@ -103,7 +103,7 @@ const AdminProfile = () => {
                 <p className="user-fullname">
                   {user.firstname} {user.lastname}
                 </p>
-                <p className="user-position">{user.role}</p>
+                <p className="user-position">{user.position}</p>
                 <p>Office: {user.office}</p>
                 <p>Role: {user.role}</p>
                 <p>Email: {user.email}</p>

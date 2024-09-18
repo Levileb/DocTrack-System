@@ -4,6 +4,8 @@ import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Forwarding = () => {
   const { docId } = useParams();
@@ -52,7 +54,6 @@ const Forwarding = () => {
 
   const [users, setUsers] = useState([]);
   const [offices, setOffices] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedOffice, setSelectedOffice] = useState("");
 
@@ -106,7 +107,6 @@ const Forwarding = () => {
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
-    setShowPopup(true);
 
     try {
       // Send the forwarding log data
@@ -123,6 +123,17 @@ const Forwarding = () => {
       });
 
       // Handle success message and clear form
+      toast.success("Forwarded Successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         recipient: "",
@@ -132,14 +143,27 @@ const Forwarding = () => {
       setSelectedEmployee("");
       setSelectedOffice("");
     } catch (error) {
+      // Handle error
       console.error("Error forwarding document:", error);
-      // Handle error message
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recipient: "",
+        desOffice: "",
+        remarks: "",
+      }));
+      setSelectedEmployee("");
+      setSelectedOffice("");
     }
-
-    setTimeout(() => {
-      setShowPopup(false);
-      handleCancel(); // Navigate after the popup is hidden
-    }, 1000);
   };
 
   const handleEmployeeSelect = (event) =>
@@ -244,14 +268,7 @@ const Forwarding = () => {
       </div>
       <SidePanel />
       <Footer />
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>Forwarded Successfully!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

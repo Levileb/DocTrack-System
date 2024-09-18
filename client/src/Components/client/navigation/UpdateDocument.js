@@ -7,6 +7,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UpdateDocument = () => {
   const { id } = useParams();
@@ -55,10 +57,33 @@ const UpdateDocument = () => {
     axios
       .put(`http://localhost:3001/api/docs/${id}`, formData)
       .then((res) => {
-        window.alert("Document successfully updated!");
-        navigate("/home");
+        toast.success("Document Successfully Updated!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
+    setTimeout(() => {
+      navigate("/home");
+    }, 2100);
   };
 
   const handleClear = () => {
@@ -181,6 +206,7 @@ const UpdateDocument = () => {
       </div>
       <SidePanel />
       <Footer />
+      <ToastContainer />
     </>
   );
 };

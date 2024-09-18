@@ -26,7 +26,6 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValue] = useState("");
   const [filteredDocs, setFilteredDocs] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
   const dropdownRefs = useRef([]);
 
@@ -189,7 +188,7 @@ const Home = () => {
             </header>
 
             <div id="drs">
-                <label>Code No: ${doc.codeNumber}</label>
+                <label>Control No: ${doc.codeNumber}</label>
             </div>
             <main>
               <div>
@@ -269,11 +268,29 @@ const Home = () => {
       await axios.post("http://localhost:3001/archive-document", { docId });
       setDocs(docs.filter((doc) => doc._id !== docId));
       setFilteredDocs(filteredDocs.filter((doc) => doc._id !== docId));
-      setShowPopup(true);
+      toast.success("Document Moved to Archive!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error archiving document:", error);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
-    setTimeout(() => setShowPopup(false), 1000);
   };
 
   const formatDateForDisplay = (isoDateString) => {
@@ -301,7 +318,7 @@ const Home = () => {
       .writeText(codeNumber)
       .then(() => {
         toast.success("Copied to clipboard!", {
-          position: "top-center",
+          position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -312,8 +329,8 @@ const Home = () => {
         });
       })
       .catch(() => {
-        toast.error("Failed to copy code number!", {
-          position: "top-center",
+        toast.error("Failed to copy control number!", {
+          position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -568,14 +585,6 @@ const Home = () => {
         <div className="popup-container qr" onClick={closeScanner}>
           <div className="popup qrscanner">
             <QrReader onClose={closeScanner} onScan={handleScan} />
-          </div>
-        </div>
-      )}
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup-received">
-            <p>Document Moved to Archive!</p>
           </div>
         </div>
       )}

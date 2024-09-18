@@ -16,7 +16,8 @@ const UserProfile = () => {
   const [passwordStrength, setPasswordStrength] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/user/details")
+    axios
+      .get("http://localhost:3001/api/user/details")
       .then((res) => {
         console.log(res.data); // Log to check if 'email' is present
         setUser(res.data);
@@ -25,7 +26,7 @@ const UserProfile = () => {
         console.error("Error fetching user details:", err);
       });
   }, []);
-  
+
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
@@ -66,7 +67,8 @@ const UserProfile = () => {
       return;
     }
 
-    axios.post("http://localhost:3001/api/user/update-password", { password })
+    axios
+      .post("http://localhost:3001/api/user/update-password", { password })
       .then(() => {
         setErrorMessage("");
         setShowPopup(true);
@@ -101,7 +103,7 @@ const UserProfile = () => {
                 <p className="user-fullname">
                   {user.firstname} {user.lastname}
                 </p>
-                <p className="user-position">{user.role}</p>
+                <p className="user-position">{user.position}</p>
                 <p>Office: {user.office}</p>
                 <p>Role: {user.role}</p>
                 <p>Email: {user.email}</p>

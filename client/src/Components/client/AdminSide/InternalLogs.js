@@ -131,10 +131,28 @@ const InternalLogs = () => {
     navigator.clipboard
       .writeText(codeNumber)
       .then(() => {
-        toast.success("Code number copied to clipboard!");
+        toast.success("Copied to clipboard!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       })
       .catch(() => {
-        toast.error("Failed to copy code number!");
+        toast.error("Failed to copy code number!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       });
   };
 

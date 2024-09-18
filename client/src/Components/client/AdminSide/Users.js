@@ -8,12 +8,13 @@ import { IoSearch } from "react-icons/io5";
 import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { LuArchive } from "react-icons/lu";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [showPopup2, setShowPopup2] = useState(false); // State for popup visibility
   const [popupUserData, setPopupUserData] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const navigate = useNavigate();
@@ -51,6 +52,16 @@ const Users = () => {
         })
         .catch((error) => {
           console.error("Error fetching user details:", error);
+          toast.error("Something went wrong, please try again!", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
         });
     }
   }, [selectedUserId]);
@@ -65,16 +76,30 @@ const Users = () => {
       .then((response) => {
         setShowPopup(false);
         setUsers(users.filter((user) => user._id !== selectedUserId));
-        // alert(response.data.message);
-        setShowPopup2(true);
+        toast.success("User Moved to Archive!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       })
       .catch((error) => {
         console.error("Error archiving user:", error);
-        alert("Failed to archive user.");
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       });
-    setTimeout(() => {
-      setShowPopup2(false);
-    }, 1000);
   };
 
   const handleSearchChange = (event) => {
@@ -99,7 +124,7 @@ const Users = () => {
             <div className="navbuttons">
               <div className="adduserbtn secondarybtn">
                 <Link to="/add-user" style={{ textDecoration: "none" }}>
-                  <button>
+                  <button title="Add New User?">
                     <FiUserPlus className="icon" />
                     <p>Add User</p>
                   </button>
@@ -108,7 +133,7 @@ const Users = () => {
 
               <div className="adduserbtn nf secondarybtn">
                 <Link to="/archived-users" style={{ textDecoration: "none" }}>
-                  <button>
+                  <button title="View Archived Users">
                     <LuArchive className="icon" />
                     <p>Archived</p>
                   </button>
@@ -167,6 +192,7 @@ const Users = () => {
       </div>
       <SidePanel />
       <Footer />
+      <ToastContainer />
 
       {showPopup && (
         <div className="popup-container">
@@ -211,13 +237,6 @@ const Users = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-      {showPopup2 && (
-        <div className="popup-container">
-          <div className="popup-received">
-            <p>User Moved to Archive!</p>
           </div>
         </div>
       )}

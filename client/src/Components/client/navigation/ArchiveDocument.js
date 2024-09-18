@@ -7,11 +7,12 @@ import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ArchiveDocument = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     // Fetch archived documents from the backend
@@ -36,11 +37,29 @@ const ArchiveDocument = () => {
       // Update the local state to reflect the restored document
       setData(data.filter((doc) => doc._id !== docId));
       console.log("Document restored:", docId); // Log restored document ID
-      setShowPopup(true);
+      toast.success("Document Restored!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error restoring document", error);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
-    setTimeout(() => setShowPopup(false), 1000);
   };
 
   const filteredData = data.filter((val) => {
@@ -164,13 +183,7 @@ const ArchiveDocument = () => {
         </div>
       </div>
       <Footer />
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>Document Restored!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

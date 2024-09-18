@@ -4,6 +4,8 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Receiving = () => {
   const { docId } = useParams();
@@ -50,8 +52,6 @@ const Receiving = () => {
     remarks: "",
   });
 
-  const [showPopup, setShowPopup] = useState(false);
-
   useEffect(() => {
     if (docId) {
       const fetchDocument = async () => {
@@ -88,7 +88,6 @@ const Receiving = () => {
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
-    setShowPopup(true);
 
     try {
       await axios.post("http://localhost:3001/api/docs/log-receipt", {
@@ -98,17 +97,34 @@ const Receiving = () => {
       await axios.post("http://localhost:3001/api/docs/update-received", {
         docId: docId,
       });
-      // Handle success message and clear form
+      toast.success("Received Successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error receiving document:", error);
-      // Handle error message
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
 
     // Delay hiding the popup for 1 second
     setTimeout(() => {
-      setShowPopup(false);
       handleCancel(); // Navigate after the popup is hidden
-    }, 1000);
+    }, 2500);
   };
 
   return (
@@ -175,14 +191,7 @@ const Receiving = () => {
       </div>
       <SidePanel />
       <Footer />
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>Received Successfully!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

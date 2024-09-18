@@ -7,11 +7,12 @@ import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ArchiveUsers = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     // Fetch archived users from the backend
@@ -36,10 +37,28 @@ const ArchiveUsers = () => {
       // Update the local state to reflect the restored user
       setData(data.filter((user) => user._id !== userId));
       console.log("User restored:", userId); // Log restored user ID
-      setShowPopup(true);
-      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
+      toast.success("User Restored!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error restoring user", error);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
 
@@ -55,20 +74,6 @@ const ArchiveUsers = () => {
     return searchMatch;
   });
 
-  const Tooltip = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    return (
-      <div
-        className="tooltip2-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-      >
-        {children}
-        {isVisible && <div className="tooltip2">{text}</div>}
-      </div>
-    );
-  };
-
   return (
     <>
       <Header />
@@ -79,10 +84,8 @@ const ArchiveUsers = () => {
             <div className="AddUserHeader arc">
               <div className="back-btn">
                 <Link to="/view-user">
-                  <button>
-                    <Tooltip text={"Click to go back, Home page"}>
-                      <RiArrowGoBackFill className="back-icon" />
-                    </Tooltip>{" "}
+                  <button title="Go back to View Users">
+                    <RiArrowGoBackFill className="back-icon" />
                   </button>
                 </Link>
               </div>
@@ -146,13 +149,7 @@ const ArchiveUsers = () => {
         </div>
       </div>
       <Footer />
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>User Restored!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };
