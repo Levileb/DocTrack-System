@@ -8,6 +8,7 @@ import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const SidePanel = () => {
   const [collapsed, setCollapsed] = useState(true);
@@ -20,53 +21,85 @@ const SidePanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Fetch user details and handle token refreshing
   useEffect(() => {
-    const fetchUserDetails = () => {
-      const token = localStorage.getItem("token");
-      console.log("Token Retrieved", token);
+    const fetchUserDetails = async () => {
+      const token = Cookies.get("accessToken");
+      console.log("Access Token:", token);
+
+      // If access token is missing, try to refresh it
       if (!token) {
-        console.error("Token is missing");
-        navigate("/"); // Redirect to login page if token is missing
+        console.error("Access token is missing");
+        await refreshToken(); // Await refresh to ensure the token is set before retrying
         return;
       }
 
-      axios
-        .get("http://localhost:3001/api/user/details", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          setUserDetails(response.data);
-          console.log("User details fetched:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user details:", error);
-          if (error.response && error.response.status === 401) {
-            // Handle unauthorized error (e.g., redirect to login)
-            navigate("/");
-          }
+      try {
+        const res = await axios.get("http://localhost:3001/api/user/details", {
+          headers: { Authorization: `Bearer ${token}` },
         });
+        setUserDetails(res.data);
+        console.log("User details fetched:", res.data);
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+        await refreshToken();
+      }
+    };
+
+    // Function to refresh the access token using the refresh token
+    const refreshToken = async () => {
+      const refreshToken = Cookies.get("refreshToken");
+      console.log("Refresh Token:", refreshToken); // Log to verify refresh token presence
+
+      if (!refreshToken) {
+        console.error("Refresh token is missing");
+        navigate("/login"); // Redirect to login if no refresh token
+        return;
+      }
+
+      try {
+        const res = await axios.post(
+          "http://localhost:3001/api/refresh-token",
+          {
+            token: refreshToken,
+          }
+        );
+        const newAccessToken = res.data.accessToken;
+        console.log("New Access Token:", newAccessToken);
+
+        // Set the new access token in cookies
+        Cookies.set("accessToken", newAccessToken, {
+          secure: true,
+          sameSite: "Strict",
+        });
+
+        // Retry fetching user details with the new access token
+        await fetchUserDetails();
+      } catch (err) {
+        console.error("Error refreshing token:", err);
+        Cookies.remove("accessToken");
+        Cookies.remove("refreshToken");
+        navigate("/login");
+      }
     };
 
     fetchUserDetails();
-  }, [navigate]); // Dependency array should include 'navigate'
+  }, [navigate]);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
     setArrowRotated(!arrowRotated);
   };
 
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  const isActive = (path) => location.pathname === path;
 
   const { firstname, role } = userDetails;
 
   const handleLogout = () => {
     const confirmLogout = handlePopup;
     if (confirmLogout) {
-      localStorage.removeItem("token");
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
       window.location.href = "/";
     }
   };
@@ -121,7 +154,6 @@ const SidePanel = () => {
                 >
                   {firstname}
                 </li>
-
                 <li>
                   <small>{capitalizeRole(role)}</small>
                 </li>
@@ -178,7 +210,6 @@ const SidePanel = () => {
                     className="icon"
                     title="Incoming Page"
                   />
-
                   <p>Incoming</p>
                 </li>
               </Link>
@@ -235,13 +266,13 @@ const SidePanel = () => {
 
             <div className="yesnobtns">
               <div className="primarybtn" onClick={closePopup}>
-                <button class="no-button" autoFocus>
+                <button className="no-button" autoFocus>
                   No
                 </button>
               </div>
 
               <div className="primarybtn" onClick={handleLogout}>
-                <button class="yes-button">Yes</button>
+                <button className="yes-button">Yes</button>
               </div>
             </div>
           </div>

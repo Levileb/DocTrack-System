@@ -15,16 +15,7 @@ const QrReader = ({ onClose, onScan }) => {
     (result) => {
       console.log("Scanned Result: ", result?.data);
       scanner.current?.stop(); // Stop the scanner after successful scan
-      toast.success("QR Code Scanned Successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+
       onScan(result?.data); // Call the parent callback with the result
       onClose(); // Close the scanner component
     },
@@ -52,10 +43,10 @@ const QrReader = ({ onClose, onScan }) => {
       scanner.current.start().catch((error) => {
         console.error("Camera Error: ", error);
         setIsCameraAccessible(false); // If camera is not accessible, display an alert
-        toast.error("Camera Error. Please check permissions and try again!", {
+        toast.error("Camera Error. Unable to open camera.", {
           position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
+          autoClose: 5000,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -78,8 +69,8 @@ const QrReader = ({ onClose, onScan }) => {
         "Camera is blocked or not accessible. Please check permissions and try again!",
         {
           position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
+          autoClose: 5000,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,

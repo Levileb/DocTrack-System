@@ -22,12 +22,14 @@ import ArchiveUsers from "./Components/client/AdminSide/ArchiveUsers"; //Admin S
 import ArchiveOffice from "./Components/client/AdminSide/ArchiveOffice"; //Admin Side
 import AdminTracking from "./Components/client/AdminSide/AdminTracking";
 import AdminProfile from "./Components/client/AdminSide/AdminProfile";
+import LandingPage from "./Components/client/LandingPage";
 
 function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/submit-document" element={<SubmitDocu />} />
         <Route path="/incoming" element={<Receive />} />
@@ -148,5 +150,8 @@ function AdminTrackingPage() {
 }
 function ProfileAdmin() {
   return <AdminProfile />;
+}
+function Landing() {
+  return <LandingPage />;
 }
 export default App;

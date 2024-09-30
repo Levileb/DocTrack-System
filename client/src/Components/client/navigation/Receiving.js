@@ -11,39 +11,39 @@ const Receiving = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
-  const getCurrentDateTime = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    let month = today.getMonth() + 1;
-    let day = today.getDate();
-    let hours = today.getHours();
-    let minutes = today.getMinutes();
-    let seconds = today.getSeconds();
-    let ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12;
+  // const getCurrentDateTime = () => {
+  //   const today = new Date();
+  //   const year = today.getFullYear();
+  //   let month = today.getMonth() + 1;
+  //   let day = today.getDate();
+  //   let hours = today.getHours();
+  //   let minutes = today.getMinutes();
+  //   let seconds = today.getSeconds();
+  //   let ampm = hours >= 12 ? "PM" : "AM";
+  //   hours = hours % 12;
+  //   hours = hours ? hours : 12;
 
-    if (month < 10) month = "0" + month;
-    if (day < 10) day = "0" + day;
-    if (hours < 10) hours = "0" + hours;
-    if (minutes < 10) minutes = "0" + minutes;
-    if (seconds < 10) seconds = "0" + seconds;
+  //   if (month < 10) month = "0" + month;
+  //   if (day < 10) day = "0" + day;
+  //   if (hours < 10) hours = "0" + hours;
+  //   if (minutes < 10) minutes = "0" + minutes;
+  //   if (seconds < 10) seconds = "0" + seconds;
 
-    return `${month}/${day}/${year} - ${hours}:${minutes}:${seconds} ${ampm}`;
-  };
+  //   return `${month}/${day}/${year} - ${hours}:${minutes}:${seconds} ${ampm}`;
+  // };
 
-  const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
+  // const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDateTime(getCurrentDateTime());
-    }, 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCurrentDateTime(getCurrentDateTime());
+  //   }, 1000);
 
-    return () => clearInterval(interval); // Clear the interval on component unmount
-  }, []);
+  //   return () => clearInterval(interval); // Clear the interval on component unmount
+  // }, []);
 
   const [formData, setFormData] = useState({
-    date: getCurrentDateTime(),
+    date: "",
     title: "",
     sender: "",
     orgOffice: "",
@@ -61,6 +61,7 @@ const Receiving = () => {
           );
           setFormData((prevFormData) => ({
             ...prevFormData,
+            date: docResponse.data.date,
             title: docResponse.data.title,
             sender: docResponse.data.sender,
             orgOffice: docResponse.data.originating,
@@ -127,6 +128,25 @@ const Receiving = () => {
     }, 2500);
   };
 
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
+  };
+
   return (
     <>
       <Header />
@@ -136,9 +156,9 @@ const Receiving = () => {
             <div className="filter">
               <p>Receiving</p>
             </div>
-            <div className="date-time" style={{ marginRight: "5px" }}>
+            {/* <div className="date-time" style={{ marginRight: "5px" }}>
               <small>Philippines | {currentDateTime}</small>
-            </div>
+            </div> */}
           </div>
           <div className="contents">
             <form className="SendingForm" onSubmit={handleSubmitForm}>
@@ -151,7 +171,8 @@ const Receiving = () => {
                   }}
                 >
                   <p>
-                    Date Released: <strong>{formData.date}</strong>
+                    Date Released:{" "}
+                    <strong>{formatDateForDisplay(formData.date)}</strong>
                   </p>
                   <p>
                     Title: <strong>{formData.title}</strong>

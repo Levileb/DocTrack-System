@@ -249,13 +249,43 @@ const Home = () => {
         await axios.post("http://localhost:3001/api/docs/update-status", {
           docId: selectedDoc._id,
         });
+        toast.success("QR Code Scanned Successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
         console.log('Document status updated to "Viewed"');
         setSelectedDoc({ ...selectedDoc, status: "Viewed" });
       } else {
         console.log("No matching document found.");
+        toast.error("No matching document found. Please try again!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (error) {
       console.error("Error handling scanned data:", error);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
 
@@ -563,17 +593,41 @@ const Home = () => {
             <div className="actionbtn">
               <div className="archivebtn secondarybtn">
                 <Link to={`/receiving-document/${selectedDoc._id}`}>
-                  <button className="ack-btn">Receive</button>
+                  <button
+                    className="ack-btn"
+                    disabled={
+                      selectedDoc.status === "Completed" ||
+                      selectedDoc.status === "Restored"
+                    }
+                  >
+                    Receive
+                  </button>
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
                 <Link to={`/forwarding-document/${selectedDoc._id}`}>
-                  <button className="forw-btn">Forward</button>
+                  <button
+                    className="forw-btn"
+                    disabled={
+                      selectedDoc.status === "Completed" ||
+                      selectedDoc.status === "Restored"
+                    }
+                  >
+                    Forward
+                  </button>
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
                 <Link to={`/completing-document/${selectedDoc._id}`}>
-                  <button className="comp-btn">Complete</button>
+                  <button
+                    className="comp-btn"
+                    disabled={
+                      selectedDoc.status === "Completed" ||
+                      selectedDoc.status === "Restored"
+                    }
+                  >
+                    Complete
+                  </button>
                 </Link>
               </div>
             </div>

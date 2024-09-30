@@ -73,7 +73,8 @@ const SubmitDocument = () => {
         .get("http://localhost:3001/view-user")
         .then((res) => {
           const allUsers = res.data;
-          setUsers(allUsers);
+          const filteredUsers = allUsers.filter((user) => user.role === "user");
+          setUsers(filteredUsers);
           // Filter out the sender from the list of users for the recipient dropdown
           const filtered = allUsers.filter(
             (user) => `${user.firstname} ${user.lastname}` !== formData.sender
