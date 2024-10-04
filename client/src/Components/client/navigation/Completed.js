@@ -12,14 +12,20 @@ const Completed = () => {
   // Function to fetch completed documents
   const fetchDocs = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/docs");
-      const completedDocs = response.data.filter(
-        (doc) => doc.status === "Completed"
+      const response = await axios.get(
+        "http://localhost:3001/api/docs/completed",
+        {
+          withCredentials: true,
+        }
       );
-      // Sort documents from most recent to oldest
-      completedDocs.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-      setData(completedDocs);
+      // Sort documents from most recent to oldest, checking if 'date' exists
+      response.data.sort(
+        (a, b) => new Date(b.completedAt) - new Date(a.completedAt)
+      );
+
+      setData(response.data);
+      console.log("Document data: ", response.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
     }
@@ -28,6 +34,26 @@ const Completed = () => {
   useEffect(() => {
     fetchDocs(); // Fetch documents when the component mounts
   }, []);
+
+  // Function to fetch completed documents
+  // const fetchDocs = async () => {
+  //   try {
+  //     const response = await axios.get("http://localhost:3001/api/docs");
+  //     const completedDocs = response.data.filter(
+  //       (doc) => doc.status === "Completed"
+  //     );
+  //     // Sort documents from most recent to oldest
+  //     completedDocs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  //     setData(completedDocs);
+  //   } catch (error) {
+  //     console.error("Error fetching documents:", error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchDocs(); // Fetch documents when the component mounts
+  // }, []);
 
   const formatDateForDisplay = (isoDateString) => {
     const date = new Date(isoDateString);
@@ -81,21 +107,27 @@ const Completed = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((doc) => (
-                    <tr key={doc._id}>
-                      <td>{formatDateForDisplay(doc.date)}</td>
-                      <td>{doc.title}</td>
-                      <td>{doc.sender}</td>
-                      <td>{doc.recipient}</td>
-                      <td>
-                        <div className="viewbtn">
-                          <Link to={`/view-complete/${doc._id}`}>
-                            <button>View</button>
-                          </Link>
-                        </div>
-                      </td>
+                  {data.length > 0 ? (
+                    data.map((doc) => (
+                      <tr key={doc._id}>
+                        <td>{formatDateForDisplay(doc.completedAt)}</td>
+                        <td>{doc.title}</td>
+                        <td>{doc.sender}</td>
+                        <td>{doc.recipient}</td>
+                        <td>
+                          <div className="viewbtn">
+                            <Link to={`/view-complete/${doc.docId}`}>
+                              <button>View</button>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5">No Logs Available</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

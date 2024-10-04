@@ -245,7 +245,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       forwardedTo: loggedInUserId,
     })
-      .populate("doc_id", "date title") // Populate the document fields
+      .populate("doc_id", "date forwardedAt title") // Populate the document fields
       .populate({
         path: "user_id", // Populate the sender's name
         select: "firstname lastname",
@@ -257,7 +257,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     }
 
     const documents = forwardingLogs.map((log) => ({
-      date: log.doc_id.date,
+      date: log.forwardedAt,
       title: log.doc_id.title,
       sender: `${log.user_id.firstname} ${log.user_id.lastname}`, // Sender's full name
       remarks: log.remarks,
@@ -276,7 +276,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       user_id: loggedInUserId,
     })
-      .populate("doc_id", "date title") // Populate the document details
+      .populate("doc_id", "date forwardedAt title") // Populate the document details
       .populate("forwardedTo", "firstname lastname") // Populate the first and last name of the recipient
       .exec();
 
@@ -288,7 +288,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
 
     // Constructing the response
     const documents = forwardingLogs.map((log) => ({
-      date: log.doc_id.date,
+      date: log.forwardedAt,
       title: log.doc_id.title,
       forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`, // Combine the first and last name
       remarks: log.remarks,
@@ -297,6 +297,41 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
     res.json(documents);
   } catch (err) {
     console.error("Error fetching forwarded documents:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/docs/completed", verifyUser, async (req, res) => {
+  const loggedInUserId = req.user._id;
+
+  try {
+    // Fetch completed logs where the user is either the one who completed the document or the sender
+    const completedLogs = await CompletedLogModel.find({
+      userId: loggedInUserId, // User who marked the document as completed
+    })
+      .populate("docId", "date title completedAt sender recipient") // Populate document details
+      .exec();
+
+    if (completedLogs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No documents completed by the user" });
+    }
+
+    // Constructing the response
+    const completedDocuments = completedLogs.map((log) => ({
+      completedAt: log.completedAt,
+      title: log.docId.title,
+      docId: log.docId._id,
+      date: log.docId.date,
+      remarks: log.remarks,
+      sender: log.docId.sender,
+      recipient: log.docId.recipient,
+    }));
+
+    res.json(completedDocuments);
+  } catch (err) {
+    console.error("Error fetching completed documents:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });

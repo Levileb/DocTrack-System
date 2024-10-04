@@ -246,21 +246,37 @@ const Home = () => {
       });
 
       if (selectedDoc) {
-        await axios.post("http://localhost:3001/api/docs/update-status", {
-          docId: selectedDoc._id,
-        });
-        toast.success("QR Code Scanned Successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        console.log('Document status updated to "Viewed"');
-        setSelectedDoc({ ...selectedDoc, status: "Viewed" });
+        // Check if the document status is already "Completed"
+        if (selectedDoc.status === "Completed") {
+          toast.info("This document is already marked as Completed.", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+          console.log('Document already marked as "Completed"');
+        } else {
+          // If not "Completed", proceed with updating the status to "Viewed"
+          await axios.post("http://localhost:3001/api/docs/update-status", {
+            docId: selectedDoc._id,
+          });
+          toast.success("QR Code Scanned Successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+          console.log('Document status updated to "Viewed"');
+          setSelectedDoc({ ...selectedDoc, status: "Viewed" });
+        }
       } else {
         console.log("No matching document found.");
         toast.error("No matching document found. Please try again!", {
@@ -467,53 +483,63 @@ const Home = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedDocs.map((val, key) => (
-                    <tr key={key}>
-                      <td>{formatDateForDisplay(val.date)}</td>
-                      <td>{val.title}</td>
-                      {/* <td>{val.sender}</td> */}
-                      <td>{val.recipient}</td>
-                      <td>
-                        <div className="moreActions">
-                          <div
-                            className="dropdownBtn"
-                            ref={(el) => (dropdownRefs.current[key] = el)}
-                          >
-                            <button
-                              className="ddown-toggle"
-                              onClick={() => toggleDropdown(key)}
+                  {paginatedDocs.length > 0 ? (
+                    paginatedDocs.map((val, key) => (
+                      <tr key={key}>
+                        <td>{formatDateForDisplay(val.date)}</td>
+                        <td>{val.title}</td>
+                        {/* <td>{val.sender}</td> */}
+                        <td>{val.recipient}</td>
+                        <td>
+                          <div className="moreActions">
+                            <div
+                              className="dropdownBtn"
+                              ref={(el) => (dropdownRefs.current[key] = el)}
                             >
-                              Options <FaAngleDown className="down-icon" />
-                            </button>
-                            {openDropdownIndex === key && (
-                              <div className="ddown-menu">
-                                <ul>
-                                  <li onClick={(e) => handlePopup(e, val)}>
-                                    View
-                                  </li>
-                                  <li onClick={() => printDocument(val)}>
-                                    Print
-                                  </li>
-                                  <li>
-                                    <Link
-                                      className="edit-link"
-                                      to={`/update-document/${val._id}`}
-                                      onClick={() => setOpenDropdownIndex(null)}
+                              <button
+                                className="ddown-toggle"
+                                onClick={() => toggleDropdown(key)}
+                              >
+                                Options <FaAngleDown className="down-icon" />
+                              </button>
+                              {openDropdownIndex === key && (
+                                <div className="ddown-menu">
+                                  <ul>
+                                    <li onClick={(e) => handlePopup(e, val)}>
+                                      View
+                                    </li>
+                                    <li onClick={() => printDocument(val)}>
+                                      Print
+                                    </li>
+                                    <li>
+                                      <Link
+                                        className="edit-link"
+                                        to={`/update-document/${val._id}`}
+                                        onClick={() =>
+                                          setOpenDropdownIndex(null)
+                                        }
+                                      >
+                                        Edit
+                                      </Link>
+                                    </li>
+                                    <li
+                                      onClick={() => archiveDocument(val._id)}
                                     >
-                                      Edit
-                                    </Link>
-                                  </li>
-                                  <li onClick={() => archiveDocument(val._id)}>
-                                    Archive
-                                  </li>
-                                </ul>
-                              </div>
-                            )}
+                                      Archive
+                                    </li>
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4">No Logs Available</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
               <div className="pagination-controls">
