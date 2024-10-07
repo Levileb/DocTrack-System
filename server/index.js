@@ -29,7 +29,10 @@ const JWT_SECRET = "jwt-secret-key";
 
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
-  const token = req.cookies.accessToken;
+  // const token = req.cookies.accessToken;
+  const token =
+    req.headers.authorization?.split(" ")[1] || req.cookies.accessToken;
+
   console.log("Token from request headers:", req.headers.authorization);
 
   if (!token) {
@@ -97,7 +100,7 @@ app.post("/login", (req, res) => {
             });
 
             res.cookie("accessToken", accessToken, {
-              secure: true,
+              secure: false,
               sameSite: "Strict",
               path: "/",
               domain: "localhost",
@@ -129,7 +132,7 @@ app.post("/login", (req, res) => {
 });
 
 //Route to Refresh Token
-app.post("api/refresh-token", (req, res) => {
+app.post("/api/refresh-token", (req, res) => {
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {

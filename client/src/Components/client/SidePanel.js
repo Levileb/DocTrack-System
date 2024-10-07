@@ -36,6 +36,7 @@ const SidePanel = () => {
 
       try {
         const res = await axios.get("http://localhost:3001/api/user/details", {
+          withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserDetails(res.data);
@@ -60,10 +61,13 @@ const SidePanel = () => {
       try {
         const res = await axios.post(
           "http://localhost:3001/api/refresh-token",
+          null,
           {
-            token: refreshToken,
+            headers: { Authorization: `Bearer ${refreshToken}` },
+            withCredentials: true,
           }
         );
+
         const newAccessToken = res.data.accessToken;
         console.log("New Access Token:", newAccessToken);
 
@@ -100,7 +104,7 @@ const SidePanel = () => {
     if (confirmLogout) {
       Cookies.remove("accessToken");
       Cookies.remove("refreshToken");
-      window.location.href = "/";
+      window.location.href = "/login";
     }
   };
 

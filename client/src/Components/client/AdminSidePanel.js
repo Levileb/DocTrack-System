@@ -100,7 +100,7 @@ const SidePanel = () => {
     const confirmLogout = handlePopup;
     if (confirmLogout) {
       localStorage.removeItem("token");
-      window.location.href = "/";
+      window.location.href = "/login";
     }
   };
 
