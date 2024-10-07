@@ -17,7 +17,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/api/user/details")
+      .get("http://localhost:3001/api/user/details", { withCredentials: true })
       .then((res) => {
         console.log(res.data); // Log to check if 'email' is present
         setUser(res.data);

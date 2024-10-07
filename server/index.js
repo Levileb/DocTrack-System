@@ -100,13 +100,13 @@ app.post("/login", (req, res) => {
             });
 
             res.cookie("accessToken", accessToken, {
-              secure: false,
+              secure: true,
               sameSite: "Strict",
               path: "/",
               domain: "localhost",
             });
             res.cookie("refreshToken", refreshToken, {
-              secure: false, // Use true if your server uses HTTPS
+              secure: true, // Use true if your server uses HTTPS
               sameSite: "Strict", // Ensure correct cross-site handling
               domain: "localhost",
             });

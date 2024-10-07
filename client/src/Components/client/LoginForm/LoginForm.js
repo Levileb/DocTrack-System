@@ -50,7 +50,7 @@ function LoginForm() {
             domain: "localhost",
           });
           Cookies.set("refreshToken", refreshToken, {
-            secure: false, // Use true if your server uses HTTPS
+            secure: true, // Use true if your server uses HTTPS
             sameSite: "Strict", // Ensure correct cross-site handling
             domain: "localhost",
           });
