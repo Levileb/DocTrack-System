@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
-const Tracking = () => {
+const AdminTracking = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [trackingInfo, setTrackingInfo] = useState(null);
 
@@ -45,16 +43,6 @@ const Tracking = () => {
     } catch (error) {
       console.error("Error fetching tracking information:", error);
       setTrackingInfo(null);
-      toast.error("No document found!", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: false,
-        progress: undefined,
-        theme: "light",
-      });
     }
   };
 
@@ -66,13 +54,12 @@ const Tracking = () => {
     <>
       <Header />
       <SidePanel />
-      <ToastContainer />
       <div>
         <div className="MainPanel">
           <div className="PanelWrapper">
             <div className="PanelHeader">
               <div className="filter">
-                <p>Track Document</p>
+                <p>Document Tracking</p>
               </div>
             </div>
 
@@ -185,12 +172,7 @@ const Tracking = () => {
                   </div>
                 </div>
               ) : (
-                <p>
-                  <small>
-                    Note: Copy and Paste here the control number to track a
-                    document.
-                  </small>
-                </p>
+                <p>Search result will be displayed here shortly..</p>
               )}
             </div>
           </div>
@@ -201,4 +183,4 @@ const Tracking = () => {
   );
 };
 
-export default Tracking;
+export default AdminTracking;

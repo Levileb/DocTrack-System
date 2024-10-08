@@ -7,7 +7,6 @@ import { MdQrCodeScanner } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { RiMailSendLine } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa6";
 import axios from "axios";
 import QrReader from "./QrReader";
@@ -16,15 +15,17 @@ import logo from "../assets/kabankalan-logo.png";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
 import { LuArchive } from "react-icons/lu";
+import { FaRegCopy } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const [docs, setDocs] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterValue, setFilterValue] = useState("");
+  const [filterValue] = useState("");
   const [filteredDocs, setFilteredDocs] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
   const dropdownRefs = useRef([]);
 
@@ -187,12 +188,12 @@ const Home = () => {
             </header>
 
             <div id="drs">
-                <label>Code No: ${doc.codeNumber}</label>
+                <label>Control No: ${doc.codeNumber}</label>
             </div>
             <main>
               <div>
                 <ul>
-                  <li>Date: <strong>${formatDateForDisplay(
+                  <li>Date Submitted: <strong>${formatDateForDisplay(
                     doc.date
                   )}</strong></li>
                   <li>Title: <strong>${doc.title}</strong></li>
@@ -245,16 +246,62 @@ const Home = () => {
       });
 
       if (selectedDoc) {
-        await axios.post("http://localhost:3001/api/docs/update-status", {
-          docId: selectedDoc._id,
-        });
-        console.log('Document status updated to "Viewed"');
-        setSelectedDoc({ ...selectedDoc, status: "Viewed" });
+        // Check if the document status is already "Completed"
+        if (selectedDoc.status === "Completed") {
+          toast.info("This document is already marked as Completed.", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+          console.log('Document already marked as "Completed"');
+        } else {
+          // If not "Completed", proceed with updating the status to "Viewed"
+          await axios.post("http://localhost:3001/api/docs/update-status", {
+            docId: selectedDoc._id,
+          });
+          toast.success("QR Code Scanned Successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+          console.log('Document status updated to "Viewed"');
+          setSelectedDoc({ ...selectedDoc, status: "Viewed" });
+        }
       } else {
         console.log("No matching document found.");
+        toast.error("No matching document found. Please try again!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (error) {
       console.error("Error handling scanned data:", error);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
 
@@ -267,11 +314,29 @@ const Home = () => {
       await axios.post("http://localhost:3001/archive-document", { docId });
       setDocs(docs.filter((doc) => doc._id !== docId));
       setFilteredDocs(filteredDocs.filter((doc) => doc._id !== docId));
-      setShowPopup(true);
+      toast.success("Document Moved to Archive!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error archiving document:", error);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
-    setTimeout(() => setShowPopup(false), 1000);
   };
 
   const formatDateForDisplay = (isoDateString) => {
@@ -293,10 +358,35 @@ const Home = () => {
     return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
-  // This is for the Dropdown Filter
-  // const handleFilterChange = (event) => {
-  //   setFilterValue(event.target.value);
-  // };
+  //Copy Code Number to clipboard
+  const handleCopyCode = (codeNumber) => {
+    navigator.clipboard
+      .writeText(codeNumber)
+      .then(() => {
+        toast.success("Copied to clipboard!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      })
+      .catch(() => {
+        toast.error("Failed to copy control number!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
+  };
 
   // This is for the list of displayed documents in the table
   const [currentPage, setCurrentPage] = useState(1);
@@ -387,59 +477,69 @@ const Home = () => {
                   <tr>
                     <td>Date</td>
                     <td>Title</td>
-                    <td>From</td>
+                    {/* <td>From</td> */}
                     <td>To</td>
                     <td>Action</td>
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedDocs.map((val, key) => (
-                    <tr key={key}>
-                      <td>{formatDateForDisplay(val.date)}</td>
-                      <td>{val.title}</td>
-                      <td>{val.sender}</td>
-                      <td>{val.recipient}</td>
-                      <td>
-                        <div className="moreActions">
-                          <div
-                            className="dropdownBtn"
-                            ref={(el) => (dropdownRefs.current[key] = el)}
-                          >
-                            <button
-                              className="ddown-toggle"
-                              onClick={() => toggleDropdown(key)}
+                  {paginatedDocs.length > 0 ? (
+                    paginatedDocs.map((val, key) => (
+                      <tr key={key}>
+                        <td>{formatDateForDisplay(val.date)}</td>
+                        <td>{val.title}</td>
+                        {/* <td>{val.sender}</td> */}
+                        <td>{val.recipient}</td>
+                        <td>
+                          <div className="moreActions">
+                            <div
+                              className="dropdownBtn"
+                              ref={(el) => (dropdownRefs.current[key] = el)}
                             >
-                              Options <FaAngleDown className="down-icon" />
-                            </button>
-                            {openDropdownIndex === key && (
-                              <div className="ddown-menu">
-                                <ul>
-                                  <li onClick={(e) => handlePopup(e, val)}>
-                                    View
-                                  </li>
-                                  <li onClick={() => printDocument(val)}>
-                                    Print
-                                  </li>
-                                  <li>
-                                    <Link
-                                      className="edit-link"
-                                      to={`/update-document/${val._id}`}
-                                      onClick={() => setOpenDropdownIndex(null)}
+                              <button
+                                className="ddown-toggle"
+                                onClick={() => toggleDropdown(key)}
+                              >
+                                Options <FaAngleDown className="down-icon" />
+                              </button>
+                              {openDropdownIndex === key && (
+                                <div className="ddown-menu">
+                                  <ul>
+                                    <li onClick={(e) => handlePopup(e, val)}>
+                                      View
+                                    </li>
+                                    <li onClick={() => printDocument(val)}>
+                                      Print
+                                    </li>
+                                    <li>
+                                      <Link
+                                        className="edit-link"
+                                        to={`/update-document/${val._id}`}
+                                        onClick={() =>
+                                          setOpenDropdownIndex(null)
+                                        }
+                                      >
+                                        Edit
+                                      </Link>
+                                    </li>
+                                    <li
+                                      onClick={() => archiveDocument(val._id)}
                                     >
-                                      Edit
-                                    </Link>
-                                  </li>
-                                  <li onClick={() => archiveDocument(val._id)}>
-                                    Archive
-                                  </li>
-                                </ul>
-                              </div>
-                            )}
+                                      Archive
+                                    </li>
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4">No Logs Available</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
               <div className="pagination-controls">
@@ -472,6 +572,8 @@ const Home = () => {
       <SidePanel />
       <Footer />
 
+      <ToastContainer />
+
       {selectedDoc && (
         <div className="popup-container">
           <div className="popup homeView">
@@ -479,6 +581,17 @@ const Home = () => {
             <ul className="view-userinfo">
               <li>
                 Date: <strong>{formatDateForDisplay(selectedDoc.date)}</strong>
+              </li>
+              <li>
+                Control Number:
+                <strong>{selectedDoc.codeNumber}</strong>
+                <button
+                  onClick={() => handleCopyCode(selectedDoc.codeNumber)}
+                  title="Copy Control Number"
+                  className="copy-btn"
+                >
+                  <FaRegCopy />
+                </button>
               </li>
               <li>
                 Title: <strong>{selectedDoc.title}</strong>
@@ -496,9 +609,6 @@ const Home = () => {
                 Destination Office: <strong>{selectedDoc.destination}</strong>
               </li>
               <li>
-                Code Number: <strong>{selectedDoc.codeNumber}</strong>
-              </li>
-              <li>
                 Status:{" "}
                 <strong style={{ color: "green" }}>{selectedDoc.status}</strong>
               </li>
@@ -509,17 +619,41 @@ const Home = () => {
             <div className="actionbtn">
               <div className="archivebtn secondarybtn">
                 <Link to={`/receiving-document/${selectedDoc._id}`}>
-                  <button className="ack-btn">Receive</button>
+                  <button
+                    className="ack-btn"
+                    disabled={
+                      selectedDoc.status === "Completed" ||
+                      selectedDoc.status === "Restored"
+                    }
+                  >
+                    Receive
+                  </button>
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
                 <Link to={`/forwarding-document/${selectedDoc._id}`}>
-                  <button className="forw-btn">Forward</button>
+                  <button
+                    className="forw-btn"
+                    disabled={
+                      selectedDoc.status === "Completed" ||
+                      selectedDoc.status === "Restored"
+                    }
+                  >
+                    Forward
+                  </button>
                 </Link>
               </div>
               <div className="archivebtn secondarybtn">
                 <Link to={`/completing-document/${selectedDoc._id}`}>
-                  <button className="comp-btn">Complete</button>
+                  <button
+                    className="comp-btn"
+                    disabled={
+                      selectedDoc.status === "Completed" ||
+                      selectedDoc.status === "Restored"
+                    }
+                  >
+                    Complete
+                  </button>
                 </Link>
               </div>
             </div>
@@ -531,14 +665,6 @@ const Home = () => {
         <div className="popup-container qr" onClick={closeScanner}>
           <div className="popup qrscanner">
             <QrReader onClose={closeScanner} onScan={handleScan} />
-          </div>
-        </div>
-      )}
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup-received">
-            <p>Document Moved to Archive!</p>
           </div>
         </div>
       )}

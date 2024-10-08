@@ -4,32 +4,46 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Receiving = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
-  const getCurrentDateTime = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    let month = today.getMonth() + 1;
-    let day = today.getDate();
-    let hours = today.getHours();
-    let minutes = today.getMinutes();
-    let ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12;
+  // const getCurrentDateTime = () => {
+  //   const today = new Date();
+  //   const year = today.getFullYear();
+  //   let month = today.getMonth() + 1;
+  //   let day = today.getDate();
+  //   let hours = today.getHours();
+  //   let minutes = today.getMinutes();
+  //   let seconds = today.getSeconds();
+  //   let ampm = hours >= 12 ? "PM" : "AM";
+  //   hours = hours % 12;
+  //   hours = hours ? hours : 12;
 
-    if (month < 10) month = "0" + month;
-    if (day < 10) day = "0" + day;
-    if (hours < 10) hours = "0" + hours;
-    if (minutes < 10) minutes = "0" + minutes;
+  //   if (month < 10) month = "0" + month;
+  //   if (day < 10) day = "0" + day;
+  //   if (hours < 10) hours = "0" + hours;
+  //   if (minutes < 10) minutes = "0" + minutes;
+  //   if (seconds < 10) seconds = "0" + seconds;
 
-    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
-  };
+  //   return `${month}/${day}/${year} - ${hours}:${minutes}:${seconds} ${ampm}`;
+  // };
+
+  // const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCurrentDateTime(getCurrentDateTime());
+  //   }, 1000);
+
+  //   return () => clearInterval(interval); // Clear the interval on component unmount
+  // }, []);
 
   const [formData, setFormData] = useState({
-    date: getCurrentDateTime(),
+    date: "",
     title: "",
     sender: "",
     orgOffice: "",
@@ -37,8 +51,6 @@ const Receiving = () => {
     desOffice: "",
     remarks: "",
   });
-
-  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     if (docId) {
@@ -49,6 +61,7 @@ const Receiving = () => {
           );
           setFormData((prevFormData) => ({
             ...prevFormData,
+            date: docResponse.data.date,
             title: docResponse.data.title,
             sender: docResponse.data.sender,
             orgOffice: docResponse.data.originating,
@@ -76,7 +89,6 @@ const Receiving = () => {
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
-    setShowPopup(true);
 
     try {
       await axios.post("http://localhost:3001/api/docs/log-receipt", {
@@ -86,17 +98,53 @@ const Receiving = () => {
       await axios.post("http://localhost:3001/api/docs/update-received", {
         docId: docId,
       });
-      // Handle success message and clear form
+      toast.success("Received Successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.error("Error receiving document:", error);
-      // Handle error message
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
 
-    // Delay hiding the popup for 1 seconds
+    // Delay hiding the popup for 1 second
     setTimeout(() => {
-      setShowPopup(false);
       handleCancel(); // Navigate after the popup is hidden
-    }, 1000);
+    }, 2500);
+  };
+
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -108,75 +156,47 @@ const Receiving = () => {
             <div className="filter">
               <p>Receiving</p>
             </div>
+            {/* <div className="date-time" style={{ marginRight: "5px" }}>
+              <small>Philippines | {currentDateTime}</small>
+            </div> */}
           </div>
           <div className="contents">
             <form className="SendingForm" onSubmit={handleSubmitForm}>
-              <div className="FormText">
-                <p>Date:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    required
-                    readOnly
-                    style={{ fontWeight: "bold" }}
-                  />
+              <div className="FormText submitdocument">
+                <div
+                  style={{
+                    borderBottom: "solid 1px black",
+                    paddingBottom: "5px",
+                    marginBottom: "5px",
+                  }}
+                >
+                  <p>
+                    Date Released:{" "}
+                    <strong>{formatDateForDisplay(formData.date)}</strong>
+                  </p>
+                  <p>
+                    Title: <strong>{formData.title}</strong>
+                  </p>
+                  <p>
+                    Sender: <strong>{formData.sender}</strong>
+                  </p>
+                  <p>
+                    Originating Office: <strong>{formData.orgOffice}</strong>
+                  </p>
                 </div>
 
-                <p>Title:</p>
                 <div className="input-new">
-                  <input
-                    type="text"
-                    id="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    autoComplete="off"
-                    readOnly
-                    required
-                  />
-                </div>
-
-                <p>Sender:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="sender"
-                    value={formData.sender}
-                    onChange={handleInputChange}
-                    autoComplete="off"
-                    readOnly
-                    required
-                  />
-                </div>
-
-                <p>Originating Office:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="orgOffice"
-                    value={formData.orgOffice}
-                    onChange={handleInputChange}
-                    autoComplete="off"
-                    readOnly
-                    required
-                  />
-                </div>
-
-                <p>Remarks:</p>
-                <div className="input-new">
-                  <input
+                  <p>Remarks:</p>
+                  <textarea
+                    className="inp-remarks"
                     type="text"
                     id="remarks"
                     value={formData.remarks}
                     onChange={handleInputChange}
-                    autoComplete="off"
-                    required
-                  />
+                  ></textarea>
                 </div>
               </div>
-              <div className="submitbuttons">
+              <div className="adduserbuttons recfor">
                 <div className="ClearBtn secondarybtn">
                   <button type="button" onClick={handleCancel}>
                     Cancel
@@ -192,14 +212,7 @@ const Receiving = () => {
       </div>
       <SidePanel />
       <Footer />
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>Received Successfully!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

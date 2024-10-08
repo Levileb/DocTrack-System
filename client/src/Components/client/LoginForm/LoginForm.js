@@ -7,48 +7,100 @@ import logo from "../assets/kabankalan-logo.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { IoIosLock } from "react-icons/io";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loginStatus, setLoginStatus] = useState("");
-  const [showPopup, setShowPopup] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!email || !password) {
-      window.alert("Please enter both email and password");
-      return;
-    }
-
     axios
-      .post("http://localhost:3001", { email, password })
+      .post(
+        "http://localhost:3001/login",
+        { email, password },
+        { withCredentials: true }
+      ) // Ensure credentials are sent
       .then((res) => {
         if (res.data.Status === "Success") {
-          setShowPopup(true);
-          localStorage.setItem("token", res.data.token);
+          toast.success("Login Successful!", {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: false,
+            progress: undefined,
+            theme: "light",
+          });
+
+          const { accessToken, refreshToken } = res.data;
+          Cookies.set("accessToken", accessToken, {
+            secure: true,
+            sameSite: "Strict",
+            path: "/",
+            domain: "localhost",
+          });
+          Cookies.set("refreshToken", refreshToken, {
+            secure: true, // Use true if your server uses HTTPS
+            sameSite: "Strict", // Ensure correct cross-site handling
+            domain: "localhost",
+          });
+          console.log(
+            "Access Tokens:",
+            accessToken,
+            "Refresh Tokens:",
+            refreshToken
+          );
           localStorage.setItem("role", res.data.role);
 
+          // Navigate based on the user's role
           setTimeout(() => {
-            navigate("/home");
-            setShowPopup(false);
-          }, 1000);
-        } else {
+            if (res.data.role === "admin") {
+              navigate("/admin");
+            } else if (res.data.role === "user") {
+              navigate("/home");
+            }
+          }, 1500);
+        } else if (res.data.Status !== "Success") {
           setEmail("");
           setPassword("");
-          setLoginStatus("Incorrect email or password. Please try again.");
+          // setLoginStatus("Incorrect email or password. Please try again.");
+          toast.error("Incorrect email or password. Please try again.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: false,
+            progress: undefined,
+            theme: "light",
+          });
         }
       })
       .catch((err) => {
         console.log(err);
         setEmail("");
         setPassword("");
-        setLoginStatus("Incorrect email or password. Please try again.");
+        // setLoginStatus("Incorrect email or password. Please try again.");
+        toast.error("Incorrect email or password. Please try again.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          progress: undefined,
+          theme: "light",
+        });
       });
   };
 
@@ -65,8 +117,10 @@ function LoginForm() {
       <div className="container">
         <div className="wrapper">
           <form className="formlogin" onSubmit={handleSubmit}>
-            <h1>Document Tracking System</h1>
-            <h3>Login to your Account</h3>
+            <h1>
+              Document <br /> Tracking System
+            </h1>
+            <h3>Log In your Account</h3>
 
             <div className="input-box">
               <input
@@ -88,41 +142,37 @@ function LoginForm() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setPasswordFocused(true)}
               />
-              {showPassword ? (
-                <IoEyeOffSharp
-                  className="icon eye"
-                  onClick={() => setShowPassword(false)}
-                />
-              ) : (
-                <IoEyeSharp
-                  className="icon eye"
-                  onClick={() => setShowPassword(true)}
-                />
+              {passwordFocused && (
+                <>
+                  {showPassword ? (
+                    <IoEyeOffSharp
+                      className="icon eye"
+                      title="Hide Password"
+                      onClick={() => setShowPassword(false)}
+                    />
+                  ) : (
+                    <IoEyeSharp
+                      className="icon eye"
+                      title="Show Password"
+                      onClick={() => setShowPassword(true)}
+                    />
+                  )}
+                </>
               )}
+
               <IoIosLock className="icon" />
             </div>
 
-            {loginStatus && (
-              <p style={{ color: "white" }} className="error-message">
-                {loginStatus}
-              </p>
-            )}
-
             <button className="loginBtn" type="submit">
-              Login
+              Log In
             </button>
           </form>
         </div>
       </div>
       <Footer />
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popuplogsuccess">
-            <p>Login Successfully!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 }

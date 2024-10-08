@@ -97,13 +97,23 @@ const ViewCompleted = () => {
     );
   }
 
-  const formatDate = (dateString) => {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    };
-    return new Date(dateString).toLocaleString("en-US", options);
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -116,7 +126,7 @@ const ViewCompleted = () => {
             <div className="PanelHeader">
               <div className="filter vd">
                 <Link to="/completed">
-                  <button className="back-btn">
+                  <button className="back-btn" title="Go back to Completed">
                     <RiArrowGoBackFill className="back-icon" />
                   </button>
                 </Link>
@@ -143,7 +153,7 @@ const ViewCompleted = () => {
                 <div className="doc-information">
                   <h4>Document Information</h4>
                   <ul className="view-document">
-                    <li>Date: {formatDate(document.date)}</li>
+                    <li>Date: {formatDateForDisplay(document.date)}</li>
                     <li>Title: {document.title}</li>
                     <li>From: {document.sender}</li>
                     <li>Office From: {document.originating}</li>
@@ -171,7 +181,7 @@ const ViewCompleted = () => {
                       trackingInfo.combinedLogs.map((log, index) => (
                         <tr key={index}>
                           <td>
-                            {formatDate(
+                            {formatDateForDisplay(
                               log.receivedAt ||
                                 log.forwardedAt ||
                                 log.completedAt

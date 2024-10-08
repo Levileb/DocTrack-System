@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -123,8 +123,6 @@ const UpdateUsers = () => {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-
-                
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">

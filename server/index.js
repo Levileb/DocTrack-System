@@ -29,7 +29,11 @@ const JWT_SECRET = "jwt-secret-key";
 
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
-  const token = req.cookies.token;
+  // const token = req.cookies.accessToken;
+  const token =
+    req.headers.authorization?.split(" ")[1] || req.cookies.accessToken;
+
+  console.log("Token from request headers:", req.headers.authorization);
 
   if (!token) {
     return res.status(401).json({ error: "Token is missing" });
@@ -40,6 +44,8 @@ const verifyUser = (req, res, next) => {
       console.error("Token verification error:", err);
       return res.status(401).json({ error: "Invalid token" });
     }
+
+    console.log("Decoded token:", decoded); // Log decoded token
 
     UserModel.findOne({ email: decoded.email }) // Ensure email is unique
       .then((user) => {
@@ -53,6 +59,7 @@ const verifyUser = (req, res, next) => {
           lastname: user.lastname,
           role: user.role,
           office: user.office,
+          position: user.position,
           email: user.email,
         };
 
@@ -65,43 +72,96 @@ const verifyUser = (req, res, next) => {
   });
 };
 
-// New: User login route
+//Login Page
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  // Find the user by email
-  UserModel.findOne({ email })
+  UserModel.findOne({ email: email })
     .then((user) => {
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
+      if (user) {
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ Status: "Error", message: "Internal server error" });
+          }
 
-      // Compare the provided password with the stored hash
-      bcrypt.compare(password, user.password).then((isMatch) => {
-        if (!isMatch) {
-          return res.status(401).json({ error: "Invalid credentials" });
-        }
+          if (isMatch) {
+            // Generate Access Token
+            const accessToken = jwt.sign(
+              { email: user.email, role: user.role },
+              JWT_SECRET,
+              { expiresIn: "30m" } // Shorter expiration for access token
+            );
 
-        // Generate a JWT token
-        const token = jwt.sign({ email: user.email }, JWT_SECRET, {
-          expiresIn: "1h", // Token expires in 1 hour
+            // Generate Refresh Token (with longer expiry)
+            const refreshToken = jwt.sign({ email: user.email }, JWT_SECRET, {
+              expiresIn: "60d",
+            });
+
+            res.cookie("accessToken", accessToken, {
+              secure: true,
+              sameSite: "Strict",
+              path: "/",
+              domain: "localhost",
+            });
+            res.cookie("refreshToken", refreshToken, {
+              secure: true, // Use true if your server uses HTTPS
+              sameSite: "Strict", // Ensure correct cross-site handling
+              domain: "localhost",
+            });
+
+            // Respond with the tokens
+            return res.json({
+              accessToken,
+              refreshToken,
+              role: user.role,
+              Status: "Success",
+            });
+          } else {
+            return res.status(401).json({ message: "Incorrect password" });
+          }
         });
-
-        // Set token in cookies
-        res.cookie("token", token, { httpOnly: true });
-        res.json({ message: "Login successful", token });
-      });
+      } else {
+        return res.status(404).json({ message: "User not found" });
+      }
     })
     .catch((err) => {
-      console.error("Error during login:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     });
 });
 
+//Route to Refresh Token
+app.post("/api/refresh-token", (req, res) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    return res.status(403).json({ message: "Refresh token is missing" });
+  }
+
+  // Verify the refresh token
+  jwt.verify(refreshToken, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    // Generate a new access token
+    const newAccessToken = jwt.sign(
+      { email: decoded.email, role: decoded.role },
+      JWT_SECRET,
+      { expiresIn: "30m" } // Short expiration for the new access token
+    );
+
+    // Send the new access token as a cookie or JSON response
+    res.cookie("accessToken", newAccessToken, { httpOnly: true, secure: true });
+    return res.json({ accessToken: newAccessToken });
+  });
+});
+
 app.get("/api/user/details", verifyUser, (req, res) => {
-  const { firstname, lastname, role, email, office } = req.user;
-  console.log({ firstname, lastname, role, email, office }); // Log to check the values
-  res.json({ firstname, lastname, role, email, office });
+  const { firstname, lastname, role, email, position, office } = req.user;
+  console.log({ firstname, lastname, role, email, position, office }); // Log to check the values
+  res.json({ firstname, lastname, role, email, position, office });
 });
 
 app.get("/api/user/details/:userId", verifyUser, (req, res) => {
@@ -188,7 +248,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       forwardedTo: loggedInUserId,
     })
-      .populate("doc_id", "date title") // Populate the document fields
+      .populate("doc_id", "date forwardedAt title") // Populate the document fields
       .populate({
         path: "user_id", // Populate the sender's name
         select: "firstname lastname",
@@ -200,7 +260,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     }
 
     const documents = forwardingLogs.map((log) => ({
-      date: log.doc_id.date,
+      date: log.forwardedAt,
       title: log.doc_id.title,
       sender: `${log.user_id.firstname} ${log.user_id.lastname}`, // Sender's full name
       remarks: log.remarks,
@@ -219,7 +279,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       user_id: loggedInUserId,
     })
-      .populate("doc_id", "date title") // Populate the document details
+      .populate("doc_id", "date forwardedAt title") // Populate the document details
       .populate("forwardedTo", "firstname lastname") // Populate the first and last name of the recipient
       .exec();
 
@@ -231,7 +291,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
 
     // Constructing the response
     const documents = forwardingLogs.map((log) => ({
-      date: log.doc_id.date,
+      date: log.forwardedAt,
       title: log.doc_id.title,
       forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`, // Combine the first and last name
       remarks: log.remarks,
@@ -240,6 +300,41 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
     res.json(documents);
   } catch (err) {
     console.error("Error fetching forwarded documents:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/docs/completed", verifyUser, async (req, res) => {
+  const loggedInUserId = req.user._id;
+
+  try {
+    // Fetch completed logs where the user is either the one who completed the document or the sender
+    const completedLogs = await CompletedLogModel.find({
+      userId: loggedInUserId, // User who marked the document as completed
+    })
+      .populate("docId", "date title completedAt sender recipient") // Populate document details
+      .exec();
+
+    if (completedLogs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No documents completed by the user" });
+    }
+
+    // Constructing the response
+    const completedDocuments = completedLogs.map((log) => ({
+      completedAt: log.completedAt,
+      title: log.docId.title,
+      docId: log.docId._id,
+      date: log.docId.date,
+      remarks: log.remarks,
+      sender: log.docId.sender,
+      recipient: log.docId.recipient,
+    }));
+
+    res.json(completedDocuments);
+  } catch (err) {
+    console.error("Error fetching completed documents:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -344,13 +439,13 @@ app.post("/add-user", (req, res) => {
       })
         .then((user) => {
           // Generate a token after creating the user
-          const token = jwt.sign({ email: user.email }, JWT_SECRET, {
-            expiresIn: "1h",
-          });
+          // const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+          //   expiresIn: "1h",
+          // });
 
           // Set token in cookies
-          res.cookie("token", token, { httpOnly: true });
-          res.json({ message: "User added successfully", token });
+          // res.cookie("token", token, { httpOnly: true });
+          res.json({ message: "User added successfully" });
         })
         .catch((err) =>
           res.status(500).json({ error: "Internal server error" })
@@ -742,60 +837,6 @@ app.get("/archived-document", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.json({ message: "Logged out successfully" });
-});
-
-app.post("/", (req, res) => {
-  const { email, password } = req.body;
-
-  // Find user by email
-  UserModel.findOne({ email: email })
-    .then((user) => {
-      if (user) {
-        // Compare provided password with hashed password in the database
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-          if (err) {
-            return res
-              .status(500)
-              .json({ Status: "Error", message: "Internal server error" });
-          }
-
-          if (isMatch) {
-            // Generate JWT token if password matches
-            const token = jwt.sign(
-              { email: user.email, role: user.role },
-              "jwt-secret-key", // Replace this with a more secure secret key
-              { expiresIn: "1d" }
-            );
-
-            // Send the token as a cookie
-            res.cookie("token", token, { httpOnly: true, secure: true });
-
-            // Send success response with user role
-            return res.json({
-              Status: "Success",
-              token: token,
-              role: user.role,
-            });
-          } else {
-            // Incorrect password
-            return res
-              .status(401)
-              .json({ Status: "Error", message: "Incorrect password" });
-          }
-        });
-      } else {
-        // User not found
-        return res
-          .status(404)
-          .json({ Status: "Error", message: "No user found with this email" });
-      }
-    })
-    .catch((error) => {
-      // Handle database or other errors
-      return res
-        .status(500)
-        .json({ Status: "Error", message: "Internal server error" });
-    });
 });
 
 // Find the document using docId

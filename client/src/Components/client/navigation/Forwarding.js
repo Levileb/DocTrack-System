@@ -4,32 +4,46 @@ import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Forwarding = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
-  const getCurrentDateTime = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    let month = today.getMonth() + 1;
-    let day = today.getDate();
-    let hours = today.getHours();
-    let minutes = today.getMinutes();
-    let ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12;
+  // const getCurrentDateTime = () => {
+  //   const today = new Date();
+  //   const year = today.getFullYear();
+  //   let month = today.getMonth() + 1;
+  //   let day = today.getDate();
+  //   let hours = today.getHours();
+  //   let minutes = today.getMinutes();
+  //   let seconds = today.getSeconds();
+  //   let ampm = hours >= 12 ? "PM" : "AM";
+  //   hours = hours % 12;
+  //   hours = hours ? hours : 12;
 
-    if (month < 10) month = "0" + month;
-    if (day < 10) day = "0" + day;
-    if (hours < 10) hours = "0" + hours;
-    if (minutes < 10) minutes = "0" + minutes;
+  //   if (month < 10) month = "0" + month;
+  //   if (day < 10) day = "0" + day;
+  //   if (hours < 10) hours = "0" + hours;
+  //   if (minutes < 10) minutes = "0" + minutes;
+  //   if (seconds < 10) seconds = "0" + seconds;
 
-    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
-  };
+  //   return `${month}/${day}/${year} - ${hours}:${minutes}:${seconds} ${ampm}`;
+  // };
+
+  // const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCurrentDateTime(getCurrentDateTime());
+  //   }, 1000);
+
+  //   return () => clearInterval(interval); // Clear the interval on component unmount
+  // }, []);
 
   const [formData, setFormData] = useState({
-    date: getCurrentDateTime(),
+    date: "",
     title: "",
     sender: "",
     orgOffice: "",
@@ -40,7 +54,6 @@ const Forwarding = () => {
 
   const [users, setUsers] = useState([]);
   const [offices, setOffices] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedOffice, setSelectedOffice] = useState("");
 
@@ -69,6 +82,7 @@ const Forwarding = () => {
           );
           setFormData((prevFormData) => ({
             ...prevFormData,
+            date: docResponse.data.date,
             title: docResponse.data.title,
           }));
         } catch (error) {
@@ -94,7 +108,6 @@ const Forwarding = () => {
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
-    setShowPopup(true);
 
     try {
       // Send the forwarding log data
@@ -111,6 +124,17 @@ const Forwarding = () => {
       });
 
       // Handle success message and clear form
+      toast.success("Forwarded Successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         recipient: "",
@@ -120,20 +144,52 @@ const Forwarding = () => {
       setSelectedEmployee("");
       setSelectedOffice("");
     } catch (error) {
+      // Handle error
       console.error("Error forwarding document:", error);
-      // Handle error message
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recipient: "",
+        desOffice: "",
+        remarks: "",
+      }));
+      setSelectedEmployee("");
+      setSelectedOffice("");
     }
-
-    setTimeout(() => {
-      setShowPopup(false);
-      handleCancel(); // Navigate after the popup is hidden
-    }, 1000);
   };
 
   const handleEmployeeSelect = (event) =>
     setSelectedEmployee(event.target.value);
 
   const handleOfficeSelect = (event) => setSelectedOffice(event.target.value);
+
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
+  };
 
   return (
     <>
@@ -144,34 +200,27 @@ const Forwarding = () => {
             <div className="filter">
               <p>Forwarding</p>
             </div>
+            {/* <div className="date-time" style={{ marginRight: "5px" }}>
+              <small>Philippines | {currentDateTime}</small>
+            </div> */}
           </div>
           <div className="contents">
             <form className="SendingForm" onSubmit={handleSubmitForm}>
-              <div className="FormText">
-                <p>Date:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    required
-                    readOnly
-                    style={{ fontWeight: "bold" }}
-                  />
-                </div>
-
-                <p>Title:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    autoComplete="off"
-                    readOnly
-                    required
-                  />
+              <div className="FormText submitdocument">
+                <div
+                  style={{
+                    borderBottom: "solid 1px black",
+                    paddingBottom: "5px",
+                    marginBottom: "5px",
+                  }}
+                >
+                  <p>
+                    Date Released:{" "}
+                    <strong>{formatDateForDisplay(formData.date)}</strong>{" "}
+                  </p>
+                  <p>
+                    Title: <strong>{formData.title}</strong>
+                  </p>
                 </div>
 
                 <p>Recipient:</p>
@@ -215,17 +264,16 @@ const Forwarding = () => {
                 </div>
                 <p>Remarks:</p>
                 <div className="input-new">
-                  <input
+                  <textarea
+                    className="inp-remarks"
                     type="text"
                     id="remarks"
                     value={formData.remarks}
                     onChange={handleInputChange}
-                    autoComplete="off"
-                    required
-                  />
+                  ></textarea>
                 </div>
               </div>
-              <div className="submitbuttons">
+              <div className="adduserbuttons submit">
                 <div className="CancelBtn secondarybtn">
                   <button type="button" onClick={handleCancel}>
                     Cancel
@@ -241,14 +289,7 @@ const Forwarding = () => {
       </div>
       <SidePanel />
       <Footer />
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup forwarding">
-            <p>Forwarded Successfully!</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

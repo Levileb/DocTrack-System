@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddUsers = () => {
   const [firstname, setFirstName] = useState("");
@@ -16,17 +18,14 @@ const AddUsers = () => {
   const [office, setOffice] = useState("");
   const [offices, setOffices] = useState([]); // State to hold fetched offices
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [isUserSaved, setIsUserSaved] = useState(false);
-  const saveSuccess = true;
-  const saveUnsuccessful = false;
-
   useEffect(() => {
     // Fetch offices when the component mounts
     axios
       .get("http://localhost:3001/offices")
       .then((res) => {
-        setOffices(res.data); // Assuming the response contains an array of offices
+        // Filter out archived offices
+        const activeOffices = res.data.filter((office) => !office.isArchived);
+        setOffices(activeOffices);
       })
       .catch((err) => {
         console.log(err);
@@ -52,8 +51,16 @@ const AddUsers = () => {
         office: officeName,
       })
       .then((res) => {
-        setIsUserSaved(saveSuccess);
-        setShowPopup(true);
+        toast.success("New User is added successfully!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
         // Resetting form fields
         setFirstName("");
         setLastName("");
@@ -64,13 +71,17 @@ const AddUsers = () => {
       })
       .catch((err) => {
         console.log(err);
-        setIsUserSaved(saveUnsuccessful);
-        setShowPopup(true);
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       });
-
-    setTimeout(() => {
-      setShowPopup(false);
-    }, 2000);
   };
 
   const handleClear = () => {
@@ -82,19 +93,6 @@ const AddUsers = () => {
     setPosition("");
     setOffice("");
   };
-  const Tooltip = ({ text, children }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    return (
-      <div
-        className="tooltip2-container"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-      >
-        {children}
-        {isVisible && <div className="tooltip2">{text}</div>}
-      </div>
-    );
-  };
 
   return (
     <>
@@ -104,10 +102,8 @@ const AddUsers = () => {
           <div className="AddUserHeader">
             <div className="back-btn">
               <Link to="/view-user">
-                <button>
-                  <Tooltip text={"Click to go back, View Users"}>
-                    <RiArrowGoBackFill className="back-icon" />
-                  </Tooltip>
+                <button title="Back to View Users">
+                  <RiArrowGoBackFill className="back-icon" />
                 </button>
               </Link>
             </div>
@@ -207,21 +203,7 @@ const AddUsers = () => {
       </div>
       <SidePanel /> {/* Always render the SidePanel */}
       <Footer />
-      {showPopup && (
-        <div
-          className={`popup-container ${
-            isUserSaved ? "savesuccess" : "savefailure"
-          }`}
-        >
-          <div className="popup savesuccess">
-            <p>
-              {isUserSaved
-                ? "User saved successfully!"
-                : "Failed to save user!"}
-            </p>
-          </div>
-        </div>
-      )}
+      <ToastContainer />
     </>
   );
 };

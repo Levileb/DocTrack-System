@@ -109,19 +109,27 @@ const Forwarded = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((val, key) => (
-                    <tr key={key}>
-                      <td>{formatDateForDisplay(val.date)}</td>
-                      <td>{val.title}</td>
-                      <td>{val.forwardedTo}</td>{" "}
-                      {/* Now displays the full name */}
-                      <td>
-                        <div className="viewbtn">
-                          <button onClick={() => handlePopup(val)}>View</button>
-                        </div>
-                      </td>
+                  {data.length > 0 ? (
+                    data.map((val, key) => (
+                      <tr key={key}>
+                        <td>{formatDateForDisplay(val.date)}</td>
+                        <td>{val.title}</td>
+                        <td>{val.forwardedTo}</td>{" "}
+                        {/* Now displays the full name */}
+                        <td>
+                          <div className="viewbtn">
+                            <button onClick={() => handlePopup(val)}>
+                              View
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4">No Logs Available</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LuHome, LuFolderCheck } from "react-icons/lu";
-import { RiFolderReceivedLine, RiMailSendLine } from "react-icons/ri";
-import { FaRegShareFromSquare } from "react-icons/fa6";
+import { LuHome, LuUserSquare2 } from "react-icons/lu";
+import { BsBuildingAdd } from "react-icons/bs";
 import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
@@ -36,7 +35,6 @@ const SidePanel = () => {
 
       try {
         const res = await axios.get("http://localhost:3001/api/user/details", {
-          withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserDetails(res.data);
@@ -61,13 +59,10 @@ const SidePanel = () => {
       try {
         const res = await axios.post(
           "http://localhost:3001/api/refresh-token",
-          null,
           {
-            headers: { Authorization: `Bearer ${refreshToken}` },
-            withCredentials: true,
+            token: refreshToken,
           }
         );
-
         const newAccessToken = res.data.accessToken;
         console.log("New Access Token:", newAccessToken);
 
@@ -95,15 +90,16 @@ const SidePanel = () => {
     setArrowRotated(!arrowRotated);
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   const { firstname, role } = userDetails;
 
   const handleLogout = () => {
     const confirmLogout = handlePopup;
     if (confirmLogout) {
-      Cookies.remove("accessToken");
-      Cookies.remove("refreshToken");
+      localStorage.removeItem("token");
       window.location.href = "/login";
     }
   };
@@ -130,7 +126,7 @@ const SidePanel = () => {
   const capitalizeRole = (role) => role.toUpperCase();
 
   const handleGotoProfile = () => {
-    navigate("/user-profile");
+    navigate("/user-profile-admin");
   };
 
   return (
@@ -148,7 +144,7 @@ const SidePanel = () => {
               <ul>
                 <li
                   className="user-fullname"
-                  title="Go to User Profile"
+                  title="Go to User Profile?"
                   onClick={handleGotoProfile}
                   style={{
                     fontFamily: "Poppins",
@@ -158,6 +154,7 @@ const SidePanel = () => {
                 >
                   {firstname}
                 </li>
+
                 <li>
                   <small>{capitalizeRole(role)}</small>
                 </li>
@@ -166,79 +163,57 @@ const SidePanel = () => {
           </div>
           <div className="menus">
             <ul>
-              <Link to="/home">
+              <Link to="/admin">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/home") ? "active" : ""}
+                  className={isActive("/admin") ? "active" : ""}
                   title="Home Page"
                 >
-                  <LuHome className="icon" title="Home Page" />
+                  <LuHome className="icon" />
                   <p>Home</p>
                 </li>
               </Link>
 
-              <Link to="/submit-document">
+              <Link onClick={scrollToTop} to="/document-tracking">
                 <li
-                  onClick={scrollToTop}
-                  className={isActive("/submit-document") ? "active" : ""}
-                  title="Submit Document Page"
-                >
-                  <RiMailSendLine
-                    className="icon"
-                    title="Submit Document Page"
-                  />
-                  <p>Submit Document</p>
-                </li>
-              </Link>
-
-              <Link onClick={scrollToTop} to="/track-document">
-                <li
-                  className={isActive("/track-document") ? "active" : ""}
+                  className={isActive("/document-tracking") ? "active" : ""}
                   title="Track Document Page"
                 >
-                  <MdOutlineContentPasteSearch
-                    className="icon"
-                    title="Track Document Page"
-                  />
+                  <MdOutlineContentPasteSearch className="icon" />
                   <p>Track Document</p>
                 </li>
               </Link>
 
-              <Link to="/incoming">
-                <li
-                  onClick={scrollToTop}
-                  className={isActive("/incoming") ? "active" : ""}
-                  title="Incoming Page"
-                >
-                  <RiFolderReceivedLine
-                    className="icon"
-                    title="Incoming Page"
-                  />
-                  <p>Incoming</p>
-                </li>
-              </Link>
-
-              <Link to="/outgoing">
-                <li
-                  onClick={scrollToTop}
-                  className={isActive("/outgoing") ? "active" : ""}
-                  title="Outgoing Page"
-                >
-                  <FaRegShareFromSquare
-                    className="icon"
-                    title="Outgoing Page"
-                  />
-                  <p>Outgoing</p>
-                </li>
-              </Link>
-
-              <Link onClick={scrollToTop} to="/completed">
-                <li
-                  className={isActive("/completed") ? "active" : ""}
-                  title="Completed Page"
-                >
-                  <LuFolderCheck className="icon" title="Completed Page" />
+              {/* <Link onClick={scrollToTop} to="/completed">
+                <li className={isActive("/completed") ? "active" : ""}>
+                  <Tooltip text={"Completed"}>
+                    <LuFolderCheck className="icon" />
+                  </Tooltip>
                   <p>Completed</p>
+                </li>
+              </Link> */}
+
+              <Link to="/view-user">
+                <li
+                  onClick={scrollToTop}
+                  className={isActive("/view-user") ? "active" : ""}
+                  title="View Users"
+                >
+                  <LuUserSquare2 className="icon" />
+
+                  <p>View Users</p>
+                </li>
+              </Link>
+
+              <Link to="/add-office">
+                <li
+                  onClick={scrollToTop}
+                  className={isActive("/add-office") ? "active" : ""}
+                  title="View Offices"
+                >
+                  <BsBuildingAdd className="icon" />
+
+                  <p>View Offices</p>
                 </li>
               </Link>
             </ul>
@@ -270,13 +245,13 @@ const SidePanel = () => {
 
             <div className="yesnobtns">
               <div className="primarybtn" onClick={closePopup}>
-                <button className="no-button" autoFocus>
+                <button class="no-button" autoFocus>
                   No
                 </button>
               </div>
 
               <div className="primarybtn" onClick={handleLogout}>
-                <button className="yes-button">Yes</button>
+                <button class="yes-button">Yes</button>
               </div>
             </div>
           </div>

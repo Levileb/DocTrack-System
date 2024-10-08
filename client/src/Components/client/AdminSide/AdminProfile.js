@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import "../navigation/newcontent.css";
 import logo from "../assets/kabankalan-logo.png";
 import axios from "axios";
 
-const UserProfile = () => {
+const AdminProfile = () => {
   const [user, setUser] = useState({});
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -184,4 +184,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default AdminProfile;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header";
-import SidePanel from "../SidePanel";
+import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { IoSearch } from "react-icons/io5";
@@ -8,6 +8,9 @@ import "../navigation/newcontent.css";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
 import { AiFillCloseCircle } from "react-icons/ai";
+import { FaRegCopy } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const InternalLogs = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -104,13 +107,53 @@ const InternalLogs = () => {
     setTotalPages(totalPages);
   }, [filteredDocs]);
 
-  const formatDate = (dateString) => {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    };
-    return new Date(dateString).toLocaleString("en-US", options);
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
+  };
+
+  //Copy Code Number to clipboard
+  const handleCopyCode = (codeNumber) => {
+    navigator.clipboard
+      .writeText(codeNumber)
+      .then(() => {
+        toast.success("Copied to clipboard!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      })
+      .catch(() => {
+        toast.error("Failed to copy code number!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
   };
 
   return (
@@ -177,7 +220,7 @@ const InternalLogs = () => {
                       {filteredData.map((val, key) => {
                         return (
                           <tr key={key}>
-                            <td>{formatDate(val.date)}</td>
+                            <td>{formatDateForDisplay(val.date)}</td>
                             <td>{val.title}</td>
                             <td>{val.sender}</td>
                             <td>{val.recipient}</td>
@@ -224,13 +267,26 @@ const InternalLogs = () => {
       </div>
       <Footer />
 
+      <ToastContainer />
+
       {selectedDoc && (
         <div className="popup-container">
           <div className="popup homeView">
             <p>Document Information</p>
             <ul className="view-userinfo">
               <li>
-                Date: <strong>{formatDate(selectedDoc.date)}</strong>
+                Date: <strong>{formatDateForDisplay(selectedDoc.date)}</strong>
+              </li>
+              <li>
+                Control Number:
+                <strong>{selectedDoc.codeNumber}</strong>
+                <button
+                  onClick={() => handleCopyCode(selectedDoc.codeNumber)}
+                  title="Copy Control Number"
+                  className="copy-btn"
+                >
+                  <FaRegCopy />
+                </button>
               </li>
               <li>
                 Title: <strong>{selectedDoc.title}</strong>
@@ -247,15 +303,13 @@ const InternalLogs = () => {
               <li>
                 Destination Office: <strong>{selectedDoc.destination}</strong>
               </li>
-              <li>
-                Code Number: <strong>{selectedDoc.codeNumber}</strong>
-              </li>
+
               <li>
                 Status:{" "}
                 <strong style={{ color: "green" }}>{selectedDoc.status}</strong>
               </li>
             </ul>
-            <button className="closebtn" onClick={closePopup}>
+            <button className="closebtn" onClick={closePopup} title="Close">
               <AiFillCloseCircle className="closeicon" />
             </button>
           </div>

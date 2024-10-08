@@ -6,6 +6,8 @@ import axios from "axios";
 import QRCode from "qrcode.react";
 import { AiFillCloseCircle } from "react-icons/ai";
 import logo from "../assets/kabankalan-logo.png";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SubmitDocument = () => {
   const getCurrentDateTime = () => {
@@ -47,7 +49,6 @@ const SubmitDocument = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [offices, setOffices] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = () => {
@@ -72,7 +73,8 @@ const SubmitDocument = () => {
         .get("http://localhost:3001/view-user")
         .then((res) => {
           const allUsers = res.data;
-          setUsers(allUsers);
+          const filteredUsers = allUsers.filter((user) => user.role === "user");
+          setUsers(filteredUsers);
           // Filter out the sender from the list of users for the recipient dropdown
           const filtered = allUsers.filter(
             (user) => `${user.firstname} ${user.lastname}` !== formData.sender
@@ -126,6 +128,7 @@ const SubmitDocument = () => {
     }
   }, [formData.sender, users]);
 
+  // Handle document submission
   const handleSubmit = (e) => {
     e.preventDefault();
     const newCodeNumber = generateCodeNumber();
@@ -139,13 +142,31 @@ const SubmitDocument = () => {
     axios
       .post("http://localhost:3001/submit-document", updatedFormData)
       .then((res) => {
-        setShowPopup(true);
-        setTimeout(() => {
-          setShowPopup(false);
-          setShowQR(true);
-        }, 1300);
+        toast.success("Submitted Successfully!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setShowQR(true);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
   };
 
   const generateCodeNumber = () => {
@@ -285,8 +306,10 @@ const SubmitDocument = () => {
       <SidePanel />
       <div className="MainPanel">
         <div className="PanelWrapper">
-          <div className="AddUserHeader">
-            <h2>Submit Document</h2>
+          <div className="PanelHeader">
+            <div className="filter">
+              <p>Submit Document</p>
+            </div>
           </div>
           <div className="FormWrapper">
             <form action="" className="AddUserForm" onSubmit={handleSubmit}>
@@ -397,6 +420,7 @@ const SubmitDocument = () => {
       </div>
       <SidePanel />
       <Footer />
+      <ToastContainer />
       {showQR && (
         <div className="popup-container submitdocs">
           <div className="popupsubmitting">
@@ -404,7 +428,8 @@ const SubmitDocument = () => {
             <div className="infoToPrint" id="divToPrint">
               <ul className="view-userinfo sd">
                 <li>
-                  Date: <strong>{formatDateForDisplay(formData.date)}</strong>
+                  Date:
+                  <strong>{formatDateForDisplay(formData.date)}</strong>
                 </li>
                 <li>
                   Title: <strong>{formData.title}</strong>
@@ -428,7 +453,7 @@ const SubmitDocument = () => {
               <br />
               <label id="codeNum">
                 <small>
-                  Code No.: <strong>{codeNumber}</strong>
+                  Control No.: <strong>{codeNumber}</strong>
                 </small>
               </label>
             </div>
@@ -446,14 +471,6 @@ const SubmitDocument = () => {
             >
               <AiFillCloseCircle className="closeicon" />
             </button>
-          </div>
-        </div>
-      )}
-
-      {showPopup && (
-        <div className="popup-container">
-          <div className="popup submitting">
-            <p>Document Submitted Successfully.</p>
           </div>
         </div>
       )}

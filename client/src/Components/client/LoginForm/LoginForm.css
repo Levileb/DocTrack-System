@@ -1,17 +1,18 @@
 .container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   height: 100vh;
   background-position-x: center;
-  background-image: url("../assets/kabankalan-background-2.png");
+  background-image: url("../assets/doctrack-banner.png");
   background-repeat: no-repeat;
   background-size: cover;
+  transition: 0.2s ease-in-out;
 }
 
 .formlogin {
-  margin-top: 50px;
-  text-align: center;
+  /* margin-top: 50px; */
+  text-align: right;
 }
 
 .wrapper {
@@ -19,31 +20,24 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 70px 15px 70px 15px;
+  padding-top: 70px;
+  margin: 0 50px;
   height: 100vh;
-  /* min-width: 320px; */
+  max-width: 350px;
   color: #002349;
 }
-
-.wrapper h3 {
-  color: #ffffff;
-  text-align: center;
-  /* text-shadow: 1px 0 5px #787878; */
-}
 .wrapper h1 {
-  color: #ffffff;
-  text-align: center;
-  margin-bottom: 50px;
-  text-shadow: 2px 2px 4px #787878;
+  text-wrap: wrap;
 }
 
 .wrapper .input-box {
   position: relative;
   width: 100%;
-  height: 42px;
+  height: 40px;
   background: rgb(232, 240, 254);
   margin: 30px 0;
-  border-radius: 16px;
+  border: solid 1px #00162d;
+  border-radius: 5px;
 }
 .input-box input {
   width: 100%;
@@ -52,10 +46,9 @@
   border: none;
   outline: none;
   color: #002349;
-  border: 2px solid #ffffff;
-  border-radius: 15px;
-  padding: 20px 45px 20px 20px;
+  padding: 0px 45px 0px 10px;
   font-size: 18px;
+  border-radius: 5px;
 }
 
 .input-box input::placeholder {
@@ -64,14 +57,14 @@
 
 .input-box .icon {
   position: absolute;
-  right: 20px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 25px;
 }
 .input-box .icon.eye {
   position: absolute;
-  right: 50px;
+  right: 40px;
   top: 50%;
   transform: translateY(-40%);
   font-size: 25px;
@@ -81,17 +74,17 @@
   color: #fff;
   font-size: 18px;
   font-weight: bold;
-  width: 100%;
-  height: 45px;
+  width: 40%;
+  height: 40px;
   background: #129bff;
   border: none;
   outline: none;
-  border-radius: 15px;
+  border-radius: 23px;
   box-shadow: 0px 1px 1px #ffffff;
   cursor: pointer;
+  transition: 0.2s ease-in-out;
 }
 .loginBtn:hover {
-  color: #b3c2ca;
   background: #0c5e99;
 }
 .head {
@@ -151,7 +144,7 @@
   color: #00162d;
   background: #ffffff;
   z-index: 11111;
-  transform: translate(25px, 10px);
+  /* transform: translate(25px, 10px); */
 }
 .popuplogsuccess p {
   margin-bottom: 5px;
@@ -161,16 +154,99 @@
   width: max-content;
   display: flex;
 }
+@media screen and (max-width: 800px) {
+  .container {
+    background-position-x: 20%;
+  }
+  .head .comp h1 {
+    font-size: 18px;
+    transition: 0.2s ease-in-out;
+  }
+  .wrapper {
+    max-width: 300px;
+  }
+}
+@media screen and (max-width: 640px) {
+  .container {
+    background-position-x: right;
+  }
+}
 @media screen and (max-width: 490px) {
   .head {
     padding: 0;
   }
-  .head .comp h1 {
-    font-size: 18px;
+  .formlogin {
+    text-align: center;
+  }
+  .formlogin h1 {
+    font-size: 42px;
   }
 }
-@media screen and (max-width: 510px) {
-  .head .comp h1 {
-    font-size: 16px;
+
+/* Landing Page CSS */
+.container-landing {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  background-position-x: center;
+  background-image: url("../assets/doctrack-banner.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  transition: 0.2s ease-in-out;
+}
+.signIn {
+  margin: 80px 35px 0 0;
+  text-align: right;
+  max-width: 500px;
+}
+.signIn h1 {
+  text-align: right;
+  color: #002349;
+  margin-bottom: 15px;
+  font-size: 48px;
+}
+.signIn button {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  width: 150px;
+  height: 40px;
+  background: #129bff;
+  border: none;
+  outline: none;
+  border-radius: 20px;
+  box-shadow: 0px 1px 1px #ffffff;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+.signIn button:hover {
+  background: #0c5e99;
+}
+@media screen and (max-width: 800px) {
+  .container-landing {
+    background-position-x: 20%;
+  }
+  .signIn {
+    max-width: 300px;
+  }
+}
+@media screen and (max-width: 545px) {
+  .container-landing {
+    background-position-x: right;
+  }
+}
+@media screen and (max-width: 430px) {
+  .container-landing {
+    justify-content: center;
+  }
+  .signIn h1 {
+    text-align: center;
+  }
+  .signIn {
+    margin: 80px 0 0 0;
+    text-align: center;
+    max-width: 300px;
   }
 }

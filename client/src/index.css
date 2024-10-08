@@ -520,6 +520,7 @@ ul li {
   height: 100px; /* Adjust height as needed */
   width: 100%;
   font-size: 16px;
+  font-family: sans-serif;
   background: #ebf1f5;
   border: 2px solid #00162d;
   border-radius: 15px;
@@ -535,6 +536,14 @@ ul li {
   flex-direction: row;
   margin: auto;
   padding-top: 70px; /* adjusted from 35px*/
+}
+.adduserbuttons.recfor {
+  height: 40px;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: row;
+  margin: auto;
+  margin-top: 95px; /* adjusted from 35px*/
 }
 .img-upload {
   width: 260px;
@@ -831,7 +840,7 @@ ul li {
   .adduserbuttons {
     margin: auto;
     position: relative;
-    padding-top: 20px;
+    padding-top: 0px;
   }
   .PanelHeader .search {
     margin-right: 0;
