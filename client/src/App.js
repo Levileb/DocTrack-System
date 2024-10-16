@@ -32,11 +32,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/submit-document" element={<SubmitDocu />} />
-        <Route path="/incoming" element={<Receive />} />
+        <Route path="/inbox" element={<Receive />} />
         <Route path="/forwarding-document/:docId" element={<Forwarding />} />
         <Route path="/receiving-document/:docId" element={<Receiving />} />
         <Route path="/completing-document/:docId" element={<Completing />} />
-        <Route path="/outgoing" element={<Forward />} />
+        <Route path="/forwarded-logs" element={<Forward />} />
         <Route path="/completed" element={<Complete />} />
         <Route path="/add-office" element={<AddOffice />} />
         <Route path="/add-user" element={<AddUser />} />

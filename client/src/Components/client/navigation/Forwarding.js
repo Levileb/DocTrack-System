@@ -78,7 +78,8 @@ const Forwarding = () => {
       const fetchDocument = async () => {
         try {
           const docResponse = await axios.get(
-            `http://localhost:3001/api/docs/${docId}`
+            `http://localhost:3001/api/docs/${docId}`,
+            { withCredentials: true }
           );
           setFormData((prevFormData) => ({
             ...prevFormData,
@@ -143,6 +144,7 @@ const Forwarding = () => {
       }));
       setSelectedEmployee("");
       setSelectedOffice("");
+      navigate("/home");
     } catch (error) {
       // Handle error
       console.error("Error forwarding document:", error);
@@ -200,9 +202,6 @@ const Forwarding = () => {
             <div className="filter">
               <p>Forwarding</p>
             </div>
-            {/* <div className="date-time" style={{ marginRight: "5px" }}>
-              <small>Philippines | {currentDateTime}</small>
-            </div> */}
           </div>
           <div className="contents">
             <form className="SendingForm" onSubmit={handleSubmitForm}>
@@ -270,6 +269,7 @@ const Forwarding = () => {
                     id="remarks"
                     value={formData.remarks}
                     onChange={handleInputChange}
+                    required
                   ></textarea>
                 </div>
               </div>

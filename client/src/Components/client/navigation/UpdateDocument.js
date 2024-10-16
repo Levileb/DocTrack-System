@@ -21,15 +21,24 @@ const UpdateDocument = () => {
     originating: "",
     recipient: "",
     destination: "",
+    remarks: "",
   });
 
   useEffect(() => {
     // Fetch document data from the server based on the document id
     axios
-      .get(`http://localhost:3001/api/docs/${id}`)
+      .get(`http://localhost:3001/api/docs/${id}`, { withCredentials: true })
       .then((result) => {
-        const { date, title, sender, originating, recipient, destination } =
-          result.data;
+        const {
+          date,
+          title,
+          sender,
+          originating,
+          recipient,
+          destination,
+          remarks,
+        } = result.data;
+
         setFormData({
           date,
           title,
@@ -37,6 +46,7 @@ const UpdateDocument = () => {
           originating,
           recipient,
           destination,
+          remarks,
         });
       })
       .catch((err) => console.log(err));
@@ -55,7 +65,9 @@ const UpdateDocument = () => {
 
     // Update the document data
     axios
-      .put(`http://localhost:3001/api/docs/${id}`, formData)
+      .put(`http://localhost:3001/api/docs/${id}`, formData, {
+        withCredentials: true,
+      })
       .then((res) => {
         toast.success("Document Successfully Updated!", {
           position: "top-right",
@@ -86,15 +98,8 @@ const UpdateDocument = () => {
     }, 2100);
   };
 
-  const handleClear = () => {
-    setFormData({
-      date: "",
-      title: "",
-      sender: "",
-      originating: "",
-      recipient: "",
-      destination: "",
-    });
+  const handleCancel = () => {
+    navigate("/home");
   };
 
   const Tooltip = ({ text, children }) => {
@@ -109,6 +114,25 @@ const UpdateDocument = () => {
         {isVisible && <div className="tooltip2">{text}</div>}
       </div>
     );
+  };
+
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -131,11 +155,11 @@ const UpdateDocument = () => {
 
           <div className="FormWrapper">
             <form action="" className="AddUserForm" onSubmit={handleSubmit}>
-              <div className="FormText">
-                <p>Date:</p>
-                <div className="input-new">
+              <div className="FormText submitdocument">
+                <p>Date Submitted: {formatDateForDisplay(formData.date)}</p>
+                {/* <div className="input-new">
                   <input type="text" id="date" value={formData.date} readOnly />
-                </div>
+                </div> */}
 
                 <p>Title:</p>
                 <div className="input-new">
@@ -189,11 +213,22 @@ const UpdateDocument = () => {
                     required
                   />
                 </div>
+
+                <p>Remarks:</p>
+                <div className="input-new">
+                  <textarea
+                    className="inp-remarks"
+                    type="text"
+                    id="remarks"
+                    value={formData.remarks}
+                    onChange={handleInputChange}
+                  ></textarea>
+                </div>
               </div>
-              <div className="adduserbuttons">
+              <div className="adduserbuttons submit">
                 <div className="ClearButton">
-                  <button type="button" onClick={handleClear}>
-                    Clear
+                  <button type="button" onClick={handleCancel}>
+                    Cancel
                   </button>
                 </div>
                 <div className="SubmitButton">

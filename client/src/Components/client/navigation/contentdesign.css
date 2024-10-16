@@ -32,7 +32,7 @@ td {
 
 .content-table {
   padding: 10px 25px 20px 25px;
-  margin-bottom: 100px;
+  /* margin-bottom: 100px; */
 }
 
 .viewbtn button {
@@ -42,6 +42,7 @@ td {
   border: none;
   font-size: 15px;
   font-weight: 700;
+  font-family: sans-serif;
   cursor: pointer;
 }
 .viewbtn button:hover {
@@ -235,12 +236,12 @@ td {
   width: 70px;
   font-size: 13px;
   color: #000000;
-  /* background: #c18907; */
-  background: #aebed0;
+  background: #f4fcff;
+  /* background: #aebed0; */
   cursor: pointer;
 }
 .popup .archivebtn .forw-btn:hover {
-  background: #93a0b0;
+  background: #cfcfcf;
 }
 .popup .archivebtn .edit-btn {
   width: 70px;
@@ -253,12 +254,12 @@ td {
   width: 90px;
   font-size: 13px;
   color: #000000;
-  /* background: #006005; */
-  background: #aebed0;
+  background: #f4fcff;
+  /* background: #aebed0; */
   cursor: pointer;
 }
 .popup .archivebtn .comp-btn:hover {
-  background: #93a0b0;
+  background: #cfcfcf;
 }
 .popup.savesuccess {
   display: flex;
@@ -685,7 +686,9 @@ input::-webkit-inner-spin-button {
   align-items: center;
   justify-content: center;
 }
-
+.track-results {
+  max-width: 550px;
+}
 /* The new deign --START-- */
 .tracking-history {
   display: flex;
@@ -772,6 +775,7 @@ input::-webkit-inner-spin-button {
   cursor: pointer;
   border-radius: 4px;
   font-weight: 700;
+  font-family: sans-serif;
   width: 100px;
 }
 
@@ -812,6 +816,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   width: 100%;
   margin-bottom: 5px;
+  padding: 0 10px;
   align-items: center;
   justify-content: flex-end;
 }
@@ -823,7 +828,6 @@ input::-webkit-inner-spin-button {
   border-radius: 5px;
   font-family: Arial, sans-serif;
   cursor: pointer;
-  margin-right: 10px;
   background: #fff;
   display: inline-flex;
   justify-content: center;
@@ -888,6 +892,52 @@ input::-webkit-inner-spin-button {
   background: none;
   font-size: 16px;
   cursor: pointer;
+}
+
+.popup-container.options-wrapper {
+  background: #ffffff;
+}
+.popup-container.options-wrapper .option-container section {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: fit-content;
+  border-bottom: 1px solid #000000;
+}
+.popup-container.options-wrapper .option-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: fit-content;
+}
+.popup-container.options-wrapper .option-container .option-buttons {
+  display: flex;
+  margin: 10px auto;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-evenly;
+}
+.popup-container.options-wrapper
+  .option-container
+  .option-buttons
+  .secondarybtn.fwd
+  button:hover {
+  background: #dddddd;
+}
+.popup-container.options-wrapper
+  .option-container
+  .option-buttons
+  .secondarybtn.cmp
+  button:hover {
+  background: #dddddd;
+}
+.popup-container.options-wrapper
+  .option-container
+  .option-buttons
+  .secondarybtn.cncl
+  button {
+  color: #ffffff;
+  background: #cc0000;
 }
 
 /* Media Queries for mobile screens */

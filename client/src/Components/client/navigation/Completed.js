@@ -5,9 +5,13 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import { GrCaretNext, GrCaretPrevious } from "react-icons/gr";
 
 const Completed = () => {
-  const [data, setData] = useState([]); // State to hold fetched documents
+  const [data, setData] = useState([]); // State to hold fetched documents (Completed Documents)
+  const [currentPage, setCurrentPage] = useState(1); // Pagination state for current page
+  const [totalPages, setTotalPages] = useState(1); // Total number of pages
+  const docsPerPage = 10; // Number of documents per page
 
   // Function to fetch completed documents
   const fetchDocs = async () => {
@@ -25,6 +29,7 @@ const Completed = () => {
       );
 
       setData(response.data);
+      setTotalPages(Math.ceil(response.data.length / docsPerPage));
       console.log("Document data: ", response.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -34,26 +39,6 @@ const Completed = () => {
   useEffect(() => {
     fetchDocs(); // Fetch documents when the component mounts
   }, []);
-
-  // Function to fetch completed documents
-  // const fetchDocs = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:3001/api/docs");
-  //     const completedDocs = response.data.filter(
-  //       (doc) => doc.status === "Completed"
-  //     );
-  //     // Sort documents from most recent to oldest
-  //     completedDocs.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  //     setData(completedDocs);
-  //   } catch (error) {
-  //     console.error("Error fetching documents:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchDocs(); // Fetch documents when the component mounts
-  // }, []);
 
   const formatDateForDisplay = (isoDateString) => {
     const date = new Date(isoDateString);
@@ -74,6 +59,11 @@ const Completed = () => {
     return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
+  // Pagination logic
+  const startIndex = (currentPage - 1) * docsPerPage;
+  const endIndex = startIndex + docsPerPage;
+  const paginatedData = data.slice(startIndex, endIndex);
+
   return (
     <>
       <Header />
@@ -81,7 +71,7 @@ const Completed = () => {
         <div className="PanelWrapper">
           <div className="PanelHeader">
             <div className="filter">
-              <p>Completed</p>
+              <p>Completed Logs</p>
             </div>
             <div className="search">
               <div className="search-border">
@@ -107,8 +97,8 @@ const Completed = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.length > 0 ? (
-                    data.map((doc) => (
+                  {paginatedData.length > 0 ? (
+                    paginatedData.map((doc) => (
                       <tr key={doc._id}>
                         <td>{formatDateForDisplay(doc.completedAt)}</td>
                         <td>{doc.title}</td>
@@ -130,6 +120,25 @@ const Completed = () => {
                   )}
                 </tbody>
               </table>
+              <div className="pagination-controls">
+                <button
+                  className="prev-btn"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  <GrCaretPrevious />
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  className="next-btn"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  <GrCaretNext />
+                </button>
+              </div>
             </div>
           </div>
         </div>

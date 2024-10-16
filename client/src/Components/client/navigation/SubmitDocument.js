@@ -140,7 +140,9 @@ const SubmitDocument = () => {
     };
     setFormData(updatedFormData);
     axios
-      .post("http://localhost:3001/submit-document", updatedFormData)
+      .post("http://localhost:3001/submit-document", updatedFormData, {
+        withCredentials: true, // This allows cookies to be sent with the request
+      })
       .then((res) => {
         toast.success("Submitted Successfully!", {
           position: "top-right",
@@ -173,11 +175,6 @@ const SubmitDocument = () => {
     const codeNumber = Math.floor(10000000 + Math.random() * 90000000);
     return codeNumber.toString();
   };
-
-  // const parseDate = (dateString) => {
-  //   const [year, month, day] = dateString.split("-");
-  //   return new Date(year, month - 1, day);
-  // };
 
   const handleClear = () => {
     setFormData({
@@ -240,8 +237,8 @@ const SubmitDocument = () => {
             }
             img {
               display: flex;
-              max-width: 100px;
-              max-height: 100px;
+              max-width: 150px;
+              max-height: 150px;
             }
             header {
               display: flex;
@@ -333,28 +330,7 @@ const SubmitDocument = () => {
                     required
                   />
                 </div>
-                {/* <p>Sender:</p>
-                <div className="input-new">
-                  {formData.sender && (
-                    <input
-                      type="text"
-                      id="sender"
-                      value={formData.sender}
-                      readOnly
-                    />
-                  )}
-                </div>
-                <p>Originating Office:</p>
-                <div className="input-new">
-                  {formData.originating && (
-                    <input
-                      type="text"
-                      id="originating"
-                      value={formData.originating}
-                      readOnly
-                    />
-                  )}
-                </div> */}
+
                 <p>Recipient:</p>
                 <div className="input-new">
                   <select

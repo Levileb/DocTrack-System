@@ -17,20 +17,29 @@ import { GrCaretNext } from "react-icons/gr";
 import { LuArchive } from "react-icons/lu";
 import { FaRegCopy } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const [docs, setDocs] = useState([]);
+  const [scanDoc, setScanDoc] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValue] = useState("");
   const [filteredDocs, setFilteredDocs] = useState([]);
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
   const dropdownRefs = useRef([]);
+  const [user, setUser] = useState([]);
+  const navigate = useNavigate();
+  const [scanned_id, setScanned_Id] = useState(null);
 
   useEffect(() => {
     fetchDocs();
+  }, []);
+  useEffect(() => {
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -60,9 +69,25 @@ const Home = () => {
     };
   }, []);
 
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/api/user/find-user",
+        {
+          withCredentials: true,
+        }
+      );
+      setUser(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const fetchDocs = () => {
     axios
-      .get("http://localhost:3001/api/docs")
+      .get("http://localhost:3001/api/docs/sent", {
+        withCredentials: true,
+      })
       .then((response) => {
         const activeDocs = response.data.filter(
           (doc) => doc.status !== "Archived"
@@ -79,6 +104,31 @@ const Home = () => {
         console.error("Error fetching documents:", error);
       });
   };
+
+  const fetchScanDocs = () => {
+    axios
+      .get("http://localhost:3001/api/docs", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        const activeScanDocs = response.data.filter(
+          (doc) => doc.status !== "Archived"
+        );
+
+        // Sort documents from most recent to oldest
+        // activeDocs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Set the sorted documents in the state
+        setScanDoc(activeScanDocs);
+        // setFilteredDocs(activeDocs);
+      })
+      .catch((error) => {
+        console.error("Error fetching documents:", error);
+      });
+  };
+  useEffect(() => {
+    fetchScanDocs();
+  }, []);
 
   const handlePopup = (event, doc) => {
     event.preventDefault();
@@ -141,8 +191,8 @@ const Home = () => {
               }
               img {
                 display: flex;
-                max-width: 100px;
-                max-height: 100px;
+                max-width: 150px;
+                max-height: 150px;
               }
               header {
                 display: flex;
@@ -228,12 +278,13 @@ const Home = () => {
     setShowScanner(false);
   };
 
+  // Handle QR Code Scanning
   const handleScan = async (data) => {
     try {
       const scannedData = JSON.parse(data);
       console.log("Scanned Data:", scannedData);
 
-      const selectedDoc = docs.find((doc) => {
+      const selectedDoc = scanDoc.find((doc) => {
         return (
           doc.date === scannedData.date &&
           doc.title === scannedData.title &&
@@ -259,11 +310,17 @@ const Home = () => {
             theme: "light",
           });
           console.log('Document already marked as "Completed"');
+        } else if (selectedDoc.status === "Received") {
+          setShowOptions(true);
+          setScanned_Id(selectedDoc._id);
         } else {
           // If not "Completed", proceed with updating the status to "Viewed"
           await axios.post("http://localhost:3001/api/docs/update-status", {
             docId: selectedDoc._id,
+            // status: "Viewed",
           });
+          navigate(`/receiving-document/${selectedDoc._id}`);
+
           toast.success("QR Code Scanned Successfully!", {
             position: "top-right",
             autoClose: 3000,
@@ -414,19 +471,7 @@ const Home = () => {
                 <p>QR Scanner</p>
               </button>
             </div>
-            {/*<div className="scannerIcon secondarybtn">
-              <button onClick={qrButtonHandler}>
-                <MdQrCodeScanner className="qrIcon" />
-              </button>
-            </div>
-             <div className="submitdocuBtn secondarybtn ">
-              <Link to="/submit-document">
-                <button>
-                  <RiMailSendLine className="icon" />
-                  <p>Submit Document</p>
-                </button>
-              </Link>
-            </div> */}
+
             <div className="search">
               <div className="search-border">
                 <IoSearch className="searchIcon" />
@@ -451,26 +496,6 @@ const Home = () => {
                     </button>
                   </Link>
                 </div>
-                {/* <div className="docFilter-container">
-                  <select
-                    value={filterValue}
-                    onChange={handleFilterChange}
-                    className="docFilter"
-                  >
-                    <option className="selection" value="">
-                      All
-                    </option>
-                    <option className="selection" value="Created">
-                      Submitted
-                    </option>
-                    <option className="selection" value="Received">
-                      Received
-                    </option>
-                    <option className="selection" value="Forwarded">
-                      Forwarded
-                    </option>
-                  </select>
-                </div> */}
               </div>
               <table>
                 <thead>
@@ -491,53 +516,61 @@ const Home = () => {
                         {/* <td>{val.sender}</td> */}
                         <td>{val.recipient}</td>
                         <td>
-                          <div className="moreActions">
-                            <div
-                              className="dropdownBtn"
-                              ref={(el) => (dropdownRefs.current[key] = el)}
-                            >
-                              <button
-                                className="ddown-toggle"
-                                onClick={() => toggleDropdown(key)}
-                              >
-                                Options <FaAngleDown className="down-icon" />
+                          {user === val.recipient ? (
+                            // Render view action only
+                            <div className="viewbtn">
+                              <button onClick={(e) => handlePopup(e, val)}>
+                                Open
                               </button>
-                              {openDropdownIndex === key && (
-                                <div className="ddown-menu">
-                                  <ul>
-                                    <li onClick={(e) => handlePopup(e, val)}>
-                                      View
-                                    </li>
-                                    <li onClick={() => printDocument(val)}>
-                                      Print
-                                    </li>
-                                    <li>
-                                      <Link
-                                        className="edit-link"
-                                        to={`/update-document/${val._id}`}
+                            </div>
+                          ) : (
+                            <div className="moreActions">
+                              <div
+                                className="dropdownBtn"
+                                ref={(el) => (dropdownRefs.current[key] = el)}
+                              >
+                                <button
+                                  className="ddown-toggle"
+                                  onClick={() => toggleDropdown(key)}
+                                >
+                                  Options <FaAngleDown className="down-icon" />
+                                </button>
+                                {openDropdownIndex === key && (
+                                  <div className="ddown-menu">
+                                    <ul>
+                                      <li onClick={(e) => handlePopup(e, val)}>
+                                        View
+                                      </li>
+                                      <li onClick={() => printDocument(val)}>
+                                        Print
+                                      </li>
+                                      <li
                                         onClick={() =>
-                                          setOpenDropdownIndex(null)
+                                          navigate(
+                                            `/update-document/${val._id}`
+                                          ) && setOpenDropdownIndex(null)
                                         }
+                                        hidden={val.status !== "Created"}
                                       >
                                         Edit
-                                      </Link>
-                                    </li>
-                                    <li
-                                      onClick={() => archiveDocument(val._id)}
-                                    >
-                                      Archive
-                                    </li>
-                                  </ul>
-                                </div>
-                              )}
+                                      </li>
+                                      <li
+                                        onClick={() => archiveDocument(val._id)}
+                                      >
+                                        Archive
+                                      </li>
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4">No Logs Available</td>
+                      <td colSpan="4">No Submitted Documents Available</td>
                     </tr>
                   )}
                 </tbody>
@@ -617,43 +650,28 @@ const Home = () => {
               <AiFillCloseCircle className="closeicon" />
             </button>
             <div className="actionbtn">
-              <div className="archivebtn secondarybtn">
-                <Link to={`/receiving-document/${selectedDoc._id}`}>
-                  <button
-                    className="ack-btn"
-                    disabled={
-                      selectedDoc.status === "Completed" ||
-                      selectedDoc.status === "Restored"
-                    }
-                  >
-                    Receive
-                  </button>
-                </Link>
-              </div>
-              <div className="archivebtn secondarybtn">
+              <div
+                className="archivebtn secondarybtn"
+                hidden={
+                  selectedDoc.status === "Restored" ||
+                  selectedDoc.status === "Completed" ||
+                  selectedDoc.status === "Archived"
+                }
+              >
                 <Link to={`/forwarding-document/${selectedDoc._id}`}>
-                  <button
-                    className="forw-btn"
-                    disabled={
-                      selectedDoc.status === "Completed" ||
-                      selectedDoc.status === "Restored"
-                    }
-                  >
-                    Forward
-                  </button>
+                  <button className="forw-btn">Forward</button>
                 </Link>
               </div>
-              <div className="archivebtn secondarybtn">
+              <div
+                className="archivebtn secondarybtn"
+                hidden={
+                  selectedDoc.status === "Restored" ||
+                  selectedDoc.status === "Completed" ||
+                  selectedDoc.status === "Archived"
+                }
+              >
                 <Link to={`/completing-document/${selectedDoc._id}`}>
-                  <button
-                    className="comp-btn"
-                    disabled={
-                      selectedDoc.status === "Completed" ||
-                      selectedDoc.status === "Restored"
-                    }
-                  >
-                    Complete
-                  </button>
+                  <button className="comp-btn">Complete</button>
                 </Link>
               </div>
             </div>
@@ -665,6 +683,40 @@ const Home = () => {
         <div className="popup-container qr" onClick={closeScanner}>
           <div className="popup qrscanner">
             <QrReader onClose={closeScanner} onScan={handleScan} />
+          </div>
+        </div>
+      )}
+
+      {showOptions && (
+        <div className="popup-container options-wrapper">
+          <div className="option-container">
+            <section>
+              <h3>This document is already marked as received.</h3>
+              <label>
+                Do you still want to{" "}
+                <Link
+                  to={`/receiving-document/${scanned_id}`}
+                  title="Receive the document?"
+                >
+                  continue
+                </Link>
+                ?
+              </label>
+              <p>or</p>
+            </section>
+            <p>Do more other options:</p>
+            <div className="option-buttons">
+              <div className="secondarybtn fwd">
+                <Link to={`/forwarding-document/${scanned_id}`}>
+                  <button title="Forward the document?">Forward</button>
+                </Link>
+              </div>
+              <div className="secondarybtn cmp">
+                <Link to={`/completing-document/${scanned_id}`}>
+                  <button title="Complete the document?">Complete</button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       )}
