@@ -91,7 +91,7 @@ app.post("/login", (req, res) => {
             const accessToken = jwt.sign(
               { email: user.email, role: user.role },
               JWT_SECRET,
-              { expiresIn: "30m" } // Shorter expiration for access token
+              { expiresIn: "24h" }
             );
 
             // Generate Refresh Token (with longer expiry)
@@ -149,7 +149,7 @@ app.post("/api/refresh-token", (req, res) => {
     const newAccessToken = jwt.sign(
       { email: decoded.email, role: decoded.role },
       JWT_SECRET,
-      { expiresIn: "30m" } // Short expiration for the new access token
+      { expiresIn: "24h" } // Short expiration for the new access token
     );
 
     // Send the new access token as a cookie or JSON response
@@ -240,6 +240,98 @@ app.get("/api/docs", (req, res) => {
     });
 });
 
+app.get("/api/docs/sent", verifyUser, async (req, res) => {
+  const loggedInUserId = req.user._id;
+  console.log("Fetching documents sent by user ID:", loggedInUserId);
+
+  try {
+    const sentDocuments = await DocModel.find({
+      user_id: loggedInUserId,
+    })
+      .populate("_id", "date title codeNumber sender originating ")
+      .exec();
+
+    if (sentDocuments.length === 0) {
+      return res.status(404).json("No sent documents found");
+    }
+
+    const documents = sentDocuments.map((doc) => ({
+      _id: doc._id,
+      date: doc.date,
+      title: doc.title,
+      sender: doc.sender,
+      originating: doc.originating,
+      recipient: doc.recipient,
+      destination: doc.destination,
+      codeNumber: doc.codeNumber,
+      remarks: doc.remarks,
+      status: doc.status,
+    }));
+
+    res.json(documents);
+  } catch (err) {
+    console.error("Error fetching sent documents:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Fetch the logged-in user's information
+app.get("/api/user/find-user", verifyUser, async (req, res) => {
+  try {
+    const loggedInUserId = req.user._id; // Get the logged-in user's ID from the request
+    const user = await UserModel.findById(loggedInUserId).select("-password"); // Exclude the password field for security
+    console.log("Current User", user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const fullName = `${user.firstname} ${user.lastname}`;
+
+    res.status(200).json(fullName); // Send the user's information as a response
+  } catch (error) {
+    console.error("Error fetching user information:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/api/docs/inbox", verifyUser, async (req, res) => {
+  const loggedInUserFullName = `${req.user.firstname} ${req.user.lastname}`;
+  console.log("Fetching documents for user ID:", loggedInUserFullName);
+
+  try {
+    const documents = await DocModel.find({
+      recipient: loggedInUserFullName, // Documents where the logged-in user is the recipient
+    })
+      .populate(
+        "_id",
+        "date title codeNumber sender originating recipient destination"
+      )
+      .exec();
+
+    if (documents.length === 0) {
+      return res.status(404).json("No documents found");
+    }
+
+    const formattedDocuments = documents.map((doc) => ({
+      _id: doc._id,
+      date: doc.date,
+      title: doc.title,
+      sender: doc.sender,
+      originating: doc.originating,
+      recipient: doc.recipient,
+      destination: doc.destination,
+      codeNumber: doc.codeNumber,
+      remarks: doc.remarks,
+      status: doc.status,
+    }));
+
+    res.json(formattedDocuments);
+  } catch (err) {
+    console.error("Error fetching documents:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.get("/api/docs/received", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
   console.log("Fetching documents for user ID:", loggedInUserId);
@@ -248,7 +340,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       forwardedTo: loggedInUserId,
     })
-      .populate("doc_id", "date forwardedAt title") // Populate the document fields
+      .populate("doc_id", "date forwardedAt title codeNumber") // Populate the document fields
       .populate({
         path: "user_id", // Populate the sender's name
         select: "firstname lastname",
@@ -264,6 +356,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
       title: log.doc_id.title,
       sender: `${log.user_id.firstname} ${log.user_id.lastname}`, // Sender's full name
       remarks: log.remarks,
+      codeNumber: log.doc_id.codeNumber,
     }));
     res.json(documents);
   } catch (err) {
@@ -279,7 +372,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       user_id: loggedInUserId,
     })
-      .populate("doc_id", "date forwardedAt title") // Populate the document details
+      .populate("doc_id", "date forwardedAt title codeNumber") // Populate the document details
       .populate("forwardedTo", "firstname lastname") // Populate the first and last name of the recipient
       .exec();
 
@@ -295,6 +388,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
       title: log.doc_id.title,
       forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`, // Combine the first and last name
       remarks: log.remarks,
+      codeNumber: log.doc_id.codeNumber,
     }));
 
     res.json(documents);
@@ -380,25 +474,25 @@ app.get("/getUser/:id", (req, res) => {
     .catch((err) => res.json(err));
 });
 
-app.get("/api/docs/received", verifyUser, (req, res) => {
-  const loggedInUserId = req.user._id; // Ensure _id is used
+// app.get("/api/docs/received", verifyUser, (req, res) => {
+//   const loggedInUserId = req.user._id; // Ensure _id is used
 
-  ForwardingLogModel.find({ forwardedTo: loggedInUserId })
-    .populate("doc_id") // Populate the related document details
-    .then((forwardingLogs) => {
-      if (forwardingLogs.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No forwarded documents found" });
-      }
-      const doc = forwardingLogs.map((log) => log.doc_id);
-      res.json(doc); // Return the documents
-    })
-    .catch((err) => {
-      console.error("Error fetching forwarded documents:", err);
-      res.status(500).json({ error: "Internal server error" });
-    });
-});
+//   ForwardingLogModel.find({ forwardedTo: loggedInUserId })
+//     .populate("doc_id") // Populate the related document details
+//     .then((forwardingLogs) => {
+//       if (forwardingLogs.length === 0) {
+//         return res
+//           .status(404)
+//           .json({ message: "No forwarded documents found" });
+//       }
+//       const doc = forwardingLogs.map((log) => log.doc_id);
+//       res.json(doc); // Return the documents
+//     })
+//     .catch((err) => {
+//       console.error("Error fetching forwarded documents:", err);
+//       res.status(500).json({ error: "Internal server error" });
+//     });
+// });
 
 app.put("/updateUser/:id", (req, res) => {
   const id = req.params.id;
@@ -759,7 +853,7 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
   }
 });
 
-app.post("/submit-document", (req, res) => {
+app.post("/submit-document", verifyUser, (req, res) => {
   const {
     title,
     sender,
@@ -772,6 +866,8 @@ app.post("/submit-document", (req, res) => {
     remarks,
   } = req.body;
 
+  // Extract user_id from req.user (logged-in user's ID)
+  const userId = req.user._id;
   // Convert the date string to a Date object
   const formattedDate = new Date(date);
 
@@ -786,9 +882,10 @@ app.post("/submit-document", (req, res) => {
     qrCode,
     codeNumber,
     remarks,
+    user_id: userId, // Attach the logged-in user's ID
   })
-    .then((document) => res.json("Success"))
-    .catch((err) => res.json(err));
+    .then((document) => res.json({ message: "Success", document }))
+    .catch((err) => res.json("Submitting Document Error: ", err));
 });
 
 // Route to archive a document
