@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LuHome, LuFolderCheck } from "react-icons/lu";
-import { RiFolderReceivedLine, RiMailSendLine } from "react-icons/ri";
+import { RiMailSendLine } from "react-icons/ri";
 import { FaRegShareFromSquare } from "react-icons/fa6";
+import { FaInbox } from "react-icons/fa";
 import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
@@ -204,41 +205,38 @@ const SidePanel = () => {
                 </li>
               </Link>
 
-              <Link to="/incoming">
+              <Link to="/inbox">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/incoming") ? "active" : ""}
-                  title="Incoming Page"
+                  className={isActive("/inbox") ? "active" : ""}
+                  title="Inbox Page"
                 >
-                  <RiFolderReceivedLine
-                    className="icon"
-                    title="Incoming Page"
-                  />
-                  <p>Incoming</p>
+                  <FaInbox className="icon" title="Inbox Page" />
+                  <p>Inbox</p>
                 </li>
               </Link>
 
-              <Link to="/outgoing">
+              <Link to="/forwarded-logs">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/outgoing") ? "active" : ""}
-                  title="Outgoing Page"
+                  className={isActive("/forwarded-logs") ? "active" : ""}
+                  title="Forwarded Logs"
                 >
                   <FaRegShareFromSquare
                     className="icon"
-                    title="Outgoing Page"
+                    title="Forwarded Logs"
                   />
-                  <p>Outgoing</p>
+                  <p>Forwarded Logs</p>
                 </li>
               </Link>
 
               <Link onClick={scrollToTop} to="/completed">
                 <li
                   className={isActive("/completed") ? "active" : ""}
-                  title="Completed Page"
+                  title="Completed Logs"
                 >
                   <LuFolderCheck className="icon" title="Completed Page" />
-                  <p>Completed</p>
+                  <p>Completed Logs</p>
                 </li>
               </Link>
             </ul>
