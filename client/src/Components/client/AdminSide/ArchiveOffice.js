@@ -13,6 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
 const ArchiveOffice = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
+  const [selectedOfficeId, setSelectedOfficeId] = useState(null); // State to store the selected office ID
 
   useEffect(() => {
     // Fetch archived offices from the backend
@@ -20,8 +22,8 @@ const ArchiveOffice = () => {
       try {
         const response = await axios.get(
           "http://localhost:3001/archived-offices"
-        ); // Corrected URL
-        console.log("Fetched archived offices:", response.data); // Log response data
+        );
+        console.log("Fetched archived offices:", response.data);
         setData(response.data);
       } catch (error) {
         console.error("Error fetching archived offices", error);
@@ -31,13 +33,19 @@ const ArchiveOffice = () => {
     fetchArchivedOffices();
   }, []);
 
-  const handleRestore = async (officeId) => {
-    try {
-      await axios.post(`http://localhost:3001/restore-office/${officeId}`); // Corrected URL
-      // Update the local state to reflect the restored office
-      setData(data.filter((office) => office._id !== officeId));
-      console.log("Office restored:", officeId); // Log restored office ID
+  const handleRestoreClick = (officeId) => {
+    setSelectedOfficeId(officeId);
+    setShowConfirmPopup(true); // Show the confirmation popup
+  };
 
+  const confirmRestore = async () => {
+    if (!selectedOfficeId) return;
+
+    try {
+      await axios.post(
+        `http://localhost:3001/restore-office/${selectedOfficeId}`
+      );
+      setData(data.filter((office) => office._id !== selectedOfficeId)); // Update state
       toast.success("Office Restored!", {
         position: "top-right",
         autoClose: 3000,
@@ -60,7 +68,15 @@ const ArchiveOffice = () => {
         progress: undefined,
         theme: "light",
       });
+    } finally {
+      setShowConfirmPopup(false); // Hide the confirmation popup
+      setSelectedOfficeId(null); // Reset the selected office ID
     }
+  };
+
+  const cancelRestore = () => {
+    setShowConfirmPopup(false); // Hide the confirmation popup
+    setSelectedOfficeId(null); // Reset the selected office ID
   };
 
   const filteredData = data.filter((val) => {
@@ -95,13 +111,11 @@ const ArchiveOffice = () => {
                   <IoSearch className="searchIcon" />
                   <input
                     type="search"
-                    name=""
-                    id=""
                     placeholder="Search.."
                     className="search-bar"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                  ></input>
+                  />
                 </div>
               </div>
             </div>
@@ -116,20 +130,20 @@ const ArchiveOffice = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.map((val, key) => {
-                        return (
-                          <tr key={key}>
-                            <td>{val.office}</td>
-                            <td>
-                              <div className="viewbtn">
-                                <button onClick={() => handleRestore(val._id)}>
-                                  Restore
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {filteredData.map((val) => (
+                        <tr key={val._id}>
+                          <td>{val.office}</td>
+                          <td>
+                            <div className="viewbtn">
+                              <button
+                                onClick={() => handleRestoreClick(val._id)}
+                              >
+                                Restore
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -140,6 +154,20 @@ const ArchiveOffice = () => {
       </div>
       <Footer />
       <ToastContainer />
+
+      {showConfirmPopup && (
+        <div className="confirm-popup">
+          <p>Are you sure you want to restore this office?</p>
+          <div className="popup-content">
+            <button onClick={confirmRestore} className="confirm-btn">
+              Yes
+            </button>
+            <button onClick={cancelRestore} className="cancel-btn">
+              No
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -7,6 +7,9 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import axios from "axios";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FaRegCopy } from "react-icons/fa6";
 
 const Forwarded = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -134,6 +137,36 @@ const Forwarded = () => {
   const outStartIndex = (currentOutPage - 1) * outDocsPerPage;
   const outEndIndex = outStartIndex + outDocsPerPage;
   const paginatedOutData = data.slice(outStartIndex, outEndIndex);
+
+  //Copy Code Number to clipboard
+  const handleCopyCode = (codeNumber) => {
+    navigator.clipboard
+      .writeText(codeNumber)
+      .then(() => {
+        toast.success("Copied to clipboard!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      })
+      .catch(() => {
+        toast.error("Failed to copy control number!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
+  };
 
   return (
     <>
@@ -272,6 +305,8 @@ const Forwarded = () => {
       </div>
       <SidePanel />
       <Footer />
+      <ToastContainer />
+
       {showPopup && selectedItem && (
         <div className="popup-container">
           <div className="popup">
@@ -282,12 +317,22 @@ const Forwarded = () => {
               </li>
               <li>
                 Code Number: <strong>{selectedItem.codeNumber}</strong>
+                <button
+                  onClick={() => handleCopyCode(selectedItem.codeNumber)}
+                  title="Copy Control Number"
+                  className="copy-btn"
+                >
+                  <FaRegCopy />
+                </button>
               </li>
               <li>
                 Title: <strong>{selectedItem.title}</strong>
               </li>
               <li>
                 Recipient: <strong>{selectedItem.forwardedTo}</strong>
+              </li>
+              <li>
+                Status: <strong>{selectedItem.status}</strong>
               </li>
               <li>
                 Remarks: <strong>{selectedItem.remarks}</strong>
@@ -309,12 +354,22 @@ const Forwarded = () => {
               </li>
               <li>
                 Code Number: <strong>{selectedItem.codeNumber}</strong>
+                <button
+                  onClick={() => handleCopyCode(selectedItem.codeNumber)}
+                  title="Copy Control Number"
+                  className="copy-btn"
+                >
+                  <FaRegCopy />
+                </button>
               </li>
               <li>
                 Title: <strong>{selectedItem.title}</strong>
               </li>
               <li>
                 Sender: <strong>{selectedItem.sender}</strong>
+              </li>
+              <li>
+                Status: <strong>{selectedItem.status}</strong>
               </li>
               <li>
                 Remarks: <strong>{selectedItem.remarks}</strong>{" "}

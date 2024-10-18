@@ -17,6 +17,7 @@ const Users = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupUserData, setPopupUserData] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,7 +47,9 @@ const Users = () => {
     if (selectedUserId !== null) {
       // Fetch details of the selected user based on the id
       axios
-        .get(`http://localhost:3001/api/user/details/${selectedUserId}`)
+        .get(`http://localhost:3001/api/user/details/${selectedUserId}`, {
+          withCredentials: true,
+        })
         .then((response) => {
           setPopupUserData(response.data); // Set the fetched user data for the popup
         })
@@ -70,11 +73,24 @@ const Users = () => {
     navigate(`/update-user/${selectedUserId}`); // Pass selectedUserId in the URL
   };
 
+  const ArchiveUser = () => {
+    setShowPopup(false);
+    setShowConfirmPopup(true);
+  };
+
+  const confirmArchive = () => {
+    archiveUser();
+  };
+
+  const cancelArchive = () => {
+    setShowConfirmPopup(false);
+  };
+
   const archiveUser = () => {
     axios
       .post(`http://localhost:3001/archive-user/${selectedUserId}`)
       .then((response) => {
-        setShowPopup(false);
+        setShowConfirmPopup(false);
         setUsers(users.filter((user) => user._id !== selectedUserId));
         toast.success("User Moved to Archive!", {
           position: "top-right",
@@ -232,11 +248,24 @@ const Users = () => {
                 {/* Call handleEditUser on click */}
               </div>
               <div className="archivebtn secondarybtn">
-                <button className="arc-btn" onClick={archiveUser}>
+                <button className="arc-btn" onClick={ArchiveUser}>
                   Archive
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {showConfirmPopup && (
+        <div className="confirm-popup">
+          <p>Are you sure you want to archive this user?</p>
+          <div className="popup-content">
+            <button onClick={confirmArchive} className="confirm-btn">
+              Yes
+            </button>
+            <button onClick={cancelArchive} className="cancel-btn">
+              No
+            </button>
           </div>
         </div>
       )}

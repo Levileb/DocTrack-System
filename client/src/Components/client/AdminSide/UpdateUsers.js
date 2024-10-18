@@ -49,13 +49,8 @@ const UpdateUsers = () => {
       .catch((err) => console.log(err));
   };
 
-  const handleClear = () => {
-    // Clear form fields
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setPosition("");
-    setOffice("");
+  const handleCancel = () => {
+    navigate("/view-user");
   };
 
   return (
@@ -126,8 +121,8 @@ const UpdateUsers = () => {
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">
-                  <button type="button" onClick={handleClear}>
-                    Clear
+                  <button type="button" onClick={handleCancel}>
+                    Cancel
                   </button>
                 </div>
                 <div className="SubmitButton">

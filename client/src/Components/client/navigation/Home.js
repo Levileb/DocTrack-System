@@ -34,6 +34,8 @@ const Home = () => {
   const [user, setUser] = useState([]);
   const navigate = useNavigate();
   const [scanned_id, setScanned_Id] = useState(null);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [docToArchive, setDocToArchive] = useState(null);
 
   useEffect(() => {
     fetchDocs();
@@ -139,6 +141,20 @@ const Home = () => {
   const closePopup = () => {
     setSelectedDoc(null);
   };
+
+  const ConfirmPopup = ({ onConfirm, onCancel }) => (
+    <div className="confirm-popup">
+      <p>Are you sure you want to archive this document?</p>
+      <div className="popup-content">
+        <button onClick={onConfirm} className="confirm-btn">
+          Yes
+        </button>
+        <button onClick={onCancel} className="cancel-btn">
+          No
+        </button>
+      </div>
+    </div>
+  );
 
   const printDocument = (doc) => {
     qrCode.toDataURL(JSON.stringify(doc), (err, url) => {
@@ -366,11 +382,20 @@ const Home = () => {
     setOpenDropdownIndex(openDropdownIndex === index ? null : index);
   };
 
-  const archiveDocument = async (docId) => {
+  const confirmArchive = (docId) => {
+    setDocToArchive(docId);
+    setShowConfirmPopup(true);
+    setOpenDropdownIndex(null);
+  };
+
+  const handleArchiveConfirm = async () => {
+    if (!docToArchive) return;
     try {
-      await axios.post("http://localhost:3001/archive-document", { docId });
-      setDocs(docs.filter((doc) => doc._id !== docId));
-      setFilteredDocs(filteredDocs.filter((doc) => doc._id !== docId));
+      await axios.post("http://localhost:3001/archive-document", {
+        docId: docToArchive,
+      });
+      setDocs(docs.filter((doc) => doc._id !== docToArchive));
+      setFilteredDocs(filteredDocs.filter((doc) => doc._id !== docToArchive));
       toast.success("Document Moved to Archive!", {
         position: "top-right",
         autoClose: 3000,
@@ -381,6 +406,8 @@ const Home = () => {
         progress: undefined,
         theme: "light",
       });
+      setShowConfirmPopup(false);
+      setDocToArchive(null);
     } catch (error) {
       console.error("Error archiving document:", error);
       toast.error("Something went wrong, please try again!", {
@@ -394,6 +421,11 @@ const Home = () => {
         theme: "light",
       });
     }
+  };
+
+  const handleCancelArchive = () => {
+    setShowConfirmPopup(false);
+    setDocToArchive(null);
   };
 
   const formatDateForDisplay = (isoDateString) => {
@@ -555,7 +587,7 @@ const Home = () => {
                                         Edit
                                       </li>
                                       <li
-                                        onClick={() => archiveDocument(val._id)}
+                                        onClick={() => confirmArchive(val._id)}
                                       >
                                         Archive
                                       </li>
@@ -719,6 +751,13 @@ const Home = () => {
             </div>
           </div>
         </div>
+      )}
+      {/* Archive Confirmation */}
+      {showConfirmPopup && (
+        <ConfirmPopup
+          onConfirm={handleArchiveConfirm}
+          onCancel={handleCancelArchive}
+        />
       )}
     </>
   );

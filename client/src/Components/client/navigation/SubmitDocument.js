@@ -73,7 +73,9 @@ const SubmitDocument = () => {
         .get("http://localhost:3001/view-user")
         .then((res) => {
           const allUsers = res.data;
-          const filteredUsers = allUsers.filter((user) => user.role === "user");
+          const filteredUsers = allUsers.filter(
+            (user) => user.role === "user" && !user.isArchived
+          );
           setUsers(filteredUsers);
           // Filter out the sender from the list of users for the recipient dropdown
           const filtered = allUsers.filter(
@@ -88,7 +90,8 @@ const SubmitDocument = () => {
       axios
         .get("http://localhost:3001/offices")
         .then((res) => {
-          setOffices(res.data);
+          const offices = res.data.filter((office) => !office.isArchived);
+          setOffices(offices);
         })
         .catch((err) => console.error("Error fetching offices:", err));
     };

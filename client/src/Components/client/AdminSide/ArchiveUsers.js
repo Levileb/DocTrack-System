@@ -13,6 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
 const ArchiveUsers = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
+  const [selectedUserId, setSelectedUserId] = useState(null); // State to store the selected user ID
 
   useEffect(() => {
     // Fetch archived users from the backend
@@ -20,8 +22,8 @@ const ArchiveUsers = () => {
       try {
         const response = await axios.get(
           "http://localhost:3001/archived-users"
-        ); // Corrected URL
-        console.log("Fetched archived users:", response.data); // Log response data
+        );
+        console.log("Fetched archived users:", response.data);
         setData(response.data);
       } catch (error) {
         console.error("Error fetching archived users", error);
@@ -31,12 +33,17 @@ const ArchiveUsers = () => {
     fetchArchivedUsers();
   }, []);
 
-  const handleRestore = async (userId) => {
+  const handleRestoreClick = (userId) => {
+    setSelectedUserId(userId);
+    setShowConfirmPopup(true); // Show the confirmation popup
+  };
+
+  const confirmRestore = async () => {
+    if (!selectedUserId) return;
+
     try {
-      await axios.post(`http://localhost:3001/restore-user/${userId}`); // Corrected URL
-      // Update the local state to reflect the restored user
-      setData(data.filter((user) => user._id !== userId));
-      console.log("User restored:", userId); // Log restored user ID
+      await axios.post(`http://localhost:3001/restore-user/${selectedUserId}`);
+      setData(data.filter((user) => user._id !== selectedUserId)); // Update state
       toast.success("User Restored!", {
         position: "top-right",
         autoClose: 3000,
@@ -59,7 +66,15 @@ const ArchiveUsers = () => {
         progress: undefined,
         theme: "light",
       });
+    } finally {
+      setShowConfirmPopup(false); // Hide the confirmation popup
+      setSelectedUserId(null); // Reset the selected user ID
     }
+  };
+
+  const cancelRestore = () => {
+    setShowConfirmPopup(false); // Hide the confirmation popup
+    setSelectedUserId(null); // Reset the selected user ID
   };
 
   const filteredData = data.filter((val) => {
@@ -97,13 +112,11 @@ const ArchiveUsers = () => {
                   <IoSearch className="searchIcon" />
                   <input
                     type="search"
-                    name=""
-                    id=""
                     placeholder="Search.."
                     className="search-bar"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                  ></input>
+                  />
                 </div>
               </div>
             </div>
@@ -122,24 +135,24 @@ const ArchiveUsers = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.map((val, key) => {
-                        return (
-                          <tr key={key}>
-                            <td>{val.firstname}</td>
-                            <td>{val.lastname}</td>
-                            <td>{val.email}</td>
-                            <td>{val.position}</td>
-                            <td>{val.office}</td>
-                            <td>
-                              <div className="viewbtn">
-                                <button onClick={() => handleRestore(val._id)}>
-                                  Restore
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {filteredData.map((val) => (
+                        <tr key={val._id}>
+                          <td>{val.firstname}</td>
+                          <td>{val.lastname}</td>
+                          <td>{val.email}</td>
+                          <td>{val.position}</td>
+                          <td>{val.office}</td>
+                          <td>
+                            <div className="viewbtn">
+                              <button
+                                onClick={() => handleRestoreClick(val._id)}
+                              >
+                                Restore
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -150,6 +163,20 @@ const ArchiveUsers = () => {
       </div>
       <Footer />
       <ToastContainer />
+
+      {showConfirmPopup && (
+        <div className="confirm-popup">
+          <p>Are you sure you want to restore this user?</p>
+          <div className="popup-content">
+            <button onClick={confirmRestore} className="confirm-btn">
+              Yes
+            </button>
+            <button onClick={cancelRestore} className="cancel-btn">
+              No
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

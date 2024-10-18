@@ -9,10 +9,13 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GrCaretNext, GrCaretPrevious } from "react-icons/gr";
 
 const ArchiveDocument = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
+  const [selectedDocId, setSelectedDocId] = useState(null); // State to store the selected office ID
 
   useEffect(() => {
     // Fetch archived documents from the backend
@@ -31,12 +34,20 @@ const ArchiveDocument = () => {
     fetchArchivedDocuments();
   }, []);
 
+  const handleRestoreClick = (docId) => {
+    setSelectedDocId(docId);
+    setShowConfirmPopup(true); // Show the confirmation popup
+  };
+
   const handleRestore = async (docId) => {
+    if (!selectedDocId) return;
     try {
-      await axios.post("http://localhost:3001/restore-document", { docId }); // Corrected URL
+      await axios.post("http://localhost:3001/restore-document", {
+        docId: selectedDocId,
+      }); // Use selectedDocId here
       // Update the local state to reflect the restored document
-      setData(data.filter((doc) => doc._id !== docId));
-      console.log("Document restored:", docId); // Log restored document ID
+      setData(data.filter((doc) => doc._id !== selectedDocId));
+      console.log("Document restored:", selectedDocId); // Log restored document ID
       toast.success("Document Restored!", {
         position: "top-right",
         autoClose: 2000,
@@ -59,7 +70,15 @@ const ArchiveDocument = () => {
         progress: undefined,
         theme: "light",
       });
+    } finally {
+      setShowConfirmPopup(false); // Hide the confirmation popup
+      setSelectedDocId(null); // Reset the selected office ID
     }
+  };
+
+  const cancelRestore = () => {
+    setShowConfirmPopup(false); // Hide the confirmation popup
+    setSelectedDocId(null); // Reset the selected office ID
   };
 
   const filteredData = data.filter((val) => {
@@ -107,6 +126,19 @@ const ArchiveDocument = () => {
 
     return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const docsPerPage = 20; // Adjust this number to show more/less documents per page
+  const [totalPages, setTotalPages] = useState(1);
+
+  const startIndex = (currentPage - 1) * docsPerPage;
+  const endIndex = startIndex + docsPerPage;
+  const paginatedData = data.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    const totalPages = Math.ceil(data.length / docsPerPage);
+    setTotalPages(totalPages);
+  }, [data]);
 
   return (
     <>
@@ -157,8 +189,8 @@ const ArchiveDocument = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.map((val, key) => {
-                        return (
+                      {paginatedData.length > 0 ? (
+                        paginatedData.map((val, key) => (
                           <tr key={key}>
                             <td>{formatDateForDisplay(val.date)}</td>
                             <td>{val.title}</td>
@@ -166,16 +198,41 @@ const ArchiveDocument = () => {
                             <td>{val.recipient}</td>
                             <td>
                               <div className="viewbtn">
-                                <button onClick={() => handleRestore(val._id)}>
+                                <button
+                                  onClick={() => handleRestoreClick(val._id)}
+                                >
                                   Restore
                                 </button>
                               </div>
                             </td>
                           </tr>
-                        );
-                      })}
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5">No Archived Documents Available</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
+                  <div className="pagination-controls">
+                    <button
+                      className="prev-btn"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                    >
+                      <GrCaretPrevious />
+                    </button>
+                    <span>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      className="next-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                    >
+                      <GrCaretNext />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -184,6 +241,19 @@ const ArchiveDocument = () => {
       </div>
       <Footer />
       <ToastContainer />
+      {showConfirmPopup && (
+        <div className="confirm-popup">
+          <p>Are you sure you want to restore this office?</p>
+          <div className="popup-content">
+            <button onClick={handleRestore} className="confirm-btn">
+              Yes
+            </button>
+            <button onClick={cancelRestore} className="cancel-btn">
+              No
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -7,7 +7,6 @@ import { FaInbox } from "react-icons/fa";
 import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
-import { AiFillCloseCircle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
@@ -261,10 +260,6 @@ const SidePanel = () => {
         <div className="popup-container">
           <div className="popup lgt">
             <label>Are you sure you want to logout?</label>
-
-            <button className="closebtn" onClick={closePopup}>
-              <AiFillCloseCircle className="closeicon" />
-            </button>
 
             <div className="yesnobtns">
               <div className="primarybtn" onClick={closePopup}>

@@ -340,7 +340,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       forwardedTo: loggedInUserId,
     })
-      .populate("doc_id", "date forwardedAt title codeNumber") // Populate the document fields
+      .populate("doc_id", "date forwardedAt title codeNumber status") // Populate the document fields
       .populate({
         path: "user_id", // Populate the sender's name
         select: "firstname lastname",
@@ -356,6 +356,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
       title: log.doc_id.title,
       sender: `${log.user_id.firstname} ${log.user_id.lastname}`, // Sender's full name
       remarks: log.remarks,
+      status: log.doc_id.status,
       codeNumber: log.doc_id.codeNumber,
     }));
     res.json(documents);
@@ -372,7 +373,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
     const forwardingLogs = await ForwardingLogModel.find({
       user_id: loggedInUserId,
     })
-      .populate("doc_id", "date forwardedAt title codeNumber") // Populate the document details
+      .populate("doc_id", "date forwardedAt title codeNumber status") // Populate the document details
       .populate("forwardedTo", "firstname lastname") // Populate the first and last name of the recipient
       .exec();
 
@@ -388,6 +389,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
       title: log.doc_id.title,
       forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`, // Combine the first and last name
       remarks: log.remarks,
+      status: log.doc_id.status,
       codeNumber: log.doc_id.codeNumber,
     }));
 

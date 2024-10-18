@@ -11,37 +11,6 @@ const Forwarding = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
-  // const getCurrentDateTime = () => {
-  //   const today = new Date();
-  //   const year = today.getFullYear();
-  //   let month = today.getMonth() + 1;
-  //   let day = today.getDate();
-  //   let hours = today.getHours();
-  //   let minutes = today.getMinutes();
-  //   let seconds = today.getSeconds();
-  //   let ampm = hours >= 12 ? "PM" : "AM";
-  //   hours = hours % 12;
-  //   hours = hours ? hours : 12;
-
-  //   if (month < 10) month = "0" + month;
-  //   if (day < 10) day = "0" + day;
-  //   if (hours < 10) hours = "0" + hours;
-  //   if (minutes < 10) minutes = "0" + minutes;
-  //   if (seconds < 10) seconds = "0" + seconds;
-
-  //   return `${month}/${day}/${year} - ${hours}:${minutes}:${seconds} ${ampm}`;
-  // };
-
-  // const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setCurrentDateTime(getCurrentDateTime());
-  //   }, 1000);
-
-  //   return () => clearInterval(interval); // Clear the interval on component unmount
-  // }, []);
-
   const [formData, setFormData] = useState({
     date: "",
     title: "",
@@ -61,10 +30,18 @@ const Forwarding = () => {
     const fetchData = async () => {
       try {
         const userResponse = await axios.get("http://localhost:3001/view-user");
-        setUsers(userResponse.data);
+        // Filter users to include only those with role 'user' and not archived
+        const filteredUsers = userResponse.data.filter(
+          (user) => user.role === "user" && !user.isArchived
+        );
+        setUsers(filteredUsers);
 
         const officeResponse = await axios.get("http://localhost:3001/offices");
-        setOffices(officeResponse.data);
+        // Filter offices to include only those that are not archived
+        const filteredOffices = officeResponse.data.filter(
+          (office) => !office.isArchived
+        );
+        setOffices(filteredOffices);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -261,6 +238,7 @@ const Forwarding = () => {
                     ))}
                   </select>
                 </div>
+
                 <p>Remarks:</p>
                 <div className="input-new">
                   <textarea
@@ -269,7 +247,6 @@ const Forwarding = () => {
                     id="remarks"
                     value={formData.remarks}
                     onChange={handleInputChange}
-                    required
                   ></textarea>
                 </div>
               </div>
