@@ -111,9 +111,10 @@ const Received = () => {
             theme: "light",
           });
           console.log('Document already marked as "Completed"');
-        } else if (selectedDoc.status === "Received" || "Forwarded") {
-          setShowOptions(true);
+        }
+        if (selectedDoc.status === "Received") {
           setScanned_Id(selectedDoc._id);
+          setShowOptions(true);
         } else {
           // If not "Completed or Received", proceed with updating the status to "Viewed"
           await axios.post("http://localhost:3001/api/docs/update-status", {

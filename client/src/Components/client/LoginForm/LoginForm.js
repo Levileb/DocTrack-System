@@ -31,7 +31,7 @@ function LoginForm() {
       ) // Ensure credentials are sent
       .then((res) => {
         if (res.data.Status === "Success") {
-          toast.success("Welcome to DocTracks!", {
+          toast.success("Welcome!", {
             position: "top-center",
             autoClose: 2000,
             hideProgressBar: true,
@@ -71,8 +71,6 @@ function LoginForm() {
             }
           }, 1500);
         } else if (res.data.Status !== "Success") {
-          setEmail("");
-          setPassword("");
           // setLoginStatus("Incorrect email or password. Please try again.");
           toast.error("Incorrect email or password. Please try again.", {
             position: "top-center",

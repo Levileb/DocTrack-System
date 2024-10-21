@@ -157,9 +157,6 @@ const UpdateDocument = () => {
             <form action="" className="AddUserForm" onSubmit={handleSubmit}>
               <div className="FormText submitdocument">
                 <p>Date Submitted: {formatDateForDisplay(formData.date)}</p>
-                {/* <div className="input-new">
-                  <input type="text" id="date" value={formData.date} readOnly />
-                </div> */}
 
                 <p>Title:</p>
                 <div className="input-new">
@@ -171,26 +168,6 @@ const UpdateDocument = () => {
                     required
                   />
                 </div>
-
-                {/* <p>Sender:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="sender"
-                    value={formData.sender}
-                    readOnly
-                  />
-                </div>
-
-                <p>Originating Office:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="originating"
-                    value={formData.originating}
-                    readOnly
-                  />
-                </div> */}
 
                 <p>Recipient:</p>
                 <div className="input-new">

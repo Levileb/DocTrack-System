@@ -135,24 +135,30 @@ const ArchiveUsers = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.map((val) => (
-                        <tr key={val._id}>
-                          <td>{val.firstname}</td>
-                          <td>{val.lastname}</td>
-                          <td>{val.email}</td>
-                          <td>{val.position}</td>
-                          <td>{val.office}</td>
-                          <td>
-                            <div className="viewbtn">
-                              <button
-                                onClick={() => handleRestoreClick(val._id)}
-                              >
-                                Restore
-                              </button>
-                            </div>
-                          </td>
+                      {filteredData.length > 0 ? (
+                        filteredData.map((val) => (
+                          <tr key={val._id}>
+                            <td>{val.firstname}</td>
+                            <td>{val.lastname}</td>
+                            <td>{val.email}</td>
+                            <td>{val.position}</td>
+                            <td>{val.office}</td>
+                            <td>
+                              <div className="viewbtn">
+                                <button
+                                  onClick={() => handleRestoreClick(val._id)}
+                                >
+                                  Restore
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="6">No Archived Users Available</td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>

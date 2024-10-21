@@ -789,7 +789,7 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
 
     const receivingLogs = await ReceivingLogModel.find({ doc_id: document._id })
       .sort({ receivedAt: -1 })
-      .populate("user_id", "firstname lastname")
+      .populate("user_id", "firstname lastname office")
       .populate("doc_id", "title")
       .select("user_id doc_id receivedAt remarks"); // Add remarks field
 
@@ -805,9 +805,9 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
     const completedLog = await CompletedLogModel.findOne({
       docId: document._id,
     })
-      .populate("userId", "firstname lastname")
+      .populate("userId", "firstname lastname office")
       .populate("docId", "title")
-      .select("userId docId completedAt remarks"); // Add remarks field
+      .select("userId docId completedAt remarks office"); // Add remarks field
 
     if (!completedLog || !completedLog.userId) {
       console.error("Completed log or userId not found:", completedLog);
@@ -817,10 +817,13 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
       codeNumber,
       status: document.status,
       documentTitle: document.title,
+      sender: document.sender,
+      officeOrigin: document.originating,
       receivingLogs: receivingLogs.map((log) => ({
         receivedBy: log.user_id
           ? `${log.user_id.firstname} ${log.user_id.lastname}`
           : "Unknown User",
+        office: log.user_id.office,
         receivedAt: log.receivedAt,
         documentTitle: log.doc_id.title,
         remarks: log.remarks, // Add remarks here
@@ -841,6 +844,7 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
             completedBy: completedLog.userId
               ? `${completedLog.userId.firstname} ${completedLog.userId.lastname}`
               : "Unknown User",
+            office: completedLog.userId.office,
             completedAt: completedLog.completedAt,
             documentTitle: completedLog.docId.title,
             remarks: completedLog.remarks, // Add remarks here

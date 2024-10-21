@@ -294,6 +294,10 @@ const Home = () => {
     setShowScanner(false);
   };
 
+  const closeOptions = () => {
+    setShowOptions(false);
+  };
+
   // Handle QR Code Scanning
   const handleScan = async (data) => {
     try {
@@ -738,6 +742,11 @@ const Home = () => {
             </section>
             <p>Do more other options:</p>
             <div className="option-buttons">
+              <div className="secondarybtn cncl">
+                <button onClick={closeOptions} title="Cancel?">
+                  Cancel
+                </button>
+              </div>
               <div className="secondarybtn fwd">
                 <Link to={`/forwarding-document/${scanned_id}`}>
                   <button title="Forward the document?">Forward</button>

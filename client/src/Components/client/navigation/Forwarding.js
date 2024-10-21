@@ -121,7 +121,6 @@ const Forwarding = () => {
       }));
       setSelectedEmployee("");
       setSelectedOffice("");
-      navigate("/home");
     } catch (error) {
       // Handle error
       console.error("Error forwarding document:", error);
@@ -144,6 +143,9 @@ const Forwarding = () => {
       setSelectedEmployee("");
       setSelectedOffice("");
     }
+    setTimeout(() => {
+      handleCancel(); // Navigate after the popup is hidden
+    }, 2500);
   };
 
   const handleEmployeeSelect = (event) =>

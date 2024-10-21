@@ -146,7 +146,7 @@ const Receiving = () => {
                     Title: <strong>{formData.title}</strong>
                   </p>
                   <p>
-                    Sender: <strong>{formData.sender}</strong>
+                    Created by: <strong>{formData.sender}</strong>
                   </p>
                   <p>
                     Originating Office: <strong>{formData.orgOffice}</strong>
