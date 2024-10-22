@@ -101,35 +101,46 @@ const SubmitDocument = () => {
     fetchOffices();
   }, [formData.sender]); // Added dependency here
 
-  const handleInputChange = (event) => {
-    const { id, value } = event.target;
-    let destination = formData.destination;
-
-    if (id === "recipient") {
-      const selectedUser = users.find(
-        (user) => `${user.firstname} ${user.lastname}` === value
-      );
-      if (selectedUser) {
-        destination = selectedUser.office;
-      }
-    }
+  // Update filtered users based on selected destination office
+  const handleDestinationChange = (event) => {
+    const selectedOffice = event.target.value;
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [id]: value,
-      destination: id === "recipient" ? destination : prevFormData.destination,
+      destination: selectedOffice,
+      recipient: "",
     }));
+
+    const officeUsers = users.filter((user) => user.office === selectedOffice);
+    setFilteredUsers(officeUsers);
   };
 
-  useEffect(() => {
-    // Update the filteredUsers list whenever the sender changes
-    if (formData.sender) {
-      const filtered = users.filter(
-        (user) => `${user.firstname} ${user.lastname}` !== formData.sender
+  const handleRecipientChange = (event) => {
+    const selectedRecipient = event.target.value;
+
+    if (selectedRecipient === "All") {
+      const allRecipients = filteredUsers.map(
+        (user) => `${user.firstname} ${user.lastname}`
       );
-      setFilteredUsers(filtered);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recipient: allRecipients.join(", "),
+      }));
+    } else {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recipient: selectedRecipient,
+      }));
     }
-  }, [formData.sender, users]);
+  };
+
+  const handleInputChange = (event) => {
+    const { id, value } = event.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [id]: value,
+    }));
+  };
 
   // Handle document submission
   const handleSubmit = (e) => {
@@ -333,33 +344,12 @@ const SubmitDocument = () => {
                   />
                 </div>
 
-                <p>Recipient:</p>
-                <div className="input-new">
-                  <select
-                    id="recipient"
-                    value={formData.recipient}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="" disabled>
-                      Select Recipient
-                    </option>
-                    {filteredUsers.map((user) => (
-                      <option
-                        key={user._id}
-                        value={`${user.firstname} ${user.lastname}`}
-                      >
-                        {user.firstname} {user.lastname}
-                      </option>
-                    ))}
-                  </select>
-                </div>
                 <p>Destination Office:</p>
                 <div className="input-new">
                   <select
-                    id="destination" // Make sure this matches the key in the state
+                    id="destination"
                     value={formData.destination}
-                    onChange={handleInputChange}
+                    onChange={handleDestinationChange}
                   >
                     <option value="" disabled>
                       Select Office
@@ -371,6 +361,30 @@ const SubmitDocument = () => {
                     ))}
                   </select>
                 </div>
+
+                <p>Recipient:</p>
+                <div className="input-new">
+                  <select
+                    id="recipient"
+                    value={formData.recipient}
+                    onChange={handleRecipientChange}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Recipient
+                    </option>
+                    <option value="All">All</option>
+                    {filteredUsers.map((user) => (
+                      <option
+                        key={user._id}
+                        value={`${user.firstname} ${user.lastname}`}
+                      >
+                        {user.firstname} {user.lastname}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <p>Remarks:</p>
                 <div className="input-new">
                   <textarea

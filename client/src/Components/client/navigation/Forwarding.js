@@ -15,29 +15,43 @@ const Forwarding = () => {
     date: "",
     title: "",
     sender: "",
-    orgOffice: "",
+    originating: "",
     recipient: "",
-    desOffice: "",
+    destination: "",
     remarks: "",
   });
 
-  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [offices, setOffices] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState("");
-  const [selectedOffice, setSelectedOffice] = useState("");
 
   useEffect(() => {
+    const fetchUserDetails = () => {
+      axios
+        .get("http://localhost:3001/api/user/details", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          const { firstname, lastname, office } = res.data;
+          const fullName = `${firstname} ${lastname}`;
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            sender: fullName,
+            originating: office,
+          }));
+        })
+        .catch((err) => console.error(err));
+    };
     const fetchData = async () => {
       try {
         const userResponse = await axios.get("http://localhost:3001/view-user");
-        // Filter users to include only those with role 'user' and not archived
         const filteredUsers = userResponse.data.filter(
           (user) => user.role === "user" && !user.isArchived
         );
-        setUsers(filteredUsers);
+        setAllUsers(filteredUsers);
+        setFilteredUsers(filteredUsers);
 
         const officeResponse = await axios.get("http://localhost:3001/offices");
-        // Filter offices to include only those that are not archived
         const filteredOffices = officeResponse.data.filter(
           (office) => !office.isArchived
         );
@@ -46,7 +60,7 @@ const Forwarding = () => {
         console.error("Error fetching data:", error);
       }
     };
-
+    fetchUserDetails();
     fetchData();
   }, []);
 
@@ -72,12 +86,38 @@ const Forwarding = () => {
     }
   }, [docId]);
 
+  // Update filtered users based on selected destination office
+  const handleDestinationChange = (event) => {
+    const selectedOffice = event.target.value;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      destination: selectedOffice,
+      recipient: "",
+    }));
+
+    const officeUsers = allUsers.filter(
+      (user) => user.office === selectedOffice
+    );
+    setFilteredUsers(officeUsers);
+  };
+
+  const handleRecipientChange = (event) => {
+    const selectedRecipient = event.target.value;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      recipient: selectedRecipient,
+    }));
+  };
+
   const handleInputChange = (event) => {
     const { id, value } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
       [id]: value,
     }));
+    console.log("Form Data: ", formData);
   };
 
   const handleCancel = () => {
@@ -89,11 +129,15 @@ const Forwarding = () => {
 
     try {
       // Send the forwarding log data
-      await axios.post("http://localhost:3001/api/docs/log-forwarding", {
-        docId: docId,
-        forwardedTo: selectedEmployee, // Ensure this is correctly set
-        remarks: formData.remarks,
-      });
+      await axios.post(
+        "http://localhost:3001/api/docs/log-forwarding",
+        {
+          docId: docId,
+          forwardedTo: formData.recipient, // Ensure this is correctly set
+          remarks: formData.remarks,
+        },
+        { withCredentials: true }
+      );
 
       // Update document status
       await axios.post("http://localhost:3001/api/docs/update-status", {
@@ -116,11 +160,9 @@ const Forwarding = () => {
       setFormData((prevFormData) => ({
         ...prevFormData,
         recipient: "",
-        desOffice: "",
+        destination: "",
         remarks: "",
       }));
-      setSelectedEmployee("");
-      setSelectedOffice("");
     } catch (error) {
       // Handle error
       console.error("Error forwarding document:", error);
@@ -137,21 +179,14 @@ const Forwarding = () => {
       setFormData((prevFormData) => ({
         ...prevFormData,
         recipient: "",
-        desOffice: "",
+        destination: "",
         remarks: "",
       }));
-      setSelectedEmployee("");
-      setSelectedOffice("");
     }
     setTimeout(() => {
       handleCancel(); // Navigate after the popup is hidden
     }, 2500);
   };
-
-  const handleEmployeeSelect = (event) =>
-    setSelectedEmployee(event.target.value);
-
-  const handleOfficeSelect = (event) => setSelectedOffice(event.target.value);
 
   const formatDateForDisplay = (isoDateString) => {
     const date = new Date(isoDateString);
@@ -201,41 +236,38 @@ const Forwarding = () => {
                   </p>
                 </div>
 
-                <p>Recipient:</p>
+                <p>Destination Office:</p>
                 <div className="input-new">
                   <select
-                    id="recipient"
-                    className="input-field"
-                    required
-                    value={selectedEmployee}
-                    onChange={handleEmployeeSelect}
+                    id="destination"
+                    value={formData.destination}
+                    onChange={handleDestinationChange}
                   >
                     <option value="" disabled>
-                      Select Employee
+                      Select Office
                     </option>
-                    {users.map((user) => (
-                      <option key={user._id} value={user._id}>
-                        {`${user.firstname} ${user.lastname}`}
+                    {offices.map((officeItem, index) => (
+                      <option key={index} value={officeItem.office}>
+                        {officeItem.office}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <p>Designated Office:</p>
+                <p>Recipient:</p>
                 <div className="input-new">
                   <select
-                    id="desOffice"
-                    className="input-field"
+                    id="recipient"
+                    value={formData.recipient}
+                    onChange={handleRecipientChange}
                     required
-                    value={selectedOffice}
-                    onChange={handleOfficeSelect}
                   >
                     <option value="" disabled>
-                      Select Office
+                      Select Recipient
                     </option>
-                    {offices.map((office) => (
-                      <option key={office._id} value={office._id}>
-                        {office.office}
+                    {filteredUsers.map((user) => (
+                      <option key={user._id} value={user._id}>
+                        {user.firstname} {user.lastname}
                       </option>
                     ))}
                   </select>
@@ -247,6 +279,7 @@ const Forwarding = () => {
                     className="inp-remarks"
                     type="text"
                     id="remarks"
+                    required
                     value={formData.remarks}
                     onChange={handleInputChange}
                   ></textarea>

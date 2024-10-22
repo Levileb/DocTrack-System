@@ -300,7 +300,7 @@ app.get("/api/docs/inbox", verifyUser, async (req, res) => {
 
   try {
     const documents = await DocModel.find({
-      recipient: loggedInUserFullName, // Documents where the logged-in user is the recipient
+      recipient: { $regex: new RegExp(`\\b${loggedInUserFullName}\\b`, "i") },
     })
       .populate(
         "_id",
