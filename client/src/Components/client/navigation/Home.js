@@ -185,7 +185,6 @@ const Home = () => {
               div {
                 display: flex;
                 width: max-content;
-                height: 140px;
                 flex-direction: column;
               }
               p {
@@ -271,6 +270,7 @@ const Home = () => {
                   <li>Destination Office: <strong>${
                     doc.destination
                   }</strong></li>
+                  <li>Remarks: <strong>${doc.remarks}</strong></li>
                 </ul>
               </div>
               <div id="qrCode">

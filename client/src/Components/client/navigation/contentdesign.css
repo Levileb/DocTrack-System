@@ -556,9 +556,9 @@ td {
   border-radius: 15px;
   padding: 10px;
   display: flex;
-  margin: auto;
+  margin: 50px;
   flex-direction: column;
-  width: 300px;
+  min-width: 300px;
   color: #00162d;
   background: #ffffff;
   z-index: 11111;
@@ -583,10 +583,6 @@ td {
   color: #6f0000;
   background: #fff;
 }
-.popupsubmitting label {
-  display: flex;
-  font-weight: 600;
-}
 .popupsubmitting .actionbtn {
   display: flex;
   justify-content: center;
@@ -596,6 +592,11 @@ td {
   font-weight: bold;
   text-align: center;
   margin-bottom: 15px;
+}
+.qrCodeImage {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
 }
 
 /* QrScanner Styles - Start */

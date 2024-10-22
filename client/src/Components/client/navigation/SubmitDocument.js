@@ -218,7 +218,6 @@ const SubmitDocument = () => {
             div {
               display: flex;
               width: max-content;
-              height: 140px;
               flex-direction: column;
             }
             p {
@@ -425,15 +424,15 @@ const SubmitDocument = () => {
                 <li>
                   Destination Office: <strong>{formData.destination}</strong>
                 </li>
+                <li>
+                  Remarks: <strong>{formData.remarks}</strong>
+                </li>
               </ul>
             </div>
             <div className="qrCodeImage">
               <QRCode id="qrCode" value={JSON.stringify(formData)} />
-              <br />
               <label id="codeNum">
-                <small>
-                  Control No.: <strong>{codeNumber}</strong>
-                </small>
+                Control Number: <strong>{codeNumber}</strong>
               </label>
             </div>
             <div className="actionbtn primarybtn">
