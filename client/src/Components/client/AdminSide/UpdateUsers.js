@@ -4,6 +4,8 @@ import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UpdateUsers = () => {
   const { id } = useParams();
@@ -14,21 +16,33 @@ const UpdateUsers = () => {
   const [email, setEmail] = useState("");
   const [position, setPosition] = useState("");
   const [office, setOffice] = useState("");
+  const [offices, setOffices] = useState([]); // State to store the list of offices
 
   useEffect(() => {
-    console.log("ID:", id);
     axios
       .get(`http://localhost:3001/getUser/` + id)
       .then((result) => {
-        console.log(result);
-        setFirstName(result.data.firstname || ""); // Set initial name value or empty string
+        setFirstName(result.data.firstname || "");
         setLastName(result.data.lastname || "");
-        setEmail(result.data.email || ""); // Set initial email value or empty string
+        setEmail(result.data.email || "");
         setPosition(result.data.position || "");
         setOffice(result.data.office || "");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log("Error: ", err));
   }, [id]);
+
+  // Fetch the list of offices
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/offices")
+      .then((result) => {
+        const activeOffices = result.data.filter(
+          (office) => !office.isArchived
+        );
+        setOffices(activeOffices);
+      })
+      .catch((err) => console.log("Error: ", err));
+  }, []);
 
   const Update = (e) => {
     e.preventDefault();
@@ -40,13 +54,34 @@ const UpdateUsers = () => {
         position,
         office,
       })
-      .then((result) => {
-        console.log(result);
-        navigate("/view-user");
-        // Display alert after successful update
-        alert("Data Updated Successfully");
+      .then(() => {
+        toast.success("User Updated Successfully!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        console.log("Error: ", err);
+      });
+    setTimeout(() => {
+      navigate("/view-user");
+    }, 2100);
   };
 
   const handleCancel = () => {
@@ -75,6 +110,7 @@ const UpdateUsers = () => {
                     onChange={(e) => setFirstName(e.target.value)}
                   />
                 </div>
+
                 <p>Last Name:</p>
                 <div className="input-new">
                   <input
@@ -88,13 +124,21 @@ const UpdateUsers = () => {
 
                 <p>Designated Office:</p>
                 <div className="input-new">
-                  <input
-                    type="text"
+                  <select
                     id="office"
                     required
                     value={office}
                     onChange={(e) => setOffice(e.target.value)}
-                  />
+                  >
+                    <option value="" disabled>
+                      Select an office
+                    </option>
+                    {offices.map((officeItem) => (
+                      <option key={officeItem._id} value={officeItem.office}>
+                        {officeItem.office}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <p>Position:</p>
@@ -126,15 +170,16 @@ const UpdateUsers = () => {
                   </button>
                 </div>
                 <div className="SubmitButton">
-                  <button type="submit">Update</button> {/* Change here */}
+                  <button type="submit">Update</button>
                 </div>
               </div>
             </form>
           </div>
         </div>
       </div>
-      <SidePanel /> {/* Always render the SidePanel */}
+      <SidePanel />
       <Footer />
+      <ToastContainer />
     </>
   );
 };

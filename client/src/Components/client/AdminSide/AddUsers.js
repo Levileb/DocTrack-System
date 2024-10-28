@@ -16,7 +16,8 @@ const AddUsers = () => {
   const [password, setPassword] = useState("");
   const [position, setPosition] = useState("");
   const [office, setOffice] = useState("");
-  const [offices, setOffices] = useState([]); // State to hold fetched offices
+  const [offices, setOffices] = useState([]);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   useEffect(() => {
     // Fetch offices when the component mounts
@@ -28,7 +29,7 @@ const AddUsers = () => {
         setOffices(activeOffices);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
       });
   }, []); // Empty dependency array to run the effect only once when the component mounts
 
@@ -70,7 +71,7 @@ const AddUsers = () => {
         setOffice("");
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 3000,
@@ -92,6 +93,14 @@ const AddUsers = () => {
     setPassword("");
     setPosition("");
     setOffice("");
+  };
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
   };
 
   return (
@@ -179,12 +188,18 @@ const AddUsers = () => {
                 <p>Password:</p>
                 <div className="input-new">
                   <input
-                    type="password"
+                    type={isPasswordVisible ? "text" : "password"}
                     id="password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handlePasswordChange}
                   />
+                  <span
+                    className="toggle-password"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {isPasswordVisible ? "Hide Password" : "Show Password"}
+                  </span>
                 </div>
               </div>
               <div className="adduserbuttons">

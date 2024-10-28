@@ -23,10 +23,10 @@ const ArchiveUsers = () => {
         const response = await axios.get(
           "http://localhost:3001/archived-users"
         );
-        console.log("Fetched archived users:", response.data);
+        // console.log("Fetched archived users:", response.data);
         setData(response.data);
       } catch (error) {
-        console.error("Error fetching archived users", error);
+        console.error("Error fetching archived users: ", error);
       }
     };
 
@@ -55,7 +55,7 @@ const ArchiveUsers = () => {
         theme: "light",
       });
     } catch (error) {
-      console.error("Error restoring user", error);
+      console.error("Error restoring user: ", error);
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,

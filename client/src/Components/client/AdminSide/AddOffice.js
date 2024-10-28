@@ -32,7 +32,7 @@ const AddOffice = () => {
         setOffices(activeOffices);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
       });
   };
 
@@ -55,7 +55,7 @@ const AddOffice = () => {
         fetchOffices(); // Fetch updated list of offices
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 2000,

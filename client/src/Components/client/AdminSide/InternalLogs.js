@@ -39,7 +39,7 @@ const InternalLogs = () => {
         setFilteredDocs(activeDocs);
       })
       .catch((error) => {
-        console.error("Error fetching documents:", error);
+        console.error("Error fetching documents: ", error);
       });
   };
 

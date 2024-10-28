@@ -19,11 +19,11 @@ const AdminProfile = () => {
     axios
       .get("http://localhost:3001/api/user/details", { withCredentials: true })
       .then((res) => {
-        console.log(res.data); // Log to check if 'email' is present
+        // console.log(res.data);
         setUser(res.data);
       })
       .catch((err) => {
-        console.error("Error fetching user details:", err);
+        console.error("Error fetching user details: ", err);
       });
   }, []);
 
@@ -41,13 +41,10 @@ const AdminProfile = () => {
 
     if (regexStrong.test(password)) {
       strength = "Strong Password";
-      console.log("Strong");
     } else if (regexMedium.test(password)) {
       strength = "Medium Password";
-      console.log("Medium");
     } else {
       strength = "Weak Password";
-      console.log("Weak");
     }
 
     return strength;
@@ -72,7 +69,7 @@ const AdminProfile = () => {
       .then(() => {
         setErrorMessage("");
         setShowPopup(true);
-        console.log("Password changed successfully!");
+        // console.log("Password changed successfully!");
 
         setPassword("");
         setConfirmPassword("");
@@ -80,7 +77,7 @@ const AdminProfile = () => {
         setTimeout(() => setShowPopup(false), 1500);
       })
       .catch((err) => {
-        console.error("Error updating password:", err);
+        console.error("Error updating password: ", err);
         setErrorMessage("Failed to change password. Please try again.");
       });
   };
@@ -105,7 +102,13 @@ const AdminProfile = () => {
                 </p>
                 <p className="user-position">{user.position}</p>
                 <p>Office: {user.office}</p>
-                <p>Role: {user.role}</p>
+                <p>
+                  Role:{" "}
+                  {user.role
+                    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                    : "N/A"}
+                </p>
+
                 <p>Email: {user.email}</p>
               </div>
               <div className="change-pass">

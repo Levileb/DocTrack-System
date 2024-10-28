@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LuHome, LuUserSquare2 } from "react-icons/lu";
 import { BsBuildingAdd } from "react-icons/bs";
-import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
+import { MdLogout } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
+import { TbLocationSearch } from "react-icons/tb";
+import { IoShieldOutline } from "react-icons/io5";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -23,7 +25,7 @@ const SidePanel = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       const token = Cookies.get("accessToken");
-      console.log("Access Token:", token);
+      // console.log("Access Token:", token);
 
       // If access token is missing, try to refresh it
       if (!token) {
@@ -37,9 +39,9 @@ const SidePanel = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserDetails(res.data);
-        console.log("User details fetched:", res.data);
+        // console.log("User details fetched:", res.data);
       } catch (err) {
-        console.error("Error fetching user details:", err);
+        console.error("Error: ", err);
         await refreshToken();
       }
     };
@@ -47,7 +49,7 @@ const SidePanel = () => {
     // Function to refresh the access token using the refresh token
     const refreshToken = async () => {
       const refreshToken = Cookies.get("refreshToken");
-      console.log("Refresh Token:", refreshToken); // Log to verify refresh token presence
+      // console.log("Refresh Token:", refreshToken);
 
       if (!refreshToken) {
         console.error("Refresh token is missing");
@@ -63,7 +65,7 @@ const SidePanel = () => {
           }
         );
         const newAccessToken = res.data.accessToken;
-        console.log("New Access Token:", newAccessToken);
+        // console.log("New Access Token:", newAccessToken);
 
         // Set the new access token in cookies
         Cookies.set("accessToken", newAccessToken, {
@@ -74,7 +76,7 @@ const SidePanel = () => {
         // Retry fetching user details with the new access token
         await fetchUserDetails();
       } catch (err) {
-        console.error("Error refreshing token:", err);
+        console.error("Error refreshing token: ", err);
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
         navigate("/login");
@@ -154,8 +156,11 @@ const SidePanel = () => {
                   {firstname}
                 </li>
 
-                <li>
-                  <small>{capitalizeRole(role)}</small>
+                <li className="role-container">
+                  <small className="role-user">
+                    {capitalizeRole(role)}
+                    <IoShieldOutline className="role-icon" />
+                  </small>
                 </li>
               </ul>
             </div>
@@ -178,19 +183,10 @@ const SidePanel = () => {
                   className={isActive("/document-tracking") ? "active" : ""}
                   title="Track Document Page"
                 >
-                  <MdOutlineContentPasteSearch className="icon" />
+                  <TbLocationSearch className="icon" />
                   <p>Track Document</p>
                 </li>
               </Link>
-
-              {/* <Link onClick={scrollToTop} to="/completed">
-                <li className={isActive("/completed") ? "active" : ""}>
-                  <Tooltip text={"Completed"}>
-                    <LuFolderCheck className="icon" />
-                  </Tooltip>
-                  <p>Completed</p>
-                </li>
-              </Link> */}
 
               <Link to="/view-user">
                 <li
@@ -240,13 +236,13 @@ const SidePanel = () => {
 
             <div className="yesnobtns">
               <div className="primarybtn" onClick={closePopup}>
-                <button class="no-button" autoFocus>
+                <button className="no-button" autoFocus>
                   No
                 </button>
               </div>
 
               <div className="primarybtn" onClick={handleLogout}>
-                <button class="yes-button">Yes</button>
+                <button className="yes-button">Yes</button>
               </div>
             </div>
           </div>

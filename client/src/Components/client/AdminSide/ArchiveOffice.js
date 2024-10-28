@@ -23,10 +23,10 @@ const ArchiveOffice = () => {
         const response = await axios.get(
           "http://localhost:3001/archived-offices"
         );
-        console.log("Fetched archived offices:", response.data);
+        // console.log("Fetched archived offices:", response.data);
         setData(response.data);
       } catch (error) {
-        console.error("Error fetching archived offices", error);
+        console.error("Error fetching archived offices: ", error);
       }
     };
 
@@ -57,7 +57,7 @@ const ArchiveOffice = () => {
         theme: "light",
       });
     } catch (error) {
-      console.error("Error restoring office", error);
+      console.error("Error restoring office: ", error);
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,

@@ -30,7 +30,7 @@ const Users = () => {
         setUsers(activeUsers); // Set the filtered data to the state
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching users: ", error);
       });
   }, []);
 
@@ -54,7 +54,7 @@ const Users = () => {
           setPopupUserData(response.data); // Set the fetched user data for the popup
         })
         .catch((error) => {
-          console.error("Error fetching user details:", error);
+          console.error("Error fetching user details: ", error);
           toast.error("Something went wrong, please try again!", {
             position: "top-right",
             autoClose: 2000,
@@ -89,7 +89,7 @@ const Users = () => {
   const archiveUser = () => {
     axios
       .post(`http://localhost:3001/archive-user/${selectedUserId}`)
-      .then((response) => {
+      .then(() => {
         setShowConfirmPopup(false);
         setUsers(users.filter((user) => user._id !== selectedUserId));
         toast.success("User Moved to Archive!", {
@@ -104,7 +104,7 @@ const Users = () => {
         });
       })
       .catch((error) => {
-        console.error("Error archiving user:", error);
+        console.error("Error archiving user: ", error);
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 2000,
