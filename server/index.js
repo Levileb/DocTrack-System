@@ -33,7 +33,7 @@ const verifyUser = (req, res, next) => {
   const token =
     req.headers.authorization?.split(" ")[1] || req.cookies.accessToken;
 
-  console.log("Token from request headers:", req.headers.authorization);
+  // console.log("Token from request headers:", req.headers.authorization);
 
   if (!token) {
     return res.status(401).json({ error: "Token is missing" });
@@ -45,7 +45,7 @@ const verifyUser = (req, res, next) => {
       return res.status(401).json({ error: "Invalid token" });
     }
 
-    console.log("Decoded token:", decoded); // Log decoded token
+    // console.log("Decoded token:", decoded);
 
     UserModel.findOne({ email: decoded.email }) // Ensure email is unique
       .then((user) => {
@@ -160,7 +160,7 @@ app.post("/api/refresh-token", (req, res) => {
 
 app.get("/api/user/details", verifyUser, (req, res) => {
   const { firstname, lastname, role, email, position, office } = req.user;
-  console.log({ firstname, lastname, role, email, position, office }); // Log to check the values
+  // console.log({ firstname, lastname, role, email, position, office });
   res.json({ firstname, lastname, role, email, position, office });
 });
 
@@ -242,7 +242,7 @@ app.get("/api/docs", (req, res) => {
 
 app.get("/api/docs/sent", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
-  console.log("Fetching documents sent by user ID:", loggedInUserId);
+  // console.log("Fetching documents sent by user ID:", loggedInUserId);
 
   try {
     const sentDocuments = await DocModel.find({
@@ -280,7 +280,7 @@ app.get("/api/user/find-user", verifyUser, async (req, res) => {
   try {
     const loggedInUserId = req.user._id; // Get the logged-in user's ID from the request
     const user = await UserModel.findById(loggedInUserId).select("-password"); // Exclude the password field for security
-    console.log("Current User", user);
+    // console.log("Current User: ", user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -296,7 +296,7 @@ app.get("/api/user/find-user", verifyUser, async (req, res) => {
 
 app.get("/api/docs/inbox", verifyUser, async (req, res) => {
   const loggedInUserFullName = `${req.user.firstname} ${req.user.lastname}`;
-  console.log("Fetching documents for user ID:", loggedInUserFullName);
+  // console.log("Fetching documents for user ID:", loggedInUserFullName);
 
   try {
     const documents = await DocModel.find({
@@ -334,7 +334,7 @@ app.get("/api/docs/inbox", verifyUser, async (req, res) => {
 
 app.get("/api/docs/received", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
-  console.log("Fetching documents for user ID:", loggedInUserId);
+  // console.log("Fetching documents for user ID:", loggedInUserId);
 
   try {
     const forwardingLogs = await ForwardingLogModel.find({
@@ -352,6 +352,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
     }
 
     const documents = forwardingLogs.map((log) => ({
+      docId: log._id,
       date: log.forwardedAt,
       title: log.doc_id.title,
       sender: `${log.user_id.firstname} ${log.user_id.lastname}`, // Sender's full name
@@ -385,6 +386,7 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
 
     // Constructing the response
     const documents = forwardingLogs.map((log) => ({
+      docId: log._id,
       date: log.forwardedAt,
       title: log.doc_id.title,
       forwardedTo: `${log.forwardedTo.firstname} ${log.forwardedTo.lastname}`, // Combine the first and last name
@@ -475,26 +477,6 @@ app.get("/getUser/:id", (req, res) => {
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
-
-// app.get("/api/docs/received", verifyUser, (req, res) => {
-//   const loggedInUserId = req.user._id; // Ensure _id is used
-
-//   ForwardingLogModel.find({ forwardedTo: loggedInUserId })
-//     .populate("doc_id") // Populate the related document details
-//     .then((forwardingLogs) => {
-//       if (forwardingLogs.length === 0) {
-//         return res
-//           .status(404)
-//           .json({ message: "No forwarded documents found" });
-//       }
-//       const doc = forwardingLogs.map((log) => log.doc_id);
-//       res.json(doc); // Return the documents
-//     })
-//     .catch((err) => {
-//       console.error("Error fetching forwarded documents:", err);
-//       res.status(500).json({ error: "Internal server error" });
-//     });
-// });
 
 app.put("/updateUser/:id", (req, res) => {
   const id = req.params.id;
