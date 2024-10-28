@@ -1,2 +1,2 @@
 # Document-Tracking-System
-- Clone From the Main
+- A clone of the main project, continuing the development of the wep app.
