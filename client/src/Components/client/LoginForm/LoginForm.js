@@ -54,12 +54,6 @@ function LoginForm() {
             sameSite: "Strict", // Ensure correct cross-site handling
             domain: "localhost",
           });
-          console.log(
-            "Access Tokens:",
-            accessToken,
-            "Refresh Tokens:",
-            refreshToken
-          );
           localStorage.setItem("role", res.data.role);
 
           // Navigate based on the user's role
@@ -71,7 +65,6 @@ function LoginForm() {
             }
           }, 1500);
         } else if (res.data.Status !== "Success") {
-          // setLoginStatus("Incorrect email or password. Please try again.");
           toast.error("Incorrect email or password. Please try again.", {
             position: "top-center",
             autoClose: 5000,
@@ -85,12 +78,9 @@ function LoginForm() {
         }
       })
       .catch((err) => {
-        console.log(err);
-
-        // setLoginStatus("Incorrect email or password. Please try again.");
         toast.error("Incorrect email or password. Please try again.", {
           position: "top-center",
-          autoClose: 5000,
+          autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: false,
@@ -173,5 +163,4 @@ function LoginForm() {
     </>
   );
 }
-//I am trying to edit this file and push to the main repository
 export default LoginForm;

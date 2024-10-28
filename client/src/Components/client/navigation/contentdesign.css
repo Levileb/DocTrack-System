@@ -516,10 +516,13 @@ td {
 }
 .FormWrapper.noffice {
   width: max-content;
-  padding: 20px 10% 0px 0px;
+  padding: 10px 10% 0px 0px;
 }
 .AddOfficeForm {
   width: 100%;
+  height: 150px;
+  padding: 10px;
+  border: 1px solid black;
 }
 .listofficetable {
   width: 50vw;
@@ -980,6 +983,19 @@ input::-webkit-inner-spin-button {
 .confirm-btn:hover,
 .cancel-btn:hover {
   background: #d4d4d4;
+}
+
+.role-container {
+  display: flex;
+  align-items: center;
+}
+.role-user {
+  display: flex;
+}
+.role-icon {
+  /* display: flex; */
+  align-self: center;
+  /* font-size: 11px; */
 }
 
 /* Media Queries for mobile screens */

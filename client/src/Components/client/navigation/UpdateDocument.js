@@ -13,6 +13,9 @@ import "react-toastify/dist/ReactToastify.css";
 const UpdateDocument = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [allUsers, setAllUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [offices, setOffices] = useState([]);
 
   const [formData, setFormData] = useState({
     date: "",
@@ -23,7 +26,44 @@ const UpdateDocument = () => {
     destination: "",
     remarks: "",
   });
+  useEffect(() => {
+    const fetchUserDetails = () => {
+      axios
+        .get("http://localhost:3001/api/user/details", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          const { firstname, lastname, office } = res.data;
+          const fullName = `${firstname} ${lastname}`;
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            sender: fullName,
+            originating: office,
+          }));
+        })
+        .catch((err) => console.error(err));
+    };
+    const fetchData = async () => {
+      try {
+        const userResponse = await axios.get("http://localhost:3001/view-user");
+        const filteredUsers = userResponse.data.filter(
+          (user) => user.role === "user" && !user.isArchived
+        );
+        setAllUsers(filteredUsers);
+        setFilteredUsers(filteredUsers);
 
+        const officeResponse = await axios.get("http://localhost:3001/offices");
+        const filteredOffices = officeResponse.data.filter(
+          (office) => !office.isArchived
+        );
+        setOffices(filteredOffices);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchUserDetails();
+    fetchData();
+  }, []);
   useEffect(() => {
     // Fetch document data from the server based on the document id
     axios
@@ -52,6 +92,31 @@ const UpdateDocument = () => {
       .catch((err) => console.log(err));
   }, [id]);
 
+  // Update filtered users based on selected destination office
+  const handleDestinationChange = (event) => {
+    const selectedOffice = event.target.value;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      destination: selectedOffice,
+      recipient: "",
+    }));
+
+    const officeUsers = allUsers.filter(
+      (user) => user.office === selectedOffice
+    );
+    setFilteredUsers(officeUsers);
+  };
+
+  const handleRecipientChange = (event) => {
+    const selectedRecipient = event.target.value;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      recipient: selectedRecipient,
+    }));
+  };
+
   const handleInputChange = (event) => {
     const { id, value } = event.target;
     setFormData((prevFormData) => ({
@@ -69,7 +134,7 @@ const UpdateDocument = () => {
         withCredentials: true,
       })
       .then((res) => {
-        toast.success("Document Successfully Updated!", {
+        toast.success("Document Updated!", {
           position: "top-right",
           autoClose: 2000,
           hideProgressBar: false,
@@ -169,7 +234,47 @@ const UpdateDocument = () => {
                   />
                 </div>
 
+                <p>Destination Office:</p>
+                <div className="input-new">
+                  <select
+                    id="destination"
+                    value={formData.destination}
+                    onChange={handleDestinationChange}
+                  >
+                    <option value="" disabled>
+                      Select Office
+                    </option>
+                    {offices.map((officeItem, index) => (
+                      <option key={index} value={officeItem.office}>
+                        {officeItem.office}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <p>Recipient:</p>
+                <div className="input-new">
+                  <select
+                    id="recipient"
+                    value={formData.recipient}
+                    onChange={handleRecipientChange}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Recipient
+                    </option>
+                    {filteredUsers.map((user) => (
+                      <option
+                        key={user._id}
+                        value={`${user.firstname} ${user.lastname}`}
+                      >
+                        {user.firstname} {user.lastname}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* <p>Recipient:</p>
                 <div className="input-new">
                   <input
                     type="text"
@@ -189,7 +294,7 @@ const UpdateDocument = () => {
                     onChange={handleInputChange}
                     required
                   />
-                </div>
+                </div> */}
 
                 <p>Remarks:</p>
                 <div className="input-new">

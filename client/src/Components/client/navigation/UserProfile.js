@@ -19,7 +19,7 @@ const UserProfile = () => {
     axios
       .get("http://localhost:3001/api/user/details", { withCredentials: true })
       .then((res) => {
-        console.log(res.data); // Log to check if 'email' is present
+        // console.log(res.data);
         setUser(res.data);
       })
       .catch((err) => {
@@ -105,7 +105,13 @@ const UserProfile = () => {
                 </p>
                 <p className="user-position">{user.position}</p>
                 <p>Office: {user.office}</p>
-                <p>Role: {user.role}</p>
+                <p>
+                  Role:{" "}
+                  {user.role
+                    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                    : "N/A"}
+                </p>
+
                 <p>Email: {user.email}</p>
               </div>
               <div className="change-pass">

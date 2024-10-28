@@ -30,7 +30,7 @@ const Completed = () => {
 
       setData(response.data);
       setTotalPages(Math.ceil(response.data.length / docsPerPage));
-      console.log("Document data: ", response.data);
+      // console.log("Document data: ", response.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
     }
@@ -63,6 +63,8 @@ const Completed = () => {
   const startIndex = (currentPage - 1) * docsPerPage;
   const endIndex = startIndex + docsPerPage;
   const paginatedData = data.slice(startIndex, endIndex);
+
+  // console.log(paginatedData.map((doc) => doc.docId));
 
   return (
     <>
@@ -99,7 +101,7 @@ const Completed = () => {
                 <tbody>
                   {paginatedData.length > 0 ? (
                     paginatedData.map((doc) => (
-                      <tr key={doc._id}>
+                      <tr key={doc.docId}>
                         <td>{formatDateForDisplay(doc.completedAt)}</td>
                         <td>{doc.title}</td>
                         <td>{doc.sender}</td>

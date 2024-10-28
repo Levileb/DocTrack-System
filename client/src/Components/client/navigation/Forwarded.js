@@ -67,7 +67,7 @@ const Forwarded = () => {
 
       setRecData(response.data);
       // setRecOriginalData(response.data);
-      console.log("DATA", response.data);
+      // console.log("DATA", response.data);
     } catch (error) {
       console.error("Error fetching received documents:", error);
     }
@@ -138,6 +138,8 @@ const Forwarded = () => {
   const outEndIndex = outStartIndex + outDocsPerPage;
   const paginatedOutData = data.slice(outStartIndex, outEndIndex);
 
+  // console.log(paginatedRecData.map((doc) => doc.docId));
+
   //Copy Code Number to clipboard
   const handleCopyCode = (codeNumber) => {
     navigator.clipboard
@@ -204,11 +206,11 @@ const Forwarded = () => {
                 </thead>
                 <tbody>
                   {paginatedRecData.length > 0 ? (
-                    paginatedRecData.map((val, key) => (
-                      <tr key={key}>
+                    paginatedRecData.map((val) => (
+                      <tr key={val.docId}>
                         <td>{formatDateForDisplay(val.date)}</td>
                         <td>{val.title}</td>
-                        <td>{val.sender}</td> {/* Now displays the full name */}
+                        <td>{val.sender}</td>
                         <td>
                           <div className="viewbtn">
                             <button onClick={() => handlePopup2(val)}>
@@ -258,12 +260,11 @@ const Forwarded = () => {
                 </thead>
                 <tbody>
                   {paginatedOutData.length > 0 ? (
-                    paginatedOutData.map((val, key) => (
-                      <tr key={key}>
+                    paginatedOutData.map((val) => (
+                      <tr key={val.docId}>
                         <td>{formatDateForDisplay(val.date)}</td>
                         <td>{val.title}</td>
-                        <td>{val.forwardedTo}</td>{" "}
-                        {/* Now displays the full name */}
+                        <td>{val.forwardedTo}</td>
                         <td>
                           <div className="viewbtn">
                             <button onClick={() => handlePopup(val)}>
@@ -372,7 +373,7 @@ const Forwarded = () => {
                 Status: <strong>{selectedItem.status}</strong>
               </li>
               <li>
-                Remarks: <strong>{selectedItem.remarks}</strong>{" "}
+                Remarks: <strong>{selectedItem.remarks}</strong>
               </li>
             </ul>
             <button className="closebtn" onClick={closePopup}>

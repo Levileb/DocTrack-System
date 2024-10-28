@@ -501,6 +501,10 @@ ul li {
   width: 300px;
   margin-bottom: 10px;
   height: 30px;
+  transition: 0.3s ease-in-out;
+}
+.FormText .input-new .toggle-password {
+  margin-left: 17px;
 }
 .FormText p {
   text-align: left;
@@ -589,7 +593,7 @@ ul li {
   justify-content: space-evenly;
   flex-direction: row;
   margin: auto;
-  padding-top: 15px; /* adjusted from 35px*/
+  padding-top: 20px; /* adjusted from 35px*/
 }
 .Arch-Btn button {
   color: var(--blue);
@@ -811,6 +815,12 @@ ul li {
     10px
   ); /* Offset to the bottom-right of the cursor */
 }
+.UpdateUserForm .FormText {
+  width: auto;
+}
+.UpdateUserForm .FormText .input-new {
+  width: 350px;
+}
 
 /* Media Queries for mobile screens */
 @media (max-width: 426px) {
@@ -919,6 +929,9 @@ ul li {
   }
   .scannerIcon {
     width: 150px;
+  }
+  .UpdateUserForm .FormText .input-new {
+    width: 300px;
   }
 }
 /* @media screen and (max-width: 380px) {

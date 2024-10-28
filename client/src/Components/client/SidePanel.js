@@ -3,8 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import { LuHome, LuFolderCheck } from "react-icons/lu";
 import { RiMailSendLine } from "react-icons/ri";
 import { FaRegShareFromSquare } from "react-icons/fa6";
-import { FaInbox } from "react-icons/fa";
-import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
+import { FiInbox } from "react-icons/fi";
+import { MdLogout } from "react-icons/md";
+import { TbLocationSearch } from "react-icons/tb";
+import { CiUser } from "react-icons/ci";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +27,7 @@ const SidePanel = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       const token = Cookies.get("accessToken");
-      console.log("Access Token:", token);
+      // console.log("Access Token:", token);
 
       // If access token is missing, try to refresh it
       if (!token) {
@@ -40,9 +42,9 @@ const SidePanel = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserDetails(res.data);
-        console.log("User details fetched:", res.data);
+        // console.log("User details fetched:", res.data);
       } catch (err) {
-        console.error("Error fetching user details:", err);
+        console.error("Error: ", err);
         await refreshToken();
       }
     };
@@ -50,7 +52,7 @@ const SidePanel = () => {
     // Function to refresh the access token using the refresh token
     const refreshToken = async () => {
       const refreshToken = Cookies.get("refreshToken");
-      console.log("Refresh Token:", refreshToken); // Log to verify refresh token presence
+      // console.log("Refresh Token:", refreshToken);
 
       if (!refreshToken) {
         console.error("Refresh token is missing");
@@ -69,7 +71,7 @@ const SidePanel = () => {
         );
 
         const newAccessToken = res.data.accessToken;
-        console.log("New Access Token:", newAccessToken);
+        // console.log("New Access Token:", newAccessToken);
 
         // Set the new access token in cookies
         Cookies.set("accessToken", newAccessToken, {
@@ -80,7 +82,7 @@ const SidePanel = () => {
         // Retry fetching user details with the new access token
         await fetchUserDetails();
       } catch (err) {
-        console.error("Error refreshing token:", err);
+        console.error("Error refreshing token: ", err);
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
         navigate("/login");
@@ -158,8 +160,10 @@ const SidePanel = () => {
                 >
                   {firstname}
                 </li>
-                <li>
-                  <small>{capitalizeRole(role)}</small>
+                <li className="role-container">
+                  <small className="role-user">
+                    {capitalizeRole(role)} <CiUser className="role-icon" />
+                  </small>
                 </li>
               </ul>
             </div>
@@ -196,7 +200,7 @@ const SidePanel = () => {
                   className={isActive("/track-document") ? "active" : ""}
                   title="Track Document Page"
                 >
-                  <MdOutlineContentPasteSearch
+                  <TbLocationSearch
                     className="icon"
                     title="Track Document Page"
                   />
@@ -210,7 +214,7 @@ const SidePanel = () => {
                   className={isActive("/inbox") ? "active" : ""}
                   title="Inbox Page"
                 >
-                  <FaInbox className="icon" title="Inbox Page" />
+                  <FiInbox className="icon" title="Inbox Page" />
                   <p>Inbox</p>
                 </li>
               </Link>
@@ -234,7 +238,7 @@ const SidePanel = () => {
                   className={isActive("/completed") ? "active" : ""}
                   title="Completed Logs"
                 >
-                  <LuFolderCheck className="icon" title="Completed Page" />
+                  <LuFolderCheck className="icon" title="Completed Logs" />
                   <p>Completed Logs</p>
                 </li>
               </Link>

@@ -310,6 +310,7 @@
   body * {
     visibility: hidden;
   }
+
   .view-doc-info,
   .view-doc-info * {
     visibility: visible;
@@ -318,7 +319,11 @@
     position: absolute;
     left: 0;
     top: 0;
+    margin: 0;
+    padding: 0;
     font-size: 12px;
+    max-height: 100vh;
+    overflow: hidden;
   }
   .view-doc-info h3 {
     font-size: 12px; /* Adjust header font size */
