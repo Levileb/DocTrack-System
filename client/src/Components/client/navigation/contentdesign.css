@@ -905,6 +905,7 @@ input::-webkit-inner-spin-button {
 .popup-container.options-wrapper .option-container section {
   display: flex;
   align-items: center;
+  text-align: center;
   flex-direction: column;
   width: fit-content;
   border-bottom: 1px solid #000000;
@@ -914,6 +915,7 @@ input::-webkit-inner-spin-button {
   align-items: center;
   flex-direction: column;
   width: fit-content;
+  transition: 0.3s ease-in-out;
 }
 .popup-container.options-wrapper .option-container .option-buttons {
   display: flex;
@@ -1021,7 +1023,7 @@ input::-webkit-inner-spin-button {
 @media screen and (max-width: 490px) {
   td {
     padding: 0;
-    font-size: 14px;
+    font-size: 12px;
   }
   .PanelHeader .filter p {
     font-size: 15px;
@@ -1070,14 +1072,13 @@ input::-webkit-inner-spin-button {
   .PanelHeader .scanbtn p {
     display: none;
   }
-  /* .PanelHeader .backbtn p {
-    font-size: 14px;
-    margin: 5px;
+  .AddUserHeader.arc .search {
+    display: none;
   }
-  .PanelHeader .backbtn button {
-    width: max-content;
-    height: auto;
-  } */
+  .popup-container.options-wrapper .option-container {
+    width: 320px;
+    margin-left: 50px;
+  }
 }
 @media screen and (max-width: 750px) {
   .noContainer {

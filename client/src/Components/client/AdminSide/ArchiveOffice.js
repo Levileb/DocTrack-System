@@ -16,13 +16,13 @@ const ArchiveOffice = () => {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
   const [selectedOfficeId, setSelectedOfficeId] = useState(null); // State to store the selected office ID
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     // Fetch archived offices from the backend
     const fetchArchivedOffices = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3001/archived-offices"
-        );
+        const response = await axios.get(`${API_URL}/archived-offices`);
         // console.log("Fetched archived offices:", response.data);
         setData(response.data);
       } catch (error) {
@@ -42,9 +42,7 @@ const ArchiveOffice = () => {
     if (!selectedOfficeId) return;
 
     try {
-      await axios.post(
-        `http://localhost:3001/restore-office/${selectedOfficeId}`
-      );
+      await axios.post(`${API_URL}/restore-office/${selectedOfficeId}`);
       setData(data.filter((office) => office._id !== selectedOfficeId)); // Update state
       toast.success("Office Restored!", {
         position: "top-right",
@@ -125,14 +123,16 @@ const ArchiveOffice = () => {
                   <table>
                     <thead>
                       <tr>
+                        <td>#</td>
                         <td>Name</td>
                         <td>Action</td>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredData.length > 0 ? (
-                        filteredData.map((val) => (
+                        filteredData.map((val, index) => (
                           <tr key={val._id}>
+                            <td>{index + 1}</td>
                             <td>{val.office}</td>
                             <td>
                               <div className="viewbtn">

@@ -17,14 +17,14 @@ const ArchiveDocument = () => {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
   const [selectedDocId, setSelectedDocId] = useState(null); // State to store the selected office ID
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     // Fetch archived documents from the backend
     const fetchArchivedDocuments = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3001/archived-document"
-        ); // Corrected URL
-        console.log("Fetched archived documents:", response.data); // Log response data
+        const response = await axios.get(`${API_URL}/archived-document`); // Corrected URL
+        // console.log("Fetched archived documents:", response.data);
         setData(response.data);
       } catch (error) {
         console.error("Error fetching archived documents", error);
@@ -42,12 +42,12 @@ const ArchiveDocument = () => {
   const handleRestore = async (docId) => {
     if (!selectedDocId) return;
     try {
-      await axios.post("http://localhost:3001/restore-document", {
+      await axios.post(`${API_URL}/restore-document`, {
         docId: selectedDocId,
       }); // Use selectedDocId here
       // Update the local state to reflect the restored document
       setData(data.filter((doc) => doc._id !== selectedDocId));
-      console.log("Document restored:", selectedDocId); // Log restored document ID
+      // console.log("Document restored:", selectedDocId);
       toast.success("Document Restored!", {
         position: "top-right",
         autoClose: 2000,
@@ -133,12 +133,12 @@ const ArchiveDocument = () => {
 
   const startIndex = (currentPage - 1) * docsPerPage;
   const endIndex = startIndex + docsPerPage;
-  const paginatedData = data.slice(startIndex, endIndex);
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
   useEffect(() => {
-    const totalPages = Math.ceil(data.length / docsPerPage);
+    const totalPages = Math.ceil(filteredData.length / docsPerPage);
     setTotalPages(totalPages);
-  }, [data]);
+  }, [filteredData]);
 
   return (
     <>

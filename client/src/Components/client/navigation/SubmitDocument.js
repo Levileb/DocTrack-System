@@ -10,6 +10,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const SubmitDocument = () => {
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const getCurrentDateTime = () => {
     return new Date().toISOString(); // Returns a string in ISO 8601 format
   };
@@ -42,6 +44,7 @@ const SubmitDocument = () => {
     recipient: "",
     destination: "",
     remarks: "",
+    email: "",
   });
 
   const [showQR, setShowQR] = useState(false);
@@ -53,7 +56,7 @@ const SubmitDocument = () => {
   useEffect(() => {
     const fetchUserDetails = () => {
       axios
-        .get("http://localhost:3001/api/user/details", {
+        .get(`${API_URL}/api/user/details`, {
           withCredentials: true,
         })
         .then((res) => {
@@ -70,7 +73,7 @@ const SubmitDocument = () => {
 
     const fetchUsers = () => {
       axios
-        .get("http://localhost:3001/view-user")
+        .get(`${API_URL}/view-user`)
         .then((res) => {
           const allUsers = res.data;
           const filteredUsers = allUsers.filter(
@@ -88,7 +91,7 @@ const SubmitDocument = () => {
 
     const fetchOffices = () => {
       axios
-        .get("http://localhost:3001/offices")
+        .get(`${API_URL}/offices`)
         .then((res) => {
           const offices = res.data.filter((office) => !office.isArchived);
           setOffices(offices);
@@ -117,19 +120,31 @@ const SubmitDocument = () => {
 
   const handleRecipientChange = (event) => {
     const selectedRecipient = event.target.value;
+    // const emailRecipient = event.target.value;
 
     if (selectedRecipient === "All") {
       const allRecipients = filteredUsers.map(
         (user) => `${user.firstname} ${user.lastname}`
       );
+      const allEmails = filteredUsers.map((user) => user.email);
+      console.log("All Emails Selected", allEmails);
       setFormData((prevFormData) => ({
         ...prevFormData,
         recipient: allRecipients.join(", "),
+        email: allEmails.join(", "),
       }));
     } else {
+      // Find the selected user's email
+      const selectedUser = filteredUsers.find(
+        (user) => `${user.firstname} ${user.lastname}` === selectedRecipient
+      );
+
+      const emailRecipient = selectedUser ? selectedUser.email : "";
+      console.log("Selected Email: ", emailRecipient);
       setFormData((prevFormData) => ({
         ...prevFormData,
         recipient: selectedRecipient,
+        email: emailRecipient,
       }));
     }
   };
@@ -154,7 +169,7 @@ const SubmitDocument = () => {
     };
     setFormData(updatedFormData);
     axios
-      .post("http://localhost:3001/submit-document", updatedFormData, {
+      .post(`${API_URL}/submit-document`, updatedFormData, {
         withCredentials: true, // This allows cookies to be sent with the request
       })
       .then((res) => {

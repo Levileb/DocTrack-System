@@ -28,6 +28,8 @@ const Received = () => {
   const [scanDoc, setScanDoc] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     fetchDocs();
   }, []);
@@ -36,7 +38,8 @@ const Received = () => {
     const filtered = docs.filter(
       (doc) =>
         (filterValue === "" || doc.status === filterValue) &&
-        (doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (doc.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.recipient.toLowerCase().includes(searchQuery.toLowerCase()))
     );
@@ -45,7 +48,7 @@ const Received = () => {
 
   const fetchDocs = () => {
     axios
-      .get("http://localhost:3001/api/docs/inbox", {
+      .get(`${API_URL}/api/docs/inbox`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -117,7 +120,7 @@ const Received = () => {
           setShowOptions(true);
         } else {
           // If not "Completed or Received", proceed with updating the status to "Viewed"
-          await axios.post("http://localhost:3001/api/docs/update-status", {
+          await axios.post(`${API_URL}/api/docs/update-status`, {
             docId: selectedDoc._id,
             // status: "Viewed",
           });

@@ -14,12 +14,15 @@ import { FaRegCopy } from "react-icons/fa6";
 const Forwarded = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showPopup2, setShowPopup2] = useState(false);
-  const [data, setData] = useState([]); // Filtered data
-  const [originalData, setOriginalData] = useState([]); // Original data
-  const [recData, setRecData] = useState([]); // Filtered data
-  // const [recOriginalData, setRecOriginalData] = useState([]);
+  const [data, setData] = useState([]); // Filtered data for Outgoing
+  const [originalData, setOriginalData] = useState([]); // Original data for Outgoing
+  const [recData, setRecData] = useState([]); // Filtered data for Incoming
+  const [searchQueryRec, setSearchQueryRec] = useState(""); // Search query for Incoming
+  const [searchQueryOut, setSearchQueryOut] = useState(""); // Search query for Outgoing
+  const [originalRecData, setOriginalRecData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   // Pagination states for Incoming table
   const [currentRecPage, setCurrentRecPage] = useState(1);
@@ -38,12 +41,9 @@ const Forwarded = () => {
 
   const fetchForwardedDocuments = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3001/api/docs/forwarded",
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(`${API_URL}/api/docs/forwarded`, {
+        withCredentials: true,
+      });
       // Sort documents from most recent to oldest
       response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -56,17 +56,14 @@ const Forwarded = () => {
 
   const fetchReceivedDocuments = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3001/api/docs/received",
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(`${API_URL}/api/docs/received`, {
+        withCredentials: true,
+      });
       // Sort documents from most recent to oldest
       response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       setRecData(response.data);
-      // setRecOriginalData(response.data);
+      setOriginalRecData(response.data);
       // console.log("DATA", response.data);
     } catch (error) {
       console.error("Error fetching received documents:", error);
@@ -97,9 +94,21 @@ const Forwarded = () => {
     setShowPopup2(false);
   };
 
-  const handleSearchChange = (event) => {
+  const handleSearchChangeRec = (event) => {
     const query = event.target.value;
-    setSearchQuery(query);
+    setSearchQueryRec(query);
+
+    const filteredData = originalRecData.filter((item) =>
+      Object.values(item).some((value) =>
+        value.toString().toLowerCase().includes(query.toLowerCase())
+      )
+    );
+    setRecData(filteredData);
+  };
+
+  const handleSearchChangeOut = (event) => {
+    const query = event.target.value;
+    setSearchQueryOut(query);
 
     const filteredData = originalData.filter((item) =>
       Object.values(item).some((value) =>
@@ -177,24 +186,34 @@ const Forwarded = () => {
         <div className="PanelWrapper">
           <div className="PanelHeader">
             <div className="filter">
-              <p>Forwarded Logs</p>
-            </div>
-            <div className="search">
-              <div className="search-border">
-                <IoSearch className="searchIcon" />
-                <input
-                  type="search"
-                  placeholder="Search.."
-                  className="search-bar"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
-              </div>
+              <p>Forwarded</p>
             </div>
           </div>
           <div className="contents">
             <div className="content-table">
-              <label>Incoming</label>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <label>Incoming</label>
+                <div className="search">
+                  <div className="search-border">
+                    <IoSearch className="searchIcon" />
+                    <input
+                      type="search"
+                      placeholder="Search.."
+                      className="search-bar"
+                      value={searchQueryRec}
+                      onChange={handleSearchChangeRec}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <table>
                 <thead>
                   <tr>
@@ -248,7 +267,28 @@ const Forwarded = () => {
               </div>
             </div>
             <div className="content-table">
-              <label>Outgoing</label>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <label>Outgoing</label>
+                <div className="search">
+                  <div className="search-border">
+                    <IoSearch className="searchIcon" />
+                    <input
+                      type="search"
+                      placeholder="Search.."
+                      className="search-bar"
+                      value={searchQueryOut}
+                      onChange={handleSearchChangeOut}
+                    />
+                  </div>
+                </div>
+              </div>
               <table>
                 <thead>
                   <tr>

@@ -13,7 +13,7 @@ const QrReader = ({ onClose, onScan }) => {
   // Memoize the onScanSuccess function to avoid recreating it on every render
   const onScanSuccess = useCallback(
     (result) => {
-      console.log("Scanned Result: ", result?.data);
+      // console.log("Scanned Result: ", result?.data);
       scanner.current?.stop(); // Stop the scanner after successful scan
 
       onScan(result?.data); // Call the parent callback with the result

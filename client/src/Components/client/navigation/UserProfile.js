@@ -15,9 +15,11 @@ const UserProfile = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     axios
-      .get("http://localhost:3001/api/user/details", { withCredentials: true })
+      .get(`${API_URL}/api/user/details`, { withCredentials: true })
       .then((res) => {
         // console.log(res.data);
         setUser(res.data);
@@ -68,7 +70,7 @@ const UserProfile = () => {
     }
 
     axios
-      .post("http://localhost:3001/api/user/update-password", { password })
+      .post(`${API_URL}/api/user/update-password`, { password })
       .then(() => {
         setErrorMessage("");
         setShowPopup(true);

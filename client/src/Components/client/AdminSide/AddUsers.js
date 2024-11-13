@@ -19,10 +19,12 @@ const AddUsers = () => {
   const [offices, setOffices] = useState([]);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     // Fetch offices when the component mounts
     axios
-      .get("http://localhost:3001/offices")
+      .get(`${API_URL}/offices`)
       .then((res) => {
         // Filter out archived offices
         const activeOffices = res.data.filter((office) => !office.isArchived);
@@ -43,7 +45,7 @@ const AddUsers = () => {
     const officeName = selectedOffice ? selectedOffice.office : "";
 
     axios
-      .post("http://localhost:3001/add-user", {
+      .post(`${API_URL}/add-user`, {
         firstname,
         lastname,
         email,

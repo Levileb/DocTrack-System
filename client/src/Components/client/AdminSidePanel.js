@@ -4,7 +4,7 @@ import { LuHome, LuUserSquare2 } from "react-icons/lu";
 import { BsBuildingAdd } from "react-icons/bs";
 import { MdLogout } from "react-icons/md";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
-import { TbLocationSearch } from "react-icons/tb";
+import { GrMapLocation } from "react-icons/gr";
 import { IoShieldOutline } from "react-icons/io5";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,8 @@ const SidePanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   // Fetch user details and handle token refreshing
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -35,7 +37,7 @@ const SidePanel = () => {
       }
 
       try {
-        const res = await axios.get("http://localhost:3001/api/user/details", {
+        const res = await axios.get(`${API_URL}/api/user/details`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserDetails(res.data);
@@ -58,12 +60,9 @@ const SidePanel = () => {
       }
 
       try {
-        const res = await axios.post(
-          "http://localhost:3001/api/refresh-token",
-          {
-            token: refreshToken,
-          }
-        );
+        const res = await axios.post(`${API_URL}/api/refresh-token`, {
+          token: refreshToken,
+        });
         const newAccessToken = res.data.accessToken;
         // console.log("New Access Token:", newAccessToken);
 
@@ -183,7 +182,7 @@ const SidePanel = () => {
                   className={isActive("/document-tracking") ? "active" : ""}
                   title="Track Document Page"
                 >
-                  <TbLocationSearch className="icon" />
+                  <GrMapLocation className="icon" />
                   <p>Track Document</p>
                 </li>
               </Link>

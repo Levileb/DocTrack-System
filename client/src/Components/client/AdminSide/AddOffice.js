@@ -19,6 +19,8 @@ const AddOffice = () => {
   const [officeToArchive, setOfficeToArchive] = useState(null); // State to track which office is being archived
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     // Fetch offices when the component mounts
     fetchOffices();
@@ -26,7 +28,7 @@ const AddOffice = () => {
 
   const fetchOffices = () => {
     axios
-      .get("http://localhost:3001/offices")
+      .get(`${API_URL}/offices`)
       .then((res) => {
         const activeOffices = res.data.filter((office) => !office.isArchived);
         setOffices(activeOffices);
@@ -39,7 +41,7 @@ const AddOffice = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:3001/add-office", { office })
+      .post(`${API_URL}/add-office`, { office })
       .then((res) => {
         toast.success("A new Office is added successfully!", {
           position: "top-right",
@@ -79,7 +81,7 @@ const AddOffice = () => {
     // Proceed with archiving the selected office
     if (officeToArchive) {
       axios
-        .post(`http://localhost:3001/archive-office/${officeToArchive}`)
+        .post(`${API_URL}/archive-office/${officeToArchive}`)
         .then((res) => {
           toast.success("Office moved to Archived!", {
             position: "top-right",

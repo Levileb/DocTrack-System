@@ -5,7 +5,7 @@ import { RiMailSendLine } from "react-icons/ri";
 import { FaRegShareFromSquare } from "react-icons/fa6";
 import { FiInbox } from "react-icons/fi";
 import { MdLogout } from "react-icons/md";
-import { TbLocationSearch } from "react-icons/tb";
+import { GrMapLocation } from "react-icons/gr";
 import { CiUser } from "react-icons/ci";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
@@ -23,6 +23,8 @@ const SidePanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   // Fetch user details and handle token refreshing
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -37,7 +39,7 @@ const SidePanel = () => {
       }
 
       try {
-        const res = await axios.get("http://localhost:3001/api/user/details", {
+        const res = await axios.get(`${API_URL}/api/user/details`, {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -61,14 +63,10 @@ const SidePanel = () => {
       }
 
       try {
-        const res = await axios.post(
-          "http://localhost:3001/api/refresh-token",
-          null,
-          {
-            headers: { Authorization: `Bearer ${refreshToken}` },
-            withCredentials: true,
-          }
-        );
+        const res = await axios.post(`${API_URL}/api/refresh-token`, null, {
+          headers: { Authorization: `Bearer ${refreshToken}` },
+          withCredentials: true,
+        });
 
         const newAccessToken = res.data.accessToken;
         // console.log("New Access Token:", newAccessToken);
@@ -200,10 +198,7 @@ const SidePanel = () => {
                   className={isActive("/track-document") ? "active" : ""}
                   title="Track Document Page"
                 >
-                  <TbLocationSearch
-                    className="icon"
-                    title="Track Document Page"
-                  />
+                  <GrMapLocation className="icon" title="Track Document Page" />
                   <p>Track Document</p>
                 </li>
               </Link>
@@ -229,7 +224,7 @@ const SidePanel = () => {
                     className="icon"
                     title="Forwarded Logs"
                   />
-                  <p>Forwarded Logs</p>
+                  <p>Forwarded</p>
                 </li>
               </Link>
 
@@ -239,7 +234,7 @@ const SidePanel = () => {
                   title="Completed Logs"
                 >
                   <LuFolderCheck className="icon" title="Completed Logs" />
-                  <p>Completed Logs</p>
+                  <p>Completed</p>
                 </li>
               </Link>
             </ul>

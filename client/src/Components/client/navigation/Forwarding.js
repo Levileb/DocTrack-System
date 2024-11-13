@@ -11,6 +11,8 @@ const Forwarding = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [formData, setFormData] = useState({
     date: "",
     title: "",
@@ -28,7 +30,7 @@ const Forwarding = () => {
   useEffect(() => {
     const fetchUserDetails = () => {
       axios
-        .get("http://localhost:3001/api/user/details", {
+        .get(`${API_URL}/api/user/details`, {
           withCredentials: true,
         })
         .then((res) => {
@@ -44,14 +46,14 @@ const Forwarding = () => {
     };
     const fetchData = async () => {
       try {
-        const userResponse = await axios.get("http://localhost:3001/view-user");
+        const userResponse = await axios.get(`${API_URL}/view-user`);
         const filteredUsers = userResponse.data.filter(
           (user) => user.role === "user" && !user.isArchived
         );
         setAllUsers(filteredUsers);
         setFilteredUsers(filteredUsers);
 
-        const officeResponse = await axios.get("http://localhost:3001/offices");
+        const officeResponse = await axios.get(`${API_URL}/offices`);
         const filteredOffices = officeResponse.data.filter(
           (office) => !office.isArchived
         );
@@ -68,10 +70,9 @@ const Forwarding = () => {
     if (docId) {
       const fetchDocument = async () => {
         try {
-          const docResponse = await axios.get(
-            `http://localhost:3001/api/docs/${docId}`,
-            { withCredentials: true }
-          );
+          const docResponse = await axios.get(`${API_URL}/api/docs/${docId}`, {
+            withCredentials: true,
+          });
           setFormData((prevFormData) => ({
             ...prevFormData,
             date: docResponse.data.date,
@@ -130,7 +131,7 @@ const Forwarding = () => {
     try {
       // Send the forwarding log data
       await axios.post(
-        "http://localhost:3001/api/docs/log-forwarding",
+        `${API_URL}/api/docs/log-forwarding`,
         {
           docId: docId,
           forwardedTo: formData.recipient, // Ensure this is correctly set
@@ -140,7 +141,7 @@ const Forwarding = () => {
       );
 
       // Update document status
-      await axios.post("http://localhost:3001/api/docs/update-status", {
+      await axios.post(`${API_URL}/api/docs/update-status`, {
         docId: docId,
         status: "Forwarded",
       });

@@ -10,11 +10,13 @@ const Tracking = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [trackingInfo, setTrackingInfo] = useState(null);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const handleSearch = async (event) => {
     event.preventDefault();
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/docs/tracking-info/${searchTerm}`
+        `${API_URL}/api/docs/tracking-info/${searchTerm}`
       );
       const data = response.data;
 

@@ -11,6 +11,8 @@ const UpdateUsers = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,7 +22,7 @@ const UpdateUsers = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/getUser/` + id)
+      .get(`${API_URL}/getUser/` + id)
       .then((result) => {
         setFirstName(result.data.firstname || "");
         setLastName(result.data.lastname || "");
@@ -34,7 +36,7 @@ const UpdateUsers = () => {
   // Fetch the list of offices
   useEffect(() => {
     axios
-      .get("http://localhost:3001/offices")
+      .get(`${API_URL}/offices`)
       .then((result) => {
         const activeOffices = result.data.filter(
           (office) => !office.isArchived
@@ -47,7 +49,7 @@ const UpdateUsers = () => {
   const Update = (e) => {
     e.preventDefault();
     axios
-      .put(`http://localhost:3001/updateUser/` + id, {
+      .put(`${API_URL}/updateUser/` + id, {
         firstname,
         lastname,
         email,

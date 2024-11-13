@@ -17,6 +17,8 @@ const UpdateDocument = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [offices, setOffices] = useState([]);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [formData, setFormData] = useState({
     date: "",
     title: "",
@@ -29,7 +31,7 @@ const UpdateDocument = () => {
   useEffect(() => {
     const fetchUserDetails = () => {
       axios
-        .get("http://localhost:3001/api/user/details", {
+        .get(`${API_URL}/api/user/details`, {
           withCredentials: true,
         })
         .then((res) => {
@@ -45,14 +47,14 @@ const UpdateDocument = () => {
     };
     const fetchData = async () => {
       try {
-        const userResponse = await axios.get("http://localhost:3001/view-user");
+        const userResponse = await axios.get(`${API_URL}/view-user`);
         const filteredUsers = userResponse.data.filter(
           (user) => user.role === "user" && !user.isArchived
         );
         setAllUsers(filteredUsers);
         setFilteredUsers(filteredUsers);
 
-        const officeResponse = await axios.get("http://localhost:3001/offices");
+        const officeResponse = await axios.get(`${API_URL}/offices`);
         const filteredOffices = officeResponse.data.filter(
           (office) => !office.isArchived
         );
@@ -67,7 +69,7 @@ const UpdateDocument = () => {
   useEffect(() => {
     // Fetch document data from the server based on the document id
     axios
-      .get(`http://localhost:3001/api/docs/${id}`, { withCredentials: true })
+      .get(`${API_URL}/api/docs/${id}`, { withCredentials: true })
       .then((result) => {
         const {
           date,
@@ -130,7 +132,7 @@ const UpdateDocument = () => {
 
     // Update the document data
     axios
-      .put(`http://localhost:3001/api/docs/${id}`, formData, {
+      .put(`${API_URL}/api/docs/${id}`, formData, {
         withCredentials: true,
       })
       .then((res) => {

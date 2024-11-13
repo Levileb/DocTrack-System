@@ -11,6 +11,7 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { FaRegCopy } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 const InternalLogs = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,12 +24,14 @@ const InternalLogs = () => {
   const [totalPages, setTotalPages] = useState(1);
   const docsPerPage = 20;
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     fetchDocs();
   }, []);
   const fetchDocs = () => {
     axios
-      .get("http://localhost:3001/api/docs")
+      .get(`${API_URL}/api/docs`)
       .then((response) => {
         const activeDocs = response.data.filter(
           (doc) => doc.status !== "Archived"
@@ -41,6 +44,25 @@ const InternalLogs = () => {
       .catch((error) => {
         console.error("Error fetching documents: ", error);
       });
+  };
+
+  // Export to Excel function
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredData.map((doc) => ({
+        Date: dateFormat(doc.date),
+        Control_No: doc.codeNumber,
+        Title: doc.title,
+        Status: doc.status,
+        From: doc.sender,
+        Office: doc.originating,
+        For: doc.recipient,
+        Destination: doc.destination,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "InternalLogs");
+    XLSX.writeFile(workbook, "InternalLogs.xlsx");
   };
 
   const handlePopup = (event, doc) => {
@@ -87,7 +109,6 @@ const InternalLogs = () => {
       (!endDate || documentDate <= endDateTime);
 
     const searchMatch =
-      (val.date && dateFormat(val.date).includes(searchQuery)) ||
       (val.title &&
         val.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (val.sender &&
@@ -205,6 +226,10 @@ const InternalLogs = () => {
                         onChange={handleDateChange}
                       />
                     </label>
+                    <button className="export-btn" onClick={exportToExcel}>
+                      Export to Excel
+                    </button>
+                    {/* Export Button */}
                   </div>
                   <table>
                     <thead>

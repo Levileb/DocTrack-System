@@ -19,16 +19,14 @@ function LoginForm() {
 
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   axios.defaults.withCredentials = true;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post(
-        "http://localhost:3001/login",
-        { email, password },
-        { withCredentials: true }
-      ) // Ensure credentials are sent
+      .post(`${API_URL}/login`, { email, password }, { withCredentials: true }) // Ensure credentials are sent
       .then((res) => {
         if (res.data.Status === "Success") {
           toast.success("Welcome!", {
@@ -67,7 +65,7 @@ function LoginForm() {
         } else if (res.data.Status !== "Success") {
           toast.error("Incorrect email or password. Please try again.", {
             position: "top-center",
-            autoClose: 5000,
+            autoClose: 2000,
             hideProgressBar: true,
             closeOnClick: true,
             pauseOnHover: false,
@@ -80,7 +78,7 @@ function LoginForm() {
       .catch((err) => {
         toast.error("Incorrect email or password. Please try again.", {
           position: "top-center",
-          autoClose: 3000,
+          autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: false,

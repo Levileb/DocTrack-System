@@ -183,7 +183,9 @@ ul li {
   display: flex;
   border-radius: 5px;
 }
-
+.menus ul li:hover {
+  background: #eef4fe;
+}
 .menus ul li p {
   position: fixed;
   padding-left: 40px;
@@ -195,7 +197,7 @@ ul li {
   text-shadow: 0 1px 3px #708091;
 }
 .active {
-  background: #d2dae5;
+  background: #c7d6ec;
 }
 .menus .icon {
   height: 30px;
@@ -287,8 +289,12 @@ ul li {
 .sidebar.collapsed .menus li p {
   display: none;
 }
+.sidebar.collapsed .menus li:hover {
+  background: #eef4fe;
+  width: fit-content;
+}
 .sidebar.collapsed .active {
-  background: #d2dae5;
+  background: #c7d6ec;
   width: fit-content;
 }
 
@@ -366,7 +372,7 @@ ul li {
   display: flex;
   height: 100%;
   margin-right: 10px;
-  margin-left: 10px;
+  margin-left: 25px;
   text-decoration: none;
 }
 .PanelHeader .scanner button {
@@ -851,6 +857,7 @@ ul li {
 @media screen and (max-width: 570px) {
   .PanelHeader .scanner {
     display: flex;
+    margin-left: 10px;
   }
   .header .logo h1 {
     display: none;
@@ -885,24 +892,22 @@ ul li {
   .AddUserHeader.arc .filter p {
     font-size: 16px;
   }
-  .AddUserHeader.arc .search-bar {
+  /* .AddUserHeader.arc .search-bar {
     width: 150px;
-  }
+  } */
   .AddUserHeader.arc .back-btn {
     margin-right: 10px;
   }
 }
 @media screen and (max-width: 490px) {
   .PanelHeader .search .search-bar {
-    width: 150px;
+    width: 160px;
   }
   .FooterWrapper .credits p {
     font-size: 11px;
   }
   .PanelHeader .scanner p {
-    font-size: 20px;
-    font-weight: 600;
-    width: 100px;
+    display: none;
   }
   .scannerIcon.secondarybtn {
     visibility: visible;
@@ -924,9 +929,7 @@ ul li {
   .AddUserHeader h2 {
     font-size: 15px;
   }
-  .PanelHeader {
-    justify-content: space-around;
-  }
+
   .scannerIcon {
     width: 150px;
   }

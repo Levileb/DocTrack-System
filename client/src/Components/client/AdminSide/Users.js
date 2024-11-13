@@ -20,10 +20,12 @@ const Users = () => {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     // Fetch users data from the database
     axios
-      .get("http://localhost:3001/view-user")
+      .get(`${API_URL}/view-user`)
       .then((response) => {
         // Filter out archived users
         const activeUsers = response.data.filter((user) => !user.isArchived);
@@ -47,7 +49,7 @@ const Users = () => {
     if (selectedUserId !== null) {
       // Fetch details of the selected user based on the id
       axios
-        .get(`http://localhost:3001/api/user/details/${selectedUserId}`, {
+        .get(`${API_URL}/api/user/details/${selectedUserId}`, {
           withCredentials: true,
         })
         .then((response) => {
@@ -88,7 +90,7 @@ const Users = () => {
 
   const archiveUser = () => {
     axios
-      .post(`http://localhost:3001/archive-user/${selectedUserId}`)
+      .post(`${API_URL}/archive-user/${selectedUserId}`)
       .then(() => {
         setShowConfirmPopup(false);
         setUsers(users.filter((user) => user._id !== selectedUserId));
@@ -122,10 +124,13 @@ const Users = () => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredUsers = users.filter((user) =>
-    `${user.firstname} ${user.lastname}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      `${user.firstname} ${user.lastname}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      user.office.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.position.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

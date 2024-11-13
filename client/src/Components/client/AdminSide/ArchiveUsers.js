@@ -16,13 +16,13 @@ const ArchiveUsers = () => {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
   const [selectedUserId, setSelectedUserId] = useState(null); // State to store the selected user ID
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     // Fetch archived users from the backend
     const fetchArchivedUsers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3001/archived-users"
-        );
+        const response = await axios.get(`${API_URL}/archived-users`);
         // console.log("Fetched archived users:", response.data);
         setData(response.data);
       } catch (error) {
@@ -42,7 +42,7 @@ const ArchiveUsers = () => {
     if (!selectedUserId) return;
 
     try {
-      await axios.post(`http://localhost:3001/restore-user/${selectedUserId}`);
+      await axios.post(`${API_URL}/restore-user/${selectedUserId}`);
       setData(data.filter((user) => user._id !== selectedUserId)); // Update state
       toast.success("User Restored!", {
         position: "top-right",
@@ -82,7 +82,6 @@ const ArchiveUsers = () => {
     const searchMatch =
       val.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.office.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -126,23 +125,23 @@ const ArchiveUsers = () => {
                   <table>
                     <thead>
                       <tr>
-                        <td>First Name</td>
-                        <td>Last Name</td>
-                        <td>Email</td>
-                        <td>Position</td>
+                        <td>#</td>
+                        <td>Name</td>
                         <td>Office</td>
+                        <td>Position</td>
                         <td>Action</td>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredData.length > 0 ? (
-                        filteredData.map((val) => (
+                        filteredData.map((val, index) => (
                           <tr key={val._id}>
-                            <td>{val.firstname}</td>
-                            <td>{val.lastname}</td>
-                            <td>{val.email}</td>
-                            <td>{val.position}</td>
+                            <td>{index + 1}</td>
+                            <td>
+                              {val.firstname} {val.lastname}
+                            </td>
                             <td>{val.office}</td>
+                            <td>{val.position}</td>
                             <td>
                               <div className="viewbtn">
                                 <button

@@ -11,6 +11,8 @@ const Receiving = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [formData, setFormData] = useState({
     date: "",
     title: "",
@@ -25,10 +27,9 @@ const Receiving = () => {
     if (docId) {
       const fetchDocument = async () => {
         try {
-          const docResponse = await axios.get(
-            `http://localhost:3001/api/docs/${docId}`,
-            { withCredentials: true }
-          );
+          const docResponse = await axios.get(`${API_URL}/api/docs/${docId}`, {
+            withCredentials: true,
+          });
           setFormData((prevFormData) => ({
             ...prevFormData,
             date: docResponse.data.date,
@@ -61,12 +62,12 @@ const Receiving = () => {
     event.preventDefault();
 
     try {
-      await axios.post("http://localhost:3001/api/docs/log-receipt", {
+      await axios.post(`${API_URL}/api/docs/log-receipt`, {
         withCredentials: true,
         docId: docId,
         remarks: formData.remarks,
       });
-      await axios.post("http://localhost:3001/api/docs/update-received", {
+      await axios.post(`${API_URL}/api/docs/update-received`, {
         docId: docId,
       });
       toast.success("Received Successfully!", {

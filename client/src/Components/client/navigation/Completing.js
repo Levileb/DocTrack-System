@@ -11,6 +11,8 @@ const Completing = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [formData, setFormData] = useState({
     date: "",
     title: "",
@@ -25,10 +27,9 @@ const Completing = () => {
     if (docId) {
       const fetchDocument = async () => {
         try {
-          const docResponse = await axios.get(
-            `http://localhost:3001/api/docs/${docId}`,
-            { withCredentials: true }
-          );
+          const docResponse = await axios.get(`${API_URL}/api/docs/${docId}`, {
+            withCredentials: true,
+          });
           setFormData((prevFormData) => ({
             ...prevFormData,
             date: docResponse.data.date,
@@ -60,7 +61,7 @@ const Completing = () => {
   const handleSubmitForm = async (event) => {
     event.preventDefault();
     try {
-      await axios.post("http://localhost:3001/api/docs/complete", {
+      await axios.post(`${API_URL}/api/docs/complete`, {
         docId: docId,
         remarks: formData.remarks,
       });

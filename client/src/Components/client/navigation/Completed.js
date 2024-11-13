@@ -11,17 +11,17 @@ const Completed = () => {
   const [data, setData] = useState([]); // State to hold fetched documents (Completed Documents)
   const [currentPage, setCurrentPage] = useState(1); // Pagination state for current page
   const [totalPages, setTotalPages] = useState(1); // Total number of pages
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const docsPerPage = 10; // Number of documents per page
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   // Function to fetch completed documents
   const fetchDocs = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3001/api/docs/completed",
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(`${API_URL}/api/docs/completed`, {
+        withCredentials: true,
+      });
 
       // Sort documents from most recent to oldest, checking if 'date' exists
       response.data.sort(
@@ -39,6 +39,24 @@ const Completed = () => {
   useEffect(() => {
     fetchDocs(); // Fetch documents when the component mounts
   }, []);
+
+  const filteredData = data.filter((val) => {
+    const searchMatch =
+      (val.date?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (val.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (val.sender?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (val.recipient?.toLowerCase() || "").includes(
+        searchQuery.toLowerCase()
+      ) ||
+      (val.originating?.toLowerCase() || "").includes(
+        searchQuery.toLowerCase()
+      ) ||
+      (val.destination?.toLowerCase() || "").includes(
+        searchQuery.toLowerCase()
+      );
+
+    return searchMatch;
+  });
 
   const formatDateForDisplay = (isoDateString) => {
     const date = new Date(isoDateString);
@@ -62,7 +80,7 @@ const Completed = () => {
   // Pagination logic
   const startIndex = (currentPage - 1) * docsPerPage;
   const endIndex = startIndex + docsPerPage;
-  const paginatedData = data.slice(startIndex, endIndex);
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
   // console.log(paginatedData.map((doc) => doc.docId));
 
@@ -73,7 +91,7 @@ const Completed = () => {
         <div className="PanelWrapper">
           <div className="PanelHeader">
             <div className="filter">
-              <p>Completed Logs</p>
+              <p>Completed</p>
             </div>
             <div className="search">
               <div className="search-border">
@@ -82,6 +100,8 @@ const Completed = () => {
                   type="text"
                   placeholder="Search.."
                   className="search-bar"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 ></input>
               </div>
             </div>

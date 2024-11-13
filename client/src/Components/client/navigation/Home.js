@@ -37,6 +37,8 @@ const Home = () => {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [docToArchive, setDocToArchive] = useState(null);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     fetchDocs();
   }, []);
@@ -48,7 +50,8 @@ const Home = () => {
     const filtered = docs.filter(
       (doc) =>
         (filterValue === "" || doc.status === filterValue) &&
-        (doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (doc.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.recipient.toLowerCase().includes(searchQuery.toLowerCase()))
     );
@@ -73,12 +76,9 @@ const Home = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3001/api/user/find-user",
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(`${API_URL}/api/user/find-user`, {
+        withCredentials: true,
+      });
       setUser(response.data);
     } catch (error) {
       console.error(error);
@@ -87,7 +87,7 @@ const Home = () => {
 
   const fetchDocs = () => {
     axios
-      .get("http://localhost:3001/api/docs/sent", {
+      .get(`${API_URL}/api/docs/sent`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -109,7 +109,7 @@ const Home = () => {
 
   const fetchScanDocs = () => {
     axios
-      .get("http://localhost:3001/api/docs", {
+      .get(`${API_URL}/api/docs`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -302,7 +302,7 @@ const Home = () => {
   const handleScan = async (data) => {
     try {
       const scannedData = JSON.parse(data);
-      console.log("Scanned Data:", scannedData);
+      // console.log("Scanned Data:", scannedData);
 
       const selectedDoc = scanDoc.find((doc) => {
         return (
@@ -335,7 +335,7 @@ const Home = () => {
           setScanned_Id(selectedDoc._id);
         } else {
           // If not "Completed", proceed with updating the status to "Viewed"
-          await axios.post("http://localhost:3001/api/docs/update-status", {
+          await axios.post(`${API_URL}/api/docs/update-status`, {
             docId: selectedDoc._id,
             // status: "Viewed",
           });
@@ -351,7 +351,6 @@ const Home = () => {
             progress: undefined,
             theme: "light",
           });
-          console.log('Document status updated to "Viewed"');
           setSelectedDoc({ ...selectedDoc, status: "Viewed" });
         }
       } else {
@@ -395,7 +394,7 @@ const Home = () => {
   const handleArchiveConfirm = async () => {
     if (!docToArchive) return;
     try {
-      await axios.post("http://localhost:3001/archive-document", {
+      await axios.post(`${API_URL}/archive-document`, {
         docId: docToArchive,
       });
       setDocs(docs.filter((doc) => doc._id !== docToArchive));
