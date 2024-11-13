@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -12,20 +13,29 @@ const ForwardingLogModel = require("./models/ForwardingLogs");
 const CompletedLogModel = require("./models/CompletedLogs");
 
 const app = express();
+
+//Parse JSON and Cookies
 app.use(express.json());
+app.use(cookieParser());
+
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://yourfrontenddomain.com",
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT"],
     credentials: true,
   })
 );
-app.use(cookieParser());
 
-mongoose.connect("mongodb://127.0.0.1:27017/doc_track");
+//MongoDB Connection
+mongoose.connect(process.env.MONGO_URI);
 
-// JWT secret key (you should store this in an environment variable)
-const JWT_SECRET = "jwt-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
@@ -71,6 +81,38 @@ const verifyUser = (req, res, next) => {
       });
   });
 };
+
+//NodeMailer
+var nodemailer = require("nodemailer");
+
+var transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "doctracks.kabankalan@gmail.com",
+    pass: "gjfpmbxqgcjlmyvu",
+  },
+});
+
+// const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+// var mailOptions = {
+//   from: '"DT-System" <doctracks.kabankalan@gmail.com>',
+//   to: "jurekkusujonzu@gmail.com",
+//   subject: "New Notification",
+//   html: "<h3>You got a new document sent to you.</h3> <p>Please view it on your DT-System account.</p>",
+//   headers: {
+//     "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+//     "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+//   },
+// };
+
+// transporter.sendMail(mailOptions, function (error, info) {
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log("Email sent: " + info.response);
+//   }
+// });
 
 //Login Page
 app.post("/login", (req, res) => {
@@ -841,6 +883,42 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
   }
 });
 
+// app.post("/submit-document", verifyUser, (req, res) => {
+//   const {
+//     title,
+//     sender,
+//     originating,
+//     recipient,
+//     destination,
+//     date,
+//     qrCode,
+//     codeNumber,
+//     remarks,
+//   } = req.body;
+
+//   // Extract user_id from req.user (logged-in user's ID)
+//   const userId = req.user._id;
+//   // Convert the date string to a Date object
+//   const formattedDate = new Date(date);
+
+//   // Create a new document using the DocModel
+//   DocModel.create({
+//     title,
+//     sender,
+//     originating,
+//     recipient,
+//     destination,
+//     date: formattedDate,
+//     qrCode,
+//     codeNumber,
+//     remarks,
+//     user_id: userId, // Attach the logged-in user's ID
+//   })
+//     .then((document) => res.json({ message: "Success", document }))
+//     .catch((err) => res.json("Submitting Document Error: ", err));
+// });
+
+//Submitting and Creating Document
 app.post("/submit-document", verifyUser, (req, res) => {
   const {
     title,
@@ -852,6 +930,7 @@ app.post("/submit-document", verifyUser, (req, res) => {
     qrCode,
     codeNumber,
     remarks,
+    email,
   } = req.body;
 
   // Extract user_id from req.user (logged-in user's ID)
@@ -872,8 +951,66 @@ app.post("/submit-document", verifyUser, (req, res) => {
     remarks,
     user_id: userId, // Attach the logged-in user's ID
   })
-    .then((document) => res.json({ message: "Success", document }))
-    .catch((err) => res.json("Submitting Document Error: ", err));
+    .then((document) => {
+      // Send the email notification
+      const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+      console.log("Backend >> Submit Document: ", email);
+
+      const mailOptions = {
+        from: '"DT-System Mailer" <doctracks.kabankalan@gmail.com>',
+        to: email,
+        subject: `New Document Notification`,
+        html: `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+    <div style="padding: 20px;">
+      <p style="font-size: 16px; color: #333;">
+        Hello,
+      </p>
+      <p style="font-size: 16px; color: #333;">
+        A new document titled <strong>"${title}"</strong> has been sent to you.
+      </p>
+      <div style="margin: 15px 0; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+        <p style="font-size: 16px; color: #333;"><strong>From:</strong> ${sender}</p>
+        <p style="font-size: 16px; color: #333;"><strong>Office:</strong> ${originating}</p>
+      </div>
+      <p style="font-size: 16px; color: #333;">
+        Please review it at your earliest convenience once the document has arrived.
+      </p>
+      <p style="font-size: 16px; text-align: center; margin-top: 30px;">
+        <a href="http://localhost:3000/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
+      </p>
+    </div>
+    <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+      <p style="margin: 0;">This is an automated message, please do not reply.</p>
+    </div>
+  </div>
+      `,
+        headers: {
+          "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+          "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+        },
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log("Email sending error: ", error);
+          return res
+            .status(500)
+            .json({ message: "Error sending notification email" });
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
+
+      // Return response to the client
+      res.json({ message: "Success", document });
+    })
+    .catch((err) => {
+      console.log("Submitting Document Error: ", err);
+      res
+        .status(500)
+        .json({ message: "Error submitting document", error: err });
+    });
 });
 
 // Route to archive a document
