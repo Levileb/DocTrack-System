@@ -47,7 +47,7 @@ const ArchiveOffice = () => {
       toast.success("Office Restored!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
@@ -59,7 +59,7 @@ const ArchiveOffice = () => {
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,

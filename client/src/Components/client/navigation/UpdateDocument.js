@@ -139,7 +139,7 @@ const UpdateDocument = () => {
         toast.success("Document Updated!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -152,7 +152,7 @@ const UpdateDocument = () => {
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 3000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,

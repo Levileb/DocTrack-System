@@ -57,7 +57,7 @@ const AddUsers = () => {
         toast.success("New User is added successfully!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -77,7 +77,7 @@ const AddUsers = () => {
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 3000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,

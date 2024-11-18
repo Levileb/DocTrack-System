@@ -29,7 +29,7 @@ function LoginForm() {
       .post(`${API_URL}/login`, { email, password }, { withCredentials: true }) // Ensure credentials are sent
       .then((res) => {
         if (res.data.Status === "Success") {
-          toast.success("Welcome!", {
+          toast.success("Login Success. Welcome!", {
             position: "top-center",
             autoClose: 2000,
             hideProgressBar: true,
@@ -79,7 +79,7 @@ function LoginForm() {
         toast.error("Incorrect email or password. Please try again.", {
           position: "top-center",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: false,
           draggable: false,

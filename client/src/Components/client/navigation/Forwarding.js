@@ -129,6 +129,17 @@ const Forwarding = () => {
     event.preventDefault();
 
     try {
+      toast.info("Please wait for a moment..", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
       // Send the forwarding log data
       await axios.post(
         `${API_URL}/api/docs/log-forwarding`,
@@ -150,7 +161,7 @@ const Forwarding = () => {
       toast.success("Forwarded Successfully!", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
@@ -170,7 +181,7 @@ const Forwarding = () => {
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,

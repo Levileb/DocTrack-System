@@ -129,7 +129,7 @@ const Received = () => {
           toast.success("QR Code Scanned Successfully!", {
             position: "top-right",
             autoClose: 3000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
@@ -144,7 +144,7 @@ const Received = () => {
         toast.error("No matching document found. Please try again!", {
           position: "top-right",
           autoClose: 3000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -157,7 +157,7 @@ const Received = () => {
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
@@ -203,7 +203,7 @@ const Received = () => {
         toast.success("Copied to clipboard!", {
           position: "top-right",
           autoClose: 1000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -215,7 +215,7 @@ const Received = () => {
         toast.error("Failed to copy control number!", {
           position: "top-right",
           autoClose: 1000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,

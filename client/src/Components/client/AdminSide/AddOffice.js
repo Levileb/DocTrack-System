@@ -46,7 +46,7 @@ const AddOffice = () => {
         toast.success("A new Office is added successfully!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -61,7 +61,7 @@ const AddOffice = () => {
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -86,7 +86,7 @@ const AddOffice = () => {
           toast.success("Office moved to Archived!", {
             position: "top-right",
             autoClose: 2000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
@@ -100,7 +100,7 @@ const AddOffice = () => {
           toast.error("Something went wrong, please try again!", {
             position: "top-right",
             autoClose: 2000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,

@@ -155,7 +155,7 @@ const InternalLogs = () => {
         toast.success("Copied to clipboard!", {
           position: "top-right",
           autoClose: 1000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -167,7 +167,7 @@ const InternalLogs = () => {
         toast.error("Failed to copy code number!", {
           position: "top-right",
           autoClose: 1000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,

@@ -184,13 +184,13 @@
 }
 .password-container {
   position: relative;
+  margin-bottom: 10px;
 }
 .toggle-password {
   font-size: 14px;
   cursor: pointer;
-  color: #000000;
+  color: #004cff;
   user-select: none;
-  margin-bottom: 5px;
 }
 .toggle-password:hover {
   color: #333;

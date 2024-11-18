@@ -120,7 +120,6 @@ const SubmitDocument = () => {
 
   const handleRecipientChange = (event) => {
     const selectedRecipient = event.target.value;
-    // const emailRecipient = event.target.value;
 
     if (selectedRecipient === "All") {
       const allRecipients = filteredUsers.map(
@@ -176,7 +175,7 @@ const SubmitDocument = () => {
         toast.success("Submitted Successfully!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -190,7 +189,7 @@ const SubmitDocument = () => {
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 3000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,

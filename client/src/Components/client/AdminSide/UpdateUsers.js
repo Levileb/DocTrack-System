@@ -15,7 +15,7 @@ const UpdateUsers = () => {
 
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
   const [position, setPosition] = useState("");
   const [office, setOffice] = useState("");
   const [offices, setOffices] = useState([]); // State to store the list of offices
@@ -26,7 +26,7 @@ const UpdateUsers = () => {
       .then((result) => {
         setFirstName(result.data.firstname || "");
         setLastName(result.data.lastname || "");
-        setEmail(result.data.email || "");
+        // setEmail(result.data.email || "");
         setPosition(result.data.position || "");
         setOffice(result.data.office || "");
       })
@@ -47,12 +47,22 @@ const UpdateUsers = () => {
   }, []);
 
   const Update = (e) => {
+    toast.info("Please wait for a moment..", {
+      position: "top-right",
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
     e.preventDefault();
     axios
       .put(`${API_URL}/updateUser/` + id, {
         firstname,
         lastname,
-        email,
+        // email,
         position,
         office,
       })
@@ -60,7 +70,7 @@ const UpdateUsers = () => {
         toast.success("User Updated Successfully!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -72,7 +82,7 @@ const UpdateUsers = () => {
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -83,7 +93,7 @@ const UpdateUsers = () => {
       });
     setTimeout(() => {
       navigate("/view-user");
-    }, 2100);
+    }, 5000);
   };
 
   const handleCancel = () => {
@@ -154,7 +164,7 @@ const UpdateUsers = () => {
                   />
                 </div>
 
-                <p>Email:</p>
+                {/* <p>Email:</p>
                 <div className="input-new">
                   <input
                     type="email"
@@ -163,7 +173,7 @@ const UpdateUsers = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                </div>
+                </div> */}
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">

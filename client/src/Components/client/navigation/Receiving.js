@@ -67,13 +67,23 @@ const Receiving = () => {
         docId: docId,
         remarks: formData.remarks,
       });
+      toast.info("Please wait for a moment..", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
       await axios.post(`${API_URL}/api/docs/update-received`, {
         docId: docId,
       });
       toast.success("Received Successfully!", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
@@ -85,7 +95,7 @@ const Receiving = () => {
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,

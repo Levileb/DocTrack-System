@@ -157,7 +157,7 @@ const Forwarded = () => {
         toast.success("Copied to clipboard!", {
           position: "top-right",
           autoClose: 1000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -169,7 +169,7 @@ const Forwarded = () => {
         toast.error("Failed to copy control number!", {
           position: "top-right",
           autoClose: 1000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
