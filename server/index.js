@@ -83,36 +83,15 @@ const verifyUser = (req, res, next) => {
 };
 
 //NodeMailer
-var nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 
-var transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "doctracks.kabankalan@gmail.com",
-    pass: "gjfpmbxqgcjlmyvu",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
-
-// const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
-
-// var mailOptions = {
-//   from: '"DT-System" <doctracks.kabankalan@gmail.com>',
-//   to: "jurekkusujonzu@gmail.com",
-//   subject: "New Notification",
-//   html: "<h3>You got a new document sent to you.</h3> <p>Please view it on your DT-System account.</p>",
-//   headers: {
-//     "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
-//     "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
-//   },
-// };
-
-// transporter.sendMail(mailOptions, function (error, info) {
-//   if (error) {
-//     console.log(error);
-//   } else {
-//     console.log("Email sent: " + info.response);
-//   }
-// });
 
 //Login Page
 app.post("/login", (req, res) => {
@@ -535,12 +514,51 @@ app.put("/updateUser/:id", (req, res) => {
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
-      res.json(user);
+
+      const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+      // Compose the email
+      const mailOptions = {
+        from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
+        to: user.email,
+        subject: "Profile Updated Successfully",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+            <div style="padding: 20px;">
+              <h2>Your Information has been Updated!</h2>
+              <p>Hello <strong>${user.firstname}</strong>,</p>
+              <p>Your profile details in the Document Tracking System have been updated. If you did not make this request, please report it to the Administrator's Office.</p>
+            </div>
+            <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+              <p style="margin: 0;">This is an automated message, please do not reply.</p>
+            </div>
+          </div>
+        `,
+        headers: {
+          "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+          "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+        },
+      };
+
+      // Send the email
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log("Error sending email:", error);
+          return res.status(500).json({ error: "Failed to send email" });
+        }
+        console.log("Email sent:", info.response);
+        res.json({ message: "User updated and email sent", user });
+      });
     })
     .catch((err) => res.status(500).json({ error: "Internal server error" }));
 });
 
-// Updated: Add user and generate token
+// Generate a verification token
+function generateVerificationToken(userId) {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
+}
+
+// Endpoint to add a new user
 app.post("/add-user", (req, res) => {
   const { firstname, lastname, email, password, position, office } = req.body;
 
@@ -548,7 +566,7 @@ app.post("/add-user", (req, res) => {
   bcrypt
     .hash(password, 10)
     .then((hash) => {
-      // Create a new user in the database
+      // Create a new user with isVerified set to false
       UserModel.create({
         firstname,
         lastname,
@@ -556,16 +574,56 @@ app.post("/add-user", (req, res) => {
         password: hash,
         position,
         office,
+        isVerified: false, // New field to track verification status
       })
         .then((user) => {
-          // Generate a token after creating the user
-          // const token = jwt.sign({ email: user.email }, JWT_SECRET, {
-          //   expiresIn: "1h",
-          // });
+          // Generate verification token
+          const verificationToken = generateVerificationToken(user._id);
+          console.log("Verification Token: ", verificationToken);
 
-          // Set token in cookies
-          // res.cookie("token", token, { httpOnly: true });
-          res.json({ message: "User added successfully" });
+          // Set up verification link
+          const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
+          console.log("Verification URL: ", verificationUrl);
+
+          const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+          // Send verification email
+          const mailOptions = {
+            from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
+            to: email,
+            subject: "Email Verification",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+                <div style="padding: 20px;">
+                  <h2>Welcome to our Document Tracking System!</h2>
+                  <p>Please verify your email address by clicking the link below:</p>
+                  <a href="${verificationUrl}" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify Email</a>
+                  <p>If you did not sign up, please ignore this email.</p>
+                </div>
+                <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+                  <p style="margin: 0;">This is an automated message, please do not reply.</p>
+                </div>
+               </div>
+            `,
+            headers: {
+              "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+              "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+            },
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error("Error sending email:", error);
+              return res
+                .status(500)
+                .json({ error: "Error sending verification email" });
+            } else {
+              console.log("Verification email sent:", info.response);
+              res.json({
+                message: "User added successfully. Please verify your email.",
+              });
+            }
+          });
         })
         .catch((err) =>
           res.status(500).json({ error: "Internal server error" })
@@ -575,6 +633,33 @@ app.post("/add-user", (req, res) => {
       console.error("Error hashing password:", err);
       res.status(500).json({ error: "Internal server error" });
     });
+});
+
+app.get("/verify-email", async (req, res) => {
+  const token = req.query.token;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    console.log(decoded);
+
+    const user = await UserModel.findById(userId);
+    if (!user) return res.status(400).send("Invalid verification link");
+
+    if (user.isVerified) {
+      // User already verified
+      return res.redirect("http://localhost:3000");
+    }
+
+    // Mark the user as verified
+    user.isVerified = true;
+    await user.save();
+
+    // Redirect to login page or success page
+    res.redirect("http://localhost:3000"); // Use a query param to show a success message
+  } catch (error) {
+    res.status(400).send("Invalid or expired token");
+  }
 });
 
 app.post("/api/user/update-password", verifyUser, (req, res) => {
@@ -699,6 +784,7 @@ app.get("/api/receivingLogs", verifyUser, async (req, res) => {
   }
 });
 
+// Create new receiving log
 app.post("/api/docs/log-receipt", verifyUser, (req, res) => {
   console.log(req.user); // This should log the authenticated user
 
@@ -724,25 +810,77 @@ app.post("/api/docs/log-receipt", verifyUser, (req, res) => {
     });
 });
 
+// Update document status to RECEIVED and send notification email to sender
 app.post("/api/docs/update-received", verifyUser, async (req, res) => {
   try {
     const { docId } = req.body;
-    await DocModel.findByIdAndUpdate(docId, { status: "Received" });
 
-    res
-      .status(200)
-      .json({ message: 'Document status updated to "Received" successfully.' });
+    // Update document status
+    const document = await DocModel.findByIdAndUpdate(docId, {
+      status: "Received",
+    });
+
+    if (!document) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    // Fetch sender's email using user_id from the document
+    const sender = await UserModel.findById(document.user_id);
+    if (!sender) {
+      return res.status(404).json({ error: "Sender not found" });
+    }
+
+    const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+    // Set up email details for the sender
+    const mailOptions = {
+      from: '"DocTrack-System Mailer" <doctracks.kabankalan@gmail.com>',
+      to: sender.email, // Assuming senderEmail field stores the sender's email
+      subject: "Your Document Has Been Marked as Received",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+          <div style="padding: 20px;">
+            <h2>Document Status Update</h2>
+            <p>Your document titled "<strong>${document.title}</strong>" with code number <strong>${document.codeNumber}</strong> has been marked as <strong style="color: #00a308;">Received</strong> by ${document.recipient}.</p>
+            <p>You may log in to view additional details.</p>
+          </div>
+          <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+            <p style="margin: 0;">This is an automated message, please do not reply.</p>
+          </div>
+        </div>
+      `,
+      headers: {
+        "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+        "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+      },
+    };
+
+    // Send email notification
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res
+          .status(500)
+          .json({ error: "Error sending notification email" });
+      } else {
+        console.log("Notification email sent:", info.response);
+        res.status(200).json({
+          message:
+            'Document status updated to "Received" successfully, and notification email sent to sender.',
+        });
+      }
+    });
   } catch (error) {
     console.error("Error updating document status:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// Log forwarding and send email notification to the recipient
 app.post("/api/docs/log-forwarding", verifyUser, async (req, res) => {
   try {
-    console.log(req.body); // To check if you're receiving docId, forwardedTo, and remarks
     const { docId, forwardedTo, remarks } = req.body;
-    const userId = req.user._id; // Corrected to _id
+    const userId = req.user._id;
 
     // Validate the request body
     if (!docId || !forwardedTo || !remarks || !userId) {
@@ -753,18 +891,112 @@ app.post("/api/docs/log-forwarding", verifyUser, async (req, res) => {
     const newLog = await ForwardingLogModel.create({
       user_id: userId,
       doc_id: docId,
-      forwardedTo: forwardedTo,
-      remarks: remarks,
+      forwardedTo,
+      remarks,
       forwardedAt: new Date(),
     });
 
     // Update document status
-    await DocModel.findByIdAndUpdate(docId, { status: "Forwarded" });
+    const document = await DocModel.findByIdAndUpdate(
+      docId,
+      { status: "Forwarded" },
+      { new: true }
+    );
 
-    res.status(201).json({
-      message:
-        "Forwarding log created and document status updated successfully.",
-      log: newLog,
+    if (!document) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    // Fetch recipient's email using forwardedTo (assumed to match user's name)
+    const recipient = await UserModel.findOne({ _id: forwardedTo });
+    if (!recipient || !recipient.email) {
+      return res
+        .status(404)
+        .json({ error: "Recipient not found or email not available." });
+    }
+
+    // Fetch the original sender's email using user_id in the document
+    const originalSender = await UserModel.findById(document.user_id);
+    if (!originalSender || !originalSender.email) {
+      return res
+        .status(404)
+        .json({ error: "Original sender not found or email not available." });
+    }
+
+    const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+    // Set up email details for the recipient
+    const mailOptions = {
+      from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
+      to: recipient.email, // Recipient's email retrieved from UserModel
+      subject: "Document Forwarded to You",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+          <div style="padding: 20px;">
+            <h2>Document Forwarding Notification</h2>
+            <p>A document titled "<strong>${document.title}</strong>" with code number <strong>${document.codeNumber}</strong> has been forwarded to you.</p>
+            <p>Remarks: <em>${remarks}</em></p>
+            <p>Please review it at your earliest convenience once the document has arrived.</p>
+            
+          </div>
+          <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+            <p style="margin: 0;">This is an automated message, please do not reply.</p>
+          </div>
+        </div>
+      `,
+      headers: {
+        "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+        "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+      },
+    };
+
+    // Set up email details for the recipient
+    const senderMailOptions = {
+      from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
+      to: originalSender.email, // Sender's email retrieved from UserModel
+      subject: "Your Document Is Being Forwarded",
+      html: `
+            <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+              <div style="padding: 20px;">
+                <h2>Document Status Update</h2>
+                <p>Your document titled "<strong>${document.title}</strong>" with code number <strong>${document.codeNumber}</strong> is being <strong style="color: #00a308;">Forwarded</strong>.</p>
+                <p>You may log in to track and view additional details.</p>
+              </div>
+              <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+                <p style="margin: 0;">This is an automated message, please do not reply.</p>
+              </div>
+            </div>
+          `,
+      headers: {
+        "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+        "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+      },
+    };
+
+    // Send email notification to the recipient
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res
+          .status(500)
+          .json({ error: "Error sending notification email" });
+      } else {
+        console.log("Notification email sent:", info.response);
+        res.status(201).json({
+          message:
+            "Forwarding log created, document status updated, and notification email sent to recipient.",
+          log: newLog,
+        });
+      }
+    });
+
+    // Send email to the original sender
+    transporter.sendMail(senderMailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email to sender:", error);
+      } else {
+        console.log("Notification email sent to sender:", info.response);
+      }
     });
   } catch (error) {
     console.error("Error logging forwarding:", error);
@@ -777,6 +1009,11 @@ app.post("/api/docs/complete", verifyUser, async (req, res) => {
   const userId = req.user._id;
 
   try {
+    const document = await DocModel.findById(docId);
+    if (!document) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
     // Fetch the document's receiving and forwarding logs
     const receivingLogs = await ReceivingLogModel.find({ doc_id: docId });
     const forwardingLogs = await ForwardingLogModel.find({ doc_id: docId });
@@ -794,6 +1031,50 @@ app.post("/api/docs/complete", verifyUser, async (req, res) => {
 
     // Update the document's status to "Completed"
     await DocModel.findByIdAndUpdate(docId, { status: "Completed" });
+
+    // Fetch the original sender's email using user_id in the document
+    const originalSender = await UserModel.findById(document.user_id);
+    if (!originalSender || !originalSender.email) {
+      return res
+        .status(404)
+        .json({ error: "Original sender not found or email not available." });
+    }
+
+    const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+    // Set up email details for the recipient
+    const mailOptions = {
+      from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
+      to: originalSender.email, // Recipient's email retrieved from UserModel
+      subject: "Document Process Completed",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+          <div style="padding: 20px;">
+            <h2>Document Status Update</h2>
+            <p>The document titled "<strong>${document.title}</strong>" with code number <strong>${document.codeNumber}</strong> that you submitted is now marked as <strong style="color: #00a308;">Completed</strong>.</p>
+            <p>Remarks: <em>${remarks}</em></p>
+            <p>Please review it at your earliest convenience.</p>
+          </div>
+          <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+            <p style="margin: 0;">This is an automated message, please do not reply.</p>
+          </div>
+        </div>
+      `,
+      headers: {
+        "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+        "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+      },
+    };
+    // Send email using nodemailer
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res
+          .status(500)
+          .json({ error: "Error sending email notification." });
+      }
+      console.log("Email sent:", info.response);
+    });
 
     res.json({ message: "Document marked as completed", completedLog });
   } catch (error) {
@@ -883,41 +1164,6 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
   }
 });
 
-// app.post("/submit-document", verifyUser, (req, res) => {
-//   const {
-//     title,
-//     sender,
-//     originating,
-//     recipient,
-//     destination,
-//     date,
-//     qrCode,
-//     codeNumber,
-//     remarks,
-//   } = req.body;
-
-//   // Extract user_id from req.user (logged-in user's ID)
-//   const userId = req.user._id;
-//   // Convert the date string to a Date object
-//   const formattedDate = new Date(date);
-
-//   // Create a new document using the DocModel
-//   DocModel.create({
-//     title,
-//     sender,
-//     originating,
-//     recipient,
-//     destination,
-//     date: formattedDate,
-//     qrCode,
-//     codeNumber,
-//     remarks,
-//     user_id: userId, // Attach the logged-in user's ID
-//   })
-//     .then((document) => res.json({ message: "Success", document }))
-//     .catch((err) => res.json("Submitting Document Error: ", err));
-// });
-
 //Submitting and Creating Document
 app.post("/submit-document", verifyUser, (req, res) => {
   const {
@@ -954,37 +1200,36 @@ app.post("/submit-document", verifyUser, (req, res) => {
     .then((document) => {
       // Send the email notification
       const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
-      console.log("Backend >> Submit Document: ", email);
 
       const mailOptions = {
-        from: '"DT-System Mailer" <doctracks.kabankalan@gmail.com>',
+        from: '"DocTrack-System Mailer" <doctracks.kabankalan@gmail.com>',
         to: email,
         subject: `New Document Notification`,
         html: `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-    <div style="padding: 20px;">
-      <p style="font-size: 16px; color: #333;">
-        Hello,
-      </p>
-      <p style="font-size: 16px; color: #333;">
-        A new document titled <strong>"${title}"</strong> has been sent to you.
-      </p>
-      <div style="margin: 15px 0; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
-        <p style="font-size: 16px; color: #333;"><strong>From:</strong> ${sender}</p>
-        <p style="font-size: 16px; color: #333;"><strong>Office:</strong> ${originating}</p>
-      </div>
-      <p style="font-size: 16px; color: #333;">
-        Please review it at your earliest convenience once the document has arrived.
-      </p>
-      <p style="font-size: 16px; text-align: center; margin-top: 30px;">
-        <a href="http://localhost:3000/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
-      </p>
-    </div>
-    <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
-      <p style="margin: 0;">This is an automated message, please do not reply.</p>
-    </div>
-  </div>
-      `,
+            <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+              <div style="padding: 20px;">
+                <p style="font-size: 16px; color: #333;">
+                  Hello,
+                </p>
+                <p style="font-size: 16px; color: #333;">
+                  A new document titled <strong>"${title}"</strong> has been sent to you.
+                </p>
+                <div style="margin: 15px 0; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+                  <p style="font-size: 16px; color: #333;"><strong>From:</strong> ${sender}</p>
+                  <p style="font-size: 16px; color: #333;"><strong>Office:</strong> ${originating}</p>
+                </div>
+                <p style="font-size: 16px; color: #333;">
+                  Please review it at your earliest convenience once the document has arrived.
+                </p>
+                <p style="font-size: 16px; text-align: center; margin-top: 30px;">
+                  <a href="http://localhost:3000/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
+                </p>
+              </div>
+              <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+                <p style="margin: 0;">This is an automated message, please do not reply.</p>
+              </div>
+            </div>
+        `,
         headers: {
           "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
           "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
@@ -1047,14 +1292,42 @@ app.post("/restore-document", (req, res) => {
     .catch((err) => res.status(500).json({ error: err.message }));
 });
 
-// Route to fetch archived documents
-app.get("/archived-document", (req, res) => {
-  DocModel.find({ status: "Archived" })
-    .then((documents) => {
-      res.json(documents);
+// Route to fetch archived documents sent by the logged-in user
+app.get("/archived-document", verifyUser, async (req, res) => {
+  const loggedInUserId = req.user._id;
+
+  try {
+    const archivedDocuments = await DocModel.find({
+      user_id: loggedInUserId,
+      status: "Archived",
     })
-    .catch((err) => res.status(500).json({ error: err.message }));
+      .populate("_id", "date title codeNumber sender originating")
+      .exec();
+
+    if (archivedDocuments.length === 0) {
+      return res.status(404).json("No archived documents found");
+    }
+
+    const documents = archivedDocuments.map((doc) => ({
+      _id: doc._id,
+      date: doc.date,
+      title: doc.title,
+      sender: doc.sender,
+      originating: doc.originating,
+      recipient: doc.recipient,
+      destination: doc.destination,
+      codeNumber: doc.codeNumber,
+      remarks: doc.remarks,
+      status: doc.status,
+    }));
+
+    res.json(documents);
+  } catch (err) {
+    console.error("Error fetching archived documents:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
+
 // Logout route to clear cookies
 app.post("/logout", (req, res) => {
   res.clearCookie("token");

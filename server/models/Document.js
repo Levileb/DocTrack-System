@@ -4,13 +4,15 @@ const DocSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "users", // Ensure this matches the exact model name used
+    ref: "users",
     required: true,
   },
   title: String,
-  sender: String, // This could be a String for the sender's email
+  sender: String,
+  senderEmail: String,
   originating: String,
   recipient: String,
+  recipientEmail: String,
   destination: String,
   qrCode: String,
   codeNumber: String,
