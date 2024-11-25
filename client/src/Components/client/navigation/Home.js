@@ -467,7 +467,7 @@ const Home = () => {
         });
       })
       .catch(() => {
-        toast.error("Failed to copy control number!", {
+        toast.error("Failed to copy code number!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: true,

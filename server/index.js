@@ -14,15 +14,12 @@ const CompletedLogModel = require("./models/CompletedLogs");
 
 const app = express();
 
-//Parse JSON and Cookies
+// Parse JSON and Cookies
 app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://yourfrontenddomain.com",
-];
+const allowedOrigins = ["http://localhost:3000", "https://yourdomainhost.com"];
 
 app.use(
   cors({
@@ -32,18 +29,16 @@ app.use(
   })
 );
 
-//MongoDB Connection
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI);
 
+// JWT Secret Key
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
-  // const token = req.cookies.accessToken;
   const token =
     req.headers.authorization?.split(" ")[1] || req.cookies.accessToken;
-
-  // console.log("Token from request headers:", req.headers.authorization);
 
   if (!token) {
     return res.status(401).json({ error: "Token is missing" });
@@ -54,8 +49,6 @@ const verifyUser = (req, res, next) => {
       console.error("Token verification error:", err);
       return res.status(401).json({ error: "Invalid token" });
     }
-
-    // console.log("Decoded token:", decoded);
 
     UserModel.findOne({ email: decoded.email }) // Ensure email is unique
       .then((user) => {
@@ -82,7 +75,7 @@ const verifyUser = (req, res, next) => {
   });
 };
 
-//NodeMailer
+// NodeMailer
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
@@ -93,13 +86,19 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-//Login Page
+// Login API
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   UserModel.findOne({ email: email })
     .then((user) => {
       if (user) {
+        if (!user.isVerified) {
+          return res.status(403).json({
+            Status: "Invalid",
+            message: "Account not verified. Please verify your email.",
+          });
+        }
         bcrypt.compare(password, user.password, (err, isMatch) => {
           if (err) {
             return res
@@ -121,15 +120,13 @@ app.post("/login", (req, res) => {
             });
 
             res.cookie("accessToken", accessToken, {
-              secure: true,
-              sameSite: "Strict",
+              secure: false, // Use true if your server uses HTTPS
+              sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
               path: "/",
-              domain: "localhost",
             });
             res.cookie("refreshToken", refreshToken, {
-              secure: true, // Use true if your server uses HTTPS
-              sameSite: "Strict", // Ensure correct cross-site handling
-              domain: "localhost",
+              secure: false, // Use true if your server uses HTTPS
+              sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
             });
 
             // Respond with the tokens
@@ -140,7 +137,9 @@ app.post("/login", (req, res) => {
               Status: "Success",
             });
           } else {
-            return res.status(401).json({ message: "Incorrect password" });
+            return res
+              .status(401)
+              .json({ Status: "Error", message: "Incorrect password" });
           }
         });
       } else {
@@ -152,7 +151,7 @@ app.post("/login", (req, res) => {
     });
 });
 
-//Route to Refresh Token
+// API for Refresh Token
 app.post("/api/refresh-token", (req, res) => {
   const { refreshToken } = req.cookies;
 
@@ -179,12 +178,14 @@ app.post("/api/refresh-token", (req, res) => {
   });
 });
 
+// API for Viewing All User Details
 app.get("/api/user/details", verifyUser, (req, res) => {
   const { firstname, lastname, role, email, position, office } = req.user;
   // console.log({ firstname, lastname, role, email, position, office });
   res.json({ firstname, lastname, role, email, position, office });
 });
 
+// API for Viewing Specific User by ID
 app.get("/api/user/details/:userId", verifyUser, (req, res) => {
   const userId = req.params.userId;
 
@@ -261,9 +262,9 @@ app.get("/api/docs", (req, res) => {
     });
 });
 
+// API for fetching sent documents by logged in user
 app.get("/api/docs/sent", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
-  // console.log("Fetching documents sent by user ID:", loggedInUserId);
 
   try {
     const sentDocuments = await DocModel.find({
@@ -315,6 +316,7 @@ app.get("/api/user/find-user", verifyUser, async (req, res) => {
   }
 });
 
+// API for fetching documents sent to the logged in user
 app.get("/api/docs/inbox", verifyUser, async (req, res) => {
   const loggedInUserFullName = `${req.user.firstname} ${req.user.lastname}`;
   // console.log("Fetching documents for user ID:", loggedInUserFullName);
@@ -353,17 +355,17 @@ app.get("/api/docs/inbox", verifyUser, async (req, res) => {
   }
 });
 
+// API for fetching documents received by the logged in user
 app.get("/api/docs/received", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
-  // console.log("Fetching documents for user ID:", loggedInUserId);
 
   try {
     const forwardingLogs = await ForwardingLogModel.find({
       forwardedTo: loggedInUserId,
     })
-      .populate("doc_id", "date forwardedAt title codeNumber status") // Populate the document fields
+      .populate("doc_id", "date forwardedAt title codeNumber status")
       .populate({
-        path: "user_id", // Populate the sender's name
+        path: "user_id",
         select: "firstname lastname",
       })
       .exec();
@@ -376,7 +378,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
       docId: log._id,
       date: log.forwardedAt,
       title: log.doc_id.title,
-      sender: `${log.user_id.firstname} ${log.user_id.lastname}`, // Sender's full name
+      sender: `${log.user_id.firstname} ${log.user_id.lastname}`,
       remarks: log.remarks,
       status: log.doc_id.status,
       codeNumber: log.doc_id.codeNumber,
@@ -388,6 +390,7 @@ app.get("/api/docs/received", verifyUser, async (req, res) => {
   }
 });
 
+// API for fetching documents forwarded by the logged in user
 app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
 
@@ -423,15 +426,16 @@ app.get("/api/docs/forwarded", verifyUser, async (req, res) => {
   }
 });
 
+// API for fetching documents marked as completed
 app.get("/api/docs/completed", verifyUser, async (req, res) => {
   const loggedInUserId = req.user._id;
 
   try {
     // Fetch completed logs where the user is either the one who completed the document or the sender
     const completedLogs = await CompletedLogModel.find({
-      userId: loggedInUserId, // User who marked the document as completed
+      userId: loggedInUserId,
     })
-      .populate("docId", "date title completedAt sender recipient") // Populate document details
+      .populate("docId", "date title completedAt sender recipient")
       .exec();
 
     if (completedLogs.length === 0) {
@@ -492,6 +496,7 @@ app.put("/api/docs/:docId", verifyUser, (req, res) => {
     .catch((err) => res.status(500).json({ error: "Internal server error" }));
 });
 
+// Endpoint to fetch a user by ID
 app.get("/getUser/:id", (req, res) => {
   const id = req.params.id;
   UserModel.findById({ _id: id })
@@ -499,6 +504,7 @@ app.get("/getUser/:id", (req, res) => {
     .catch((err) => res.json(err));
 });
 
+// Endpoint to update a user information
 app.put("/updateUser/:id", (req, res) => {
   const id = req.params.id;
 
@@ -635,6 +641,7 @@ app.post("/add-user", (req, res) => {
     });
 });
 
+// Endpoint to verify user email
 app.get("/verify-email", async (req, res) => {
   const token = req.query.token;
 
@@ -662,6 +669,7 @@ app.get("/verify-email", async (req, res) => {
   }
 });
 
+// Endpoint to update user password
 app.post("/api/user/update-password", verifyUser, (req, res) => {
   const { password } = req.body;
 
@@ -703,6 +711,7 @@ app.post("/api/user/update-password", verifyUser, (req, res) => {
     });
 });
 
+// Endpoint to create a new office
 app.post("/add-office", (req, res) => {
   const { office } = req.body;
 
@@ -757,6 +766,7 @@ app.get("/archived-offices", async (req, res) => {
   }
 });
 
+// Endpoint to update a document status
 app.post("/api/docs/update-status", async (req, res) => {
   try {
     const { docId, status } = req.body; // Accept the status as a parameter
@@ -1004,6 +1014,7 @@ app.post("/api/docs/log-forwarding", verifyUser, async (req, res) => {
   }
 });
 
+// Endpoint to mark a document as completed
 app.post("/api/docs/complete", verifyUser, async (req, res) => {
   const { docId, remarks } = req.body; // Include remarks in the request body
   const userId = req.user._id;
@@ -1083,6 +1094,7 @@ app.post("/api/docs/complete", verifyUser, async (req, res) => {
   }
 });
 
+// Endpoint to track a document by controll number
 app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
   try {
     const { codeNumber } = req.params;

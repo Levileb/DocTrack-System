@@ -42,15 +42,15 @@ function LoginForm() {
 
           const { accessToken, refreshToken } = res.data;
           Cookies.set("accessToken", accessToken, {
-            secure: true,
-            sameSite: "Strict",
+            secure: false, // Use true if your server uses HTTPS
+            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
             path: "/",
-            domain: "localhost",
+            // domain: "localhost",
           });
           Cookies.set("refreshToken", refreshToken, {
-            secure: true, // Use true if your server uses HTTPS
-            sameSite: "Strict", // Ensure correct cross-site handling
-            domain: "localhost",
+            secure: false, // Use true if your server uses HTTPS
+            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+            // domain: "localhost",
           });
           localStorage.setItem("role", res.data.role);
 
@@ -62,8 +62,12 @@ function LoginForm() {
               navigate("/home");
             }
           }, 1500);
-        } else if (res.data.Status !== "Success") {
-          toast.error("Incorrect email or password. Please try again.", {
+        }
+      })
+      .catch(() => {
+        toast.error(
+          "Invalid Email or Incorrect Password. Please check and try again.",
+          {
             position: "top-center",
             autoClose: 2000,
             hideProgressBar: true,
@@ -72,20 +76,8 @@ function LoginForm() {
             draggable: false,
             progress: undefined,
             theme: "light",
-          });
-        }
-      })
-      .catch((err) => {
-        toast.error("Incorrect email or password. Please try again.", {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          progress: undefined,
-          theme: "light",
-        });
+          }
+        );
       });
   };
 
