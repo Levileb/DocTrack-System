@@ -16,19 +16,22 @@ const AddUsers = () => {
   const [password, setPassword] = useState("");
   const [position, setPosition] = useState("");
   const [office, setOffice] = useState("");
-  const [offices, setOffices] = useState([]); // State to hold fetched offices
+  const [offices, setOffices] = useState([]);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     // Fetch offices when the component mounts
     axios
-      .get("http://localhost:3001/offices")
+      .get(`${API_URL}/offices`)
       .then((res) => {
         // Filter out archived offices
         const activeOffices = res.data.filter((office) => !office.isArchived);
         setOffices(activeOffices);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
       });
   }, []); // Empty dependency array to run the effect only once when the component mounts
 
@@ -42,7 +45,7 @@ const AddUsers = () => {
     const officeName = selectedOffice ? selectedOffice.office : "";
 
     axios
-      .post("http://localhost:3001/add-user", {
+      .post(`${API_URL}/add-user`, {
         firstname,
         lastname,
         email,
@@ -54,7 +57,7 @@ const AddUsers = () => {
         toast.success("New User is added successfully!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -70,11 +73,11 @@ const AddUsers = () => {
         setOffice("");
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 3000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -92,6 +95,14 @@ const AddUsers = () => {
     setPassword("");
     setPosition("");
     setOffice("");
+  };
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
   };
 
   return (
@@ -179,12 +190,18 @@ const AddUsers = () => {
                 <p>Password:</p>
                 <div className="input-new">
                   <input
-                    type="password"
+                    type={isPasswordVisible ? "text" : "password"}
                     id="password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handlePasswordChange}
                   />
+                  <span
+                    className="toggle-password"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {isPasswordVisible ? "Hide Password" : "Show Password"}
+                  </span>
                 </div>
               </div>
               <div className="adduserbuttons">

@@ -13,34 +13,41 @@ import "react-toastify/dist/ReactToastify.css";
 const ArchiveUsers = () => {
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [data, setData] = useState([]);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
+  const [selectedUserId, setSelectedUserId] = useState(null); // State to store the selected user ID
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     // Fetch archived users from the backend
     const fetchArchivedUsers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3001/archived-users"
-        ); // Corrected URL
-        console.log("Fetched archived users:", response.data); // Log response data
+        const response = await axios.get(`${API_URL}/archived-users`);
+        // console.log("Fetched archived users:", response.data);
         setData(response.data);
       } catch (error) {
-        console.error("Error fetching archived users", error);
+        console.error("Error fetching archived users: ", error);
       }
     };
 
     fetchArchivedUsers();
   }, []);
 
-  const handleRestore = async (userId) => {
+  const handleRestoreClick = (userId) => {
+    setSelectedUserId(userId);
+    setShowConfirmPopup(true); // Show the confirmation popup
+  };
+
+  const confirmRestore = async () => {
+    if (!selectedUserId) return;
+
     try {
-      await axios.post(`http://localhost:3001/restore-user/${userId}`); // Corrected URL
-      // Update the local state to reflect the restored user
-      setData(data.filter((user) => user._id !== userId));
-      console.log("User restored:", userId); // Log restored user ID
+      await axios.post(`${API_URL}/restore-user/${selectedUserId}`);
+      setData(data.filter((user) => user._id !== selectedUserId)); // Update state
       toast.success("User Restored!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
@@ -48,18 +55,26 @@ const ArchiveUsers = () => {
         theme: "light",
       });
     } catch (error) {
-      console.error("Error restoring user", error);
+      console.error("Error restoring user: ", error);
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
         theme: "light",
       });
+    } finally {
+      setShowConfirmPopup(false); // Hide the confirmation popup
+      setSelectedUserId(null); // Reset the selected user ID
     }
+  };
+
+  const cancelRestore = () => {
+    setShowConfirmPopup(false); // Hide the confirmation popup
+    setSelectedUserId(null); // Reset the selected user ID
   };
 
   const filteredData = data.filter((val) => {
@@ -67,7 +82,6 @@ const ArchiveUsers = () => {
     const searchMatch =
       val.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      val.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
       val.office.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -97,13 +111,11 @@ const ArchiveUsers = () => {
                   <IoSearch className="searchIcon" />
                   <input
                     type="search"
-                    name=""
-                    id=""
                     placeholder="Search.."
                     className="search-bar"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                  ></input>
+                  />
                 </div>
               </div>
             </div>
@@ -113,33 +125,39 @@ const ArchiveUsers = () => {
                   <table>
                     <thead>
                       <tr>
-                        <td>First Name</td>
-                        <td>Last Name</td>
-                        <td>Email</td>
-                        <td>Position</td>
+                        <td>#</td>
+                        <td>Name</td>
                         <td>Office</td>
+                        <td>Position</td>
                         <td>Action</td>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.map((val, key) => {
-                        return (
-                          <tr key={key}>
-                            <td>{val.firstname}</td>
-                            <td>{val.lastname}</td>
-                            <td>{val.email}</td>
-                            <td>{val.position}</td>
+                      {filteredData.length > 0 ? (
+                        filteredData.map((val, index) => (
+                          <tr key={val._id}>
+                            <td>{index + 1}</td>
+                            <td>
+                              {val.firstname} {val.lastname}
+                            </td>
                             <td>{val.office}</td>
+                            <td>{val.position}</td>
                             <td>
                               <div className="viewbtn">
-                                <button onClick={() => handleRestore(val._id)}>
+                                <button
+                                  onClick={() => handleRestoreClick(val._id)}
+                                >
                                   Restore
                                 </button>
                               </div>
                             </td>
                           </tr>
-                        );
-                      })}
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="6">No Archived Users Available</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -150,6 +168,20 @@ const ArchiveUsers = () => {
       </div>
       <Footer />
       <ToastContainer />
+
+      {showConfirmPopup && (
+        <div className="confirm-popup">
+          <p>Are you sure you want to restore this user?</p>
+          <div className="popup-content">
+            <button onClick={confirmRestore} className="confirm-btn">
+              Yes
+            </button>
+            <button onClick={cancelRestore} className="cancel-btn">
+              No
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

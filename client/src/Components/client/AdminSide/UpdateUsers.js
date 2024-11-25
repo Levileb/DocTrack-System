@@ -4,58 +4,100 @@ import SidePanel from "../AdminSidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UpdateUsers = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
   const [position, setPosition] = useState("");
   const [office, setOffice] = useState("");
+  const [offices, setOffices] = useState([]); // State to store the list of offices
 
   useEffect(() => {
-    console.log("ID:", id);
     axios
-      .get(`http://localhost:3001/getUser/` + id)
+      .get(`${API_URL}/getUser/` + id)
       .then((result) => {
-        console.log(result);
-        setFirstName(result.data.firstname || ""); // Set initial name value or empty string
+        setFirstName(result.data.firstname || "");
         setLastName(result.data.lastname || "");
-        setEmail(result.data.email || ""); // Set initial email value or empty string
+        // setEmail(result.data.email || "");
         setPosition(result.data.position || "");
         setOffice(result.data.office || "");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log("Error: ", err));
   }, [id]);
 
+  // Fetch the list of offices
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/offices`)
+      .then((result) => {
+        const activeOffices = result.data.filter(
+          (office) => !office.isArchived
+        );
+        setOffices(activeOffices);
+      })
+      .catch((err) => console.log("Error: ", err));
+  }, []);
+
   const Update = (e) => {
+    toast.info("Please wait for a moment..", {
+      position: "top-right",
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
     e.preventDefault();
     axios
-      .put(`http://localhost:3001/updateUser/` + id, {
+      .put(`${API_URL}/updateUser/` + id, {
         firstname,
         lastname,
-        email,
+        // email,
         position,
         office,
       })
-      .then((result) => {
-        console.log(result);
-        navigate("/view-user");
-        // Display alert after successful update
-        alert("Data Updated Successfully");
+      .then(() => {
+        toast.success("User Updated Successfully!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        console.log("Error: ", err);
+      });
+    setTimeout(() => {
+      navigate("/view-user");
+    }, 5000);
   };
 
-  const handleClear = () => {
-    // Clear form fields
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setPosition("");
-    setOffice("");
+  const handleCancel = () => {
+    navigate("/view-user");
   };
 
   return (
@@ -80,6 +122,7 @@ const UpdateUsers = () => {
                     onChange={(e) => setFirstName(e.target.value)}
                   />
                 </div>
+
                 <p>Last Name:</p>
                 <div className="input-new">
                   <input
@@ -93,13 +136,21 @@ const UpdateUsers = () => {
 
                 <p>Designated Office:</p>
                 <div className="input-new">
-                  <input
-                    type="text"
+                  <select
                     id="office"
                     required
                     value={office}
                     onChange={(e) => setOffice(e.target.value)}
-                  />
+                  >
+                    <option value="" disabled>
+                      Select an office
+                    </option>
+                    {offices.map((officeItem) => (
+                      <option key={officeItem._id} value={officeItem.office}>
+                        {officeItem.office}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <p>Position:</p>
@@ -113,7 +164,7 @@ const UpdateUsers = () => {
                   />
                 </div>
 
-                <p>Email:</p>
+                {/* <p>Email:</p>
                 <div className="input-new">
                   <input
                     type="email"
@@ -122,24 +173,25 @@ const UpdateUsers = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                </div>
+                </div> */}
               </div>
               <div className="adduserbuttons">
                 <div className="ClearButton">
-                  <button type="button" onClick={handleClear}>
-                    Clear
+                  <button type="button" onClick={handleCancel}>
+                    Cancel
                   </button>
                 </div>
                 <div className="SubmitButton">
-                  <button type="submit">Update</button> {/* Change here */}
+                  <button type="submit">Update</button>
                 </div>
               </div>
             </form>
           </div>
         </div>
       </div>
-      <SidePanel /> {/* Always render the SidePanel */}
+      <SidePanel />
       <Footer />
+      <ToastContainer />
     </>
   );
 };

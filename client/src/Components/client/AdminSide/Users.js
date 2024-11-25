@@ -17,19 +17,22 @@ const Users = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupUserData, setPopupUserData] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
   const navigate = useNavigate();
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     // Fetch users data from the database
     axios
-      .get("http://localhost:3001/view-user")
+      .get(`${API_URL}/view-user`)
       .then((response) => {
         // Filter out archived users
         const activeUsers = response.data.filter((user) => !user.isArchived);
         setUsers(activeUsers); // Set the filtered data to the state
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching users: ", error);
       });
   }, []);
 
@@ -46,16 +49,18 @@ const Users = () => {
     if (selectedUserId !== null) {
       // Fetch details of the selected user based on the id
       axios
-        .get(`http://localhost:3001/api/user/details/${selectedUserId}`)
+        .get(`${API_URL}/api/user/details/${selectedUserId}`, {
+          withCredentials: true,
+        })
         .then((response) => {
           setPopupUserData(response.data); // Set the fetched user data for the popup
         })
         .catch((error) => {
-          console.error("Error fetching user details:", error);
+          console.error("Error fetching user details: ", error);
           toast.error("Something went wrong, please try again!", {
             position: "top-right",
             autoClose: 2000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
@@ -70,16 +75,29 @@ const Users = () => {
     navigate(`/update-user/${selectedUserId}`); // Pass selectedUserId in the URL
   };
 
+  const ArchiveUser = () => {
+    setShowPopup(false);
+    setShowConfirmPopup(true);
+  };
+
+  const confirmArchive = () => {
+    archiveUser();
+  };
+
+  const cancelArchive = () => {
+    setShowConfirmPopup(false);
+  };
+
   const archiveUser = () => {
     axios
-      .post(`http://localhost:3001/archive-user/${selectedUserId}`)
-      .then((response) => {
-        setShowPopup(false);
+      .post(`${API_URL}/archive-user/${selectedUserId}`)
+      .then(() => {
+        setShowConfirmPopup(false);
         setUsers(users.filter((user) => user._id !== selectedUserId));
         toast.success("User Moved to Archive!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -88,11 +106,11 @@ const Users = () => {
         });
       })
       .catch((error) => {
-        console.error("Error archiving user:", error);
+        console.error("Error archiving user: ", error);
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -106,10 +124,13 @@ const Users = () => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredUsers = users.filter((user) =>
-    `${user.firstname} ${user.lastname}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      `${user.firstname} ${user.lastname}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      user.office.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.position.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -232,11 +253,24 @@ const Users = () => {
                 {/* Call handleEditUser on click */}
               </div>
               <div className="archivebtn secondarybtn">
-                <button className="arc-btn" onClick={archiveUser}>
+                <button className="arc-btn" onClick={ArchiveUser}>
                   Archive
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {showConfirmPopup && (
+        <div className="confirm-popup">
+          <p>Are you sure you want to archive this user?</p>
+          <div className="popup-content">
+            <button onClick={confirmArchive} className="confirm-btn">
+              Yes
+            </button>
+            <button onClick={cancelArchive} className="cancel-btn">
+              No
+            </button>
           </div>
         </div>
       )}

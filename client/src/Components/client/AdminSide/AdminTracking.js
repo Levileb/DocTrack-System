@@ -8,11 +8,13 @@ const AdminTracking = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [trackingInfo, setTrackingInfo] = useState(null);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const handleSearch = async (event) => {
     event.preventDefault();
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/docs/tracking-info/${searchTerm}`
+        `${API_URL}/api/docs/tracking-info/${searchTerm}`
       );
       const data = response.data;
 
@@ -85,7 +87,11 @@ const AdminTracking = () => {
                   <h2>Tracking Information</h2>
                   <p>Code Number: {trackingInfo.codeNumber}</p>
                   <p>Title: {trackingInfo.documentTitle}</p>
-                  <p>Status: {trackingInfo.status}</p>
+                  <p>
+                    Submitted By: {trackingInfo.sender} -{" "}
+                    {trackingInfo.officeOrigin}
+                  </p>
+                  <p>Current Status: {trackingInfo.status}</p>
 
                   <div className="tracking-history">
                     <div className="timeline">
@@ -113,6 +119,7 @@ const AdminTracking = () => {
                                   {new Date(log.receivedAt).toLocaleString()}
                                 </p>
                                 <p>Received By: {log.receivedBy}</p>
+                                <p>Office: {log.office}</p>
                                 <p>Document Title: {log.documentTitle}</p>
                                 <p className="remarks">
                                   Remarks: {log.remarks}
@@ -158,6 +165,7 @@ const AdminTracking = () => {
                                   {new Date(log.completedAt).toLocaleString()}
                                 </p>
                                 <p>Completed By: {log.completedBy}</p>
+                                <p>Office: {log.office}</p>
                                 <p>Document Title: {log.documentTitle}</p>
                                 <p className="remarks">
                                   Remarks: {log.remarks}

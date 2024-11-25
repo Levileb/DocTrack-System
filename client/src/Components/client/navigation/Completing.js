@@ -11,36 +11,7 @@ const Completing = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
 
-  // const getCurrentDateTime = () => {
-  //   const today = new Date();
-  //   const year = today.getFullYear();
-  //   let month = today.getMonth() + 1;
-  //   let day = today.getDate();
-  //   let hours = today.getHours();
-  //   let minutes = today.getMinutes();
-  //   let seconds = today.getSeconds();
-  //   let ampm = hours >= 12 ? "PM" : "AM";
-  //   hours = hours % 12;
-  //   hours = hours ? hours : 12;
-
-  //   if (month < 10) month = "0" + month;
-  //   if (day < 10) day = "0" + day;
-  //   if (hours < 10) hours = "0" + hours;
-  //   if (minutes < 10) minutes = "0" + minutes;
-  //   if (seconds < 10) seconds = "0" + seconds;
-
-  //   return `${month}/${day}/${year} - ${hours}:${minutes}:${seconds} ${ampm}`;
-  // };
-
-  // const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setCurrentDateTime(getCurrentDateTime());
-  //   }, 1000);
-
-  //   return () => clearInterval(interval); // Clear the interval on component unmount
-  // }, []);
+  const API_URL = process.env.REACT_APP_API_URL;
 
   const [formData, setFormData] = useState({
     date: "",
@@ -56,9 +27,9 @@ const Completing = () => {
     if (docId) {
       const fetchDocument = async () => {
         try {
-          const docResponse = await axios.get(
-            `http://localhost:3001/api/docs/${docId}`
-          );
+          const docResponse = await axios.get(`${API_URL}/api/docs/${docId}`, {
+            withCredentials: true,
+          });
           setFormData((prevFormData) => ({
             ...prevFormData,
             date: docResponse.data.date,
@@ -90,7 +61,7 @@ const Completing = () => {
   const handleSubmitForm = async (event) => {
     event.preventDefault();
     try {
-      await axios.post("http://localhost:3001/api/docs/complete", {
+      await axios.post(`${API_URL}/api/docs/complete`, {
         docId: docId,
         remarks: formData.remarks,
       });
@@ -98,7 +69,7 @@ const Completing = () => {
       toast.success("Document Process Completed!", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
@@ -111,7 +82,7 @@ const Completing = () => {
       toast.error("Something went wrong, please try again!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
@@ -161,9 +132,6 @@ const Completing = () => {
             <div className="filter">
               <p>Completing</p>
             </div>
-            {/* <div className="date-time" style={{ marginRight: "5px" }}>
-              <small>Philippines | {currentDateTime}</small>
-            </div> */}
           </div>
           <div className="contents">
             <form className="SendingForm" onSubmit={handleSubmitForm}>

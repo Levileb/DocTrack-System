@@ -15,7 +15,11 @@ const AddOffice = () => {
   const [office, setOffice] = useState("");
   const [offices, setOffices] = useState([]); // State to hold fetched offices
   const [searchTerm, setSearchTerm] = useState(""); // State to hold search input
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false); // State for confirmation popup
+  const [officeToArchive, setOfficeToArchive] = useState(null); // State to track which office is being archived
   const navigate = useNavigate();
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     // Fetch offices when the component mounts
@@ -24,25 +28,25 @@ const AddOffice = () => {
 
   const fetchOffices = () => {
     axios
-      .get("http://localhost:3001/offices")
+      .get(`${API_URL}/offices`)
       .then((res) => {
         const activeOffices = res.data.filter((office) => !office.isArchived);
         setOffices(activeOffices);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
       });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:3001/add-office", { office })
+      .post(`${API_URL}/add-office`, { office })
       .then((res) => {
         toast.success("A new Office is added successfully!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -53,11 +57,11 @@ const AddOffice = () => {
         fetchOffices(); // Fetch updated list of offices
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error: ", err);
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -68,34 +72,52 @@ const AddOffice = () => {
   };
 
   const handleArchive = (id) => {
-    axios
-      .post(`http://localhost:3001/archive-office/${id}`)
-      .then((res) => {
-        toast.success("Office moved to Archived!", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
+    // Set the office to archive and show the confirmation popup
+    setOfficeToArchive(id);
+    setShowConfirmPopup(true);
+  };
+
+  const handleArchiveConfirm = () => {
+    // Proceed with archiving the selected office
+    if (officeToArchive) {
+      axios
+        .post(`${API_URL}/archive-office/${officeToArchive}`)
+        .then((res) => {
+          toast.success("Office moved to Archived!", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+          fetchOffices(); // Fetch updated list of offices
+        })
+        .catch((err) => {
+          console.error("Error archiving office:", err);
+          toast.error("Something went wrong, please try again!", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        })
+        .finally(() => {
+          setShowConfirmPopup(false);
+          setOfficeToArchive(null);
         });
-        fetchOffices(); // Fetch updated list of offices
-      })
-      .catch((err) => {
-        console.error("Error archiving office:", err);
-        toast.error("Something went wrong, please try again!", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-      });
+    }
+  };
+
+  const handleCancelArchive = () => {
+    setShowConfirmPopup(false);
+    setOfficeToArchive(null);
   };
 
   const handleCancel = () => {
@@ -204,6 +226,20 @@ const AddOffice = () => {
       <SidePanel />
       <Footer />
       <ToastContainer />
+
+      {showConfirmPopup && (
+        <div className="confirm-popup">
+          <p>Are you sure you want to archive this office?</p>
+          <div className="popup-content">
+            <button onClick={handleArchiveConfirm} className="confirm-btn">
+              Yes
+            </button>
+            <button onClick={handleCancelArchive} className="cancel-btn">
+              No
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

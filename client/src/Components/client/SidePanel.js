@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LuHome, LuFolderCheck } from "react-icons/lu";
-import { RiFolderReceivedLine, RiMailSendLine } from "react-icons/ri";
+import { RiMailSendLine } from "react-icons/ri";
 import { FaRegShareFromSquare } from "react-icons/fa6";
-import { MdLogout, MdOutlineContentPasteSearch } from "react-icons/md";
+import { FiInbox } from "react-icons/fi";
+import { MdLogout } from "react-icons/md";
+import { GrMapLocation } from "react-icons/gr";
+import { CiUser } from "react-icons/ci";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import axios from "axios";
-import { AiFillCloseCircle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
@@ -21,11 +23,13 @@ const SidePanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   // Fetch user details and handle token refreshing
   useEffect(() => {
     const fetchUserDetails = async () => {
       const token = Cookies.get("accessToken");
-      console.log("Access Token:", token);
+      // console.log("Access Token:", token);
 
       // If access token is missing, try to refresh it
       if (!token) {
@@ -35,14 +39,14 @@ const SidePanel = () => {
       }
 
       try {
-        const res = await axios.get("http://localhost:3001/api/user/details", {
+        const res = await axios.get(`${API_URL}/api/user/details`, {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserDetails(res.data);
-        console.log("User details fetched:", res.data);
+        // console.log("User details fetched:", res.data);
       } catch (err) {
-        console.error("Error fetching user details:", err);
+        console.error("Error: ", err);
         await refreshToken();
       }
     };
@@ -50,7 +54,7 @@ const SidePanel = () => {
     // Function to refresh the access token using the refresh token
     const refreshToken = async () => {
       const refreshToken = Cookies.get("refreshToken");
-      console.log("Refresh Token:", refreshToken); // Log to verify refresh token presence
+      // console.log("Refresh Token:", refreshToken);
 
       if (!refreshToken) {
         console.error("Refresh token is missing");
@@ -59,17 +63,13 @@ const SidePanel = () => {
       }
 
       try {
-        const res = await axios.post(
-          "http://localhost:3001/api/refresh-token",
-          null,
-          {
-            headers: { Authorization: `Bearer ${refreshToken}` },
-            withCredentials: true,
-          }
-        );
+        const res = await axios.post(`${API_URL}/api/refresh-token`, null, {
+          headers: { Authorization: `Bearer ${refreshToken}` },
+          withCredentials: true,
+        });
 
         const newAccessToken = res.data.accessToken;
-        console.log("New Access Token:", newAccessToken);
+        // console.log("New Access Token:", newAccessToken);
 
         // Set the new access token in cookies
         Cookies.set("accessToken", newAccessToken, {
@@ -80,7 +80,7 @@ const SidePanel = () => {
         // Retry fetching user details with the new access token
         await fetchUserDetails();
       } catch (err) {
-        console.error("Error refreshing token:", err);
+        console.error("Error refreshing token: ", err);
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
         navigate("/login");
@@ -158,8 +158,10 @@ const SidePanel = () => {
                 >
                   {firstname}
                 </li>
-                <li>
-                  <small>{capitalizeRole(role)}</small>
+                <li className="role-container">
+                  <small className="role-user">
+                    {capitalizeRole(role)} <CiUser className="role-icon" />
+                  </small>
                 </li>
               </ul>
             </div>
@@ -196,48 +198,42 @@ const SidePanel = () => {
                   className={isActive("/track-document") ? "active" : ""}
                   title="Track Document Page"
                 >
-                  <MdOutlineContentPasteSearch
-                    className="icon"
-                    title="Track Document Page"
-                  />
+                  <GrMapLocation className="icon" title="Track Document Page" />
                   <p>Track Document</p>
                 </li>
               </Link>
 
-              <Link to="/incoming">
+              <Link to="/inbox">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/incoming") ? "active" : ""}
-                  title="Incoming Page"
+                  className={isActive("/inbox") ? "active" : ""}
+                  title="Inbox Page"
                 >
-                  <RiFolderReceivedLine
-                    className="icon"
-                    title="Incoming Page"
-                  />
-                  <p>Incoming</p>
+                  <FiInbox className="icon" title="Inbox Page" />
+                  <p>Inbox</p>
                 </li>
               </Link>
 
-              <Link to="/outgoing">
+              <Link to="/forwarded-logs">
                 <li
                   onClick={scrollToTop}
-                  className={isActive("/outgoing") ? "active" : ""}
-                  title="Outgoing Page"
+                  className={isActive("/forwarded-logs") ? "active" : ""}
+                  title="Forwarded Logs"
                 >
                   <FaRegShareFromSquare
                     className="icon"
-                    title="Outgoing Page"
+                    title="Forwarded Logs"
                   />
-                  <p>Outgoing</p>
+                  <p>Forwarded</p>
                 </li>
               </Link>
 
               <Link onClick={scrollToTop} to="/completed">
                 <li
                   className={isActive("/completed") ? "active" : ""}
-                  title="Completed Page"
+                  title="Completed Logs"
                 >
-                  <LuFolderCheck className="icon" title="Completed Page" />
+                  <LuFolderCheck className="icon" title="Completed Logs" />
                   <p>Completed</p>
                 </li>
               </Link>
@@ -263,10 +259,6 @@ const SidePanel = () => {
         <div className="popup-container">
           <div className="popup lgt">
             <label>Are you sure you want to logout?</label>
-
-            <button className="closebtn" onClick={closePopup}>
-              <AiFillCloseCircle className="closeicon" />
-            </button>
 
             <div className="yesnobtns">
               <div className="primarybtn" onClick={closePopup}>

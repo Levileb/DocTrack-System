@@ -13,6 +13,11 @@ import "react-toastify/dist/ReactToastify.css";
 const UpdateDocument = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [allUsers, setAllUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [offices, setOffices] = useState([]);
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   const [formData, setFormData] = useState({
     date: "",
@@ -21,15 +26,61 @@ const UpdateDocument = () => {
     originating: "",
     recipient: "",
     destination: "",
+    remarks: "",
   });
+  useEffect(() => {
+    const fetchUserDetails = () => {
+      axios
+        .get(`${API_URL}/api/user/details`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          const { firstname, lastname, office } = res.data;
+          const fullName = `${firstname} ${lastname}`;
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            sender: fullName,
+            originating: office,
+          }));
+        })
+        .catch((err) => console.error(err));
+    };
+    const fetchData = async () => {
+      try {
+        const userResponse = await axios.get(`${API_URL}/view-user`);
+        const filteredUsers = userResponse.data.filter(
+          (user) => user.role === "user" && !user.isArchived
+        );
+        setAllUsers(filteredUsers);
+        setFilteredUsers(filteredUsers);
 
+        const officeResponse = await axios.get(`${API_URL}/offices`);
+        const filteredOffices = officeResponse.data.filter(
+          (office) => !office.isArchived
+        );
+        setOffices(filteredOffices);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchUserDetails();
+    fetchData();
+  }, []);
   useEffect(() => {
     // Fetch document data from the server based on the document id
     axios
-      .get(`http://localhost:3001/api/docs/${id}`)
+      .get(`${API_URL}/api/docs/${id}`, { withCredentials: true })
       .then((result) => {
-        const { date, title, sender, originating, recipient, destination } =
-          result.data;
+        const {
+          date,
+          title,
+          sender,
+          originating,
+          recipient,
+          destination,
+          remarks,
+        } = result.data;
+
         setFormData({
           date,
           title,
@@ -37,10 +88,36 @@ const UpdateDocument = () => {
           originating,
           recipient,
           destination,
+          remarks,
         });
       })
       .catch((err) => console.log(err));
   }, [id]);
+
+  // Update filtered users based on selected destination office
+  const handleDestinationChange = (event) => {
+    const selectedOffice = event.target.value;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      destination: selectedOffice,
+      recipient: "",
+    }));
+
+    const officeUsers = allUsers.filter(
+      (user) => user.office === selectedOffice
+    );
+    setFilteredUsers(officeUsers);
+  };
+
+  const handleRecipientChange = (event) => {
+    const selectedRecipient = event.target.value;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      recipient: selectedRecipient,
+    }));
+  };
 
   const handleInputChange = (event) => {
     const { id, value } = event.target;
@@ -55,12 +132,14 @@ const UpdateDocument = () => {
 
     // Update the document data
     axios
-      .put(`http://localhost:3001/api/docs/${id}`, formData)
+      .put(`${API_URL}/api/docs/${id}`, formData, {
+        withCredentials: true,
+      })
       .then((res) => {
-        toast.success("Document Successfully Updated!", {
+        toast.success("Document Updated!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -73,7 +152,7 @@ const UpdateDocument = () => {
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 3000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -86,15 +165,8 @@ const UpdateDocument = () => {
     }, 2100);
   };
 
-  const handleClear = () => {
-    setFormData({
-      date: "",
-      title: "",
-      sender: "",
-      originating: "",
-      recipient: "",
-      destination: "",
-    });
+  const handleCancel = () => {
+    navigate("/home");
   };
 
   const Tooltip = ({ text, children }) => {
@@ -109,6 +181,25 @@ const UpdateDocument = () => {
         {isVisible && <div className="tooltip2">{text}</div>}
       </div>
     );
+  };
+
+  const formatDateForDisplay = (isoDateString) => {
+    const date = new Date(isoDateString);
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    return `${month}/${day}/${year} - ${hours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -131,11 +222,8 @@ const UpdateDocument = () => {
 
           <div className="FormWrapper">
             <form action="" className="AddUserForm" onSubmit={handleSubmit}>
-              <div className="FormText">
-                <p>Date:</p>
-                <div className="input-new">
-                  <input type="text" id="date" value={formData.date} readOnly />
-                </div>
+              <div className="FormText submitdocument">
+                <p>Date Submitted: {formatDateForDisplay(formData.date)}</p>
 
                 <p>Title:</p>
                 <div className="input-new">
@@ -148,27 +236,47 @@ const UpdateDocument = () => {
                   />
                 </div>
 
-                {/* <p>Sender:</p>
+                <p>Destination Office:</p>
                 <div className="input-new">
-                  <input
-                    type="text"
-                    id="sender"
-                    value={formData.sender}
-                    readOnly
-                  />
+                  <select
+                    id="destination"
+                    value={formData.destination}
+                    onChange={handleDestinationChange}
+                  >
+                    <option value="" disabled>
+                      Select Office
+                    </option>
+                    {offices.map((officeItem, index) => (
+                      <option key={index} value={officeItem.office}>
+                        {officeItem.office}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <p>Originating Office:</p>
-                <div className="input-new">
-                  <input
-                    type="text"
-                    id="originating"
-                    value={formData.originating}
-                    readOnly
-                  />
-                </div> */}
-
                 <p>Recipient:</p>
+                <div className="input-new">
+                  <select
+                    id="recipient"
+                    value={formData.recipient}
+                    onChange={handleRecipientChange}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Recipient
+                    </option>
+                    {filteredUsers.map((user) => (
+                      <option
+                        key={user._id}
+                        value={`${user.firstname} ${user.lastname}`}
+                      >
+                        {user.firstname} {user.lastname}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* <p>Recipient:</p>
                 <div className="input-new">
                   <input
                     type="text"
@@ -188,12 +296,23 @@ const UpdateDocument = () => {
                     onChange={handleInputChange}
                     required
                   />
+                </div> */}
+
+                <p>Remarks:</p>
+                <div className="input-new">
+                  <textarea
+                    className="inp-remarks"
+                    type="text"
+                    id="remarks"
+                    value={formData.remarks}
+                    onChange={handleInputChange}
+                  ></textarea>
                 </div>
               </div>
-              <div className="adduserbuttons">
+              <div className="adduserbuttons submit">
                 <div className="ClearButton">
-                  <button type="button" onClick={handleClear}>
-                    Clear
+                  <button type="button" onClick={handleCancel}>
+                    Cancel
                   </button>
                 </div>
                 <div className="SubmitButton">

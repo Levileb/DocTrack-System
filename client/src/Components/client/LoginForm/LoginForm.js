@@ -19,19 +19,17 @@ function LoginForm() {
 
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   axios.defaults.withCredentials = true;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post(
-        "http://localhost:3001/login",
-        { email, password },
-        { withCredentials: true }
-      ) // Ensure credentials are sent
+      .post(`${API_URL}/login`, { email, password }, { withCredentials: true }) // Ensure credentials are sent
       .then((res) => {
         if (res.data.Status === "Success") {
-          toast.success("Login Successful!", {
+          toast.success("Login Success. Welcome!", {
             position: "top-center",
             autoClose: 2000,
             hideProgressBar: true,
@@ -44,22 +42,16 @@ function LoginForm() {
 
           const { accessToken, refreshToken } = res.data;
           Cookies.set("accessToken", accessToken, {
-            secure: true,
-            sameSite: "Strict",
+            secure: false, // Use true if your server uses HTTPS
+            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
             path: "/",
-            domain: "localhost",
+            // domain: "localhost",
           });
           Cookies.set("refreshToken", refreshToken, {
-            secure: true, // Use true if your server uses HTTPS
-            sameSite: "Strict", // Ensure correct cross-site handling
-            domain: "localhost",
+            secure: false, // Use true if your server uses HTTPS
+            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+            // domain: "localhost",
           });
-          console.log(
-            "Access Tokens:",
-            accessToken,
-            "Refresh Tokens:",
-            refreshToken
-          );
           localStorage.setItem("role", res.data.role);
 
           // Navigate based on the user's role
@@ -70,37 +62,22 @@ function LoginForm() {
               navigate("/home");
             }
           }, 1500);
-        } else if (res.data.Status !== "Success") {
-          setEmail("");
-          setPassword("");
-          // setLoginStatus("Incorrect email or password. Please try again.");
-          toast.error("Incorrect email or password. Please try again.", {
+        }
+      })
+      .catch(() => {
+        toast.error(
+          "Invalid Email or Incorrect Password. Please check and try again.",
+          {
             position: "top-center",
-            autoClose: 5000,
+            autoClose: 2000,
             hideProgressBar: true,
             closeOnClick: true,
             pauseOnHover: false,
             draggable: false,
             progress: undefined,
             theme: "light",
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setEmail("");
-        setPassword("");
-        // setLoginStatus("Incorrect email or password. Please try again.");
-        toast.error("Incorrect email or password. Please try again.", {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          progress: undefined,
-          theme: "light",
-        });
+          }
+        );
       });
   };
 
@@ -176,5 +153,4 @@ function LoginForm() {
     </>
   );
 }
-//I am trying to edit this file and push to the main repository
 export default LoginForm;

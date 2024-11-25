@@ -23,6 +23,7 @@ import ArchiveOffice from "./Components/client/AdminSide/ArchiveOffice"; //Admin
 import AdminTracking from "./Components/client/AdminSide/AdminTracking";
 import AdminProfile from "./Components/client/AdminSide/AdminProfile";
 import LandingPage from "./Components/client/LandingPage";
+import VerifyEmail from "./Components/client/VerifyEmail";
 
 function App() {
   return (
@@ -30,13 +31,14 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/submit-document" element={<SubmitDocu />} />
-        <Route path="/incoming" element={<Receive />} />
+        <Route path="/inbox" element={<Receive />} />
         <Route path="/forwarding-document/:docId" element={<Forwarding />} />
         <Route path="/receiving-document/:docId" element={<Receiving />} />
         <Route path="/completing-document/:docId" element={<Completing />} />
-        <Route path="/outgoing" element={<Forward />} />
+        <Route path="/forwarded-logs" element={<Forward />} />
         <Route path="/completed" element={<Complete />} />
         <Route path="/add-office" element={<AddOffice />} />
         <Route path="/add-user" element={<AddUser />} />

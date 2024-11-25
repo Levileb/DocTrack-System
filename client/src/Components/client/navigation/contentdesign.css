@@ -32,7 +32,7 @@ td {
 
 .content-table {
   padding: 10px 25px 20px 25px;
-  margin-bottom: 100px;
+  /* margin-bottom: 100px; */
 }
 
 .viewbtn button {
@@ -42,6 +42,7 @@ td {
   border: none;
   font-size: 15px;
   font-weight: 700;
+  font-family: sans-serif;
   cursor: pointer;
 }
 .viewbtn button:hover {
@@ -83,7 +84,8 @@ td {
   display: flex;
   margin: auto;
   flex-direction: column;
-  width: 300px;
+  min-width: 320px;
+  max-width: 500px;
   height: fit-content;
   color: #00162d;
   background: #ffffff;
@@ -235,12 +237,12 @@ td {
   width: 70px;
   font-size: 13px;
   color: #000000;
-  /* background: #c18907; */
-  background: #aebed0;
+  background: #f4fcff;
+  /* background: #aebed0; */
   cursor: pointer;
 }
 .popup .archivebtn .forw-btn:hover {
-  background: #93a0b0;
+  background: #cfcfcf;
 }
 .popup .archivebtn .edit-btn {
   width: 70px;
@@ -253,12 +255,12 @@ td {
   width: 90px;
   font-size: 13px;
   color: #000000;
-  /* background: #006005; */
-  background: #aebed0;
+  background: #f4fcff;
+  /* background: #aebed0; */
   cursor: pointer;
 }
 .popup .archivebtn .comp-btn:hover {
-  background: #93a0b0;
+  background: #cfcfcf;
 }
 .popup.savesuccess {
   display: flex;
@@ -514,10 +516,13 @@ td {
 }
 .FormWrapper.noffice {
   width: max-content;
-  padding: 20px 10% 0px 0px;
+  padding: 10px 10% 0px 0px;
 }
 .AddOfficeForm {
   width: 100%;
+  height: 150px;
+  padding: 10px;
+  border: 1px solid black;
 }
 .listofficetable {
   width: 50vw;
@@ -547,15 +552,16 @@ td {
 
 .popup.homeView {
   max-width: 500px;
+  min-width: 320px;
 }
 
 .popupsubmitting {
   border-radius: 15px;
   padding: 10px;
   display: flex;
-  margin: auto;
+  margin: 50px;
   flex-direction: column;
-  width: 300px;
+  min-width: 300px;
   color: #00162d;
   background: #ffffff;
   z-index: 11111;
@@ -580,10 +586,6 @@ td {
   color: #6f0000;
   background: #fff;
 }
-.popupsubmitting label {
-  display: flex;
-  font-weight: 600;
-}
 .popupsubmitting .actionbtn {
   display: flex;
   justify-content: center;
@@ -593,6 +595,11 @@ td {
   font-weight: bold;
   text-align: center;
   margin-bottom: 15px;
+}
+.qrCodeImage {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
 }
 
 /* QrScanner Styles - Start */
@@ -675,7 +682,6 @@ input::-webkit-inner-spin-button {
 }
 .dtp-top .search-button button {
   font-size: 16px;
-  height: 24px;
   width: 80px;
   margin-left: 10px;
   box-shadow: none;
@@ -685,7 +691,9 @@ input::-webkit-inner-spin-button {
   align-items: center;
   justify-content: center;
 }
-
+.track-results {
+  max-width: 550px;
+}
 /* The new deign --START-- */
 .tracking-history {
   display: flex;
@@ -772,6 +780,7 @@ input::-webkit-inner-spin-button {
   cursor: pointer;
   border-radius: 4px;
   font-weight: 700;
+  font-family: sans-serif;
   width: 100px;
 }
 
@@ -812,6 +821,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   width: 100%;
   margin-bottom: 5px;
+  padding: 0 10px;
   align-items: center;
   justify-content: flex-end;
 }
@@ -823,7 +833,6 @@ input::-webkit-inner-spin-button {
   border-radius: 5px;
   font-family: Arial, sans-serif;
   cursor: pointer;
-  margin-right: 10px;
   background: #fff;
   display: inline-flex;
   justify-content: center;
@@ -890,6 +899,107 @@ input::-webkit-inner-spin-button {
   cursor: pointer;
 }
 
+.popup-container.options-wrapper {
+  background: #ffffff;
+}
+.popup-container.options-wrapper .option-container section {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  width: fit-content;
+  border-bottom: 1px solid #000000;
+}
+.popup-container.options-wrapper .option-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: fit-content;
+  transition: 0.3s ease-in-out;
+}
+.popup-container.options-wrapper .option-container .option-buttons {
+  display: flex;
+  margin: 10px auto;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-evenly;
+}
+.popup-container.options-wrapper
+  .option-container
+  .option-buttons
+  .secondarybtn.fwd
+  button:hover {
+  background: #dddddd;
+}
+.popup-container.options-wrapper
+  .option-container
+  .option-buttons
+  .secondarybtn.cmp
+  button:hover {
+  background: #dddddd;
+}
+.popup-container.options-wrapper
+  .option-container
+  .option-buttons
+  .secondarybtn.cncl
+  button {
+  color: #ffffff;
+  background: #cc0000;
+}
+
+.confirm-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+}
+.popup-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.confirm-btn,
+.cancel-btn {
+  margin: 10px;
+  padding: 5px 15px;
+  cursor: pointer;
+  width: 100px;
+  align-items: center;
+  justify-content: center;
+  color: #002349;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: sans-serif;
+  height: 30px;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  box-shadow: 0px 1px 1px #00162d;
+}
+.confirm-btn:hover,
+.cancel-btn:hover {
+  background: #d4d4d4;
+}
+
+.role-container {
+  display: flex;
+  align-items: center;
+}
+.role-user {
+  display: flex;
+}
+.role-icon {
+  /* display: flex; */
+  align-self: center;
+  /* font-size: 11px; */
+}
+
 /* Media Queries for mobile screens */
 @media screen and (max-width: 650px) {
   .qr-reader {
@@ -913,7 +1023,7 @@ input::-webkit-inner-spin-button {
 @media screen and (max-width: 490px) {
   td {
     padding: 0;
-    font-size: 14px;
+    font-size: 12px;
   }
   .PanelHeader .filter p {
     font-size: 15px;
@@ -962,14 +1072,13 @@ input::-webkit-inner-spin-button {
   .PanelHeader .scanbtn p {
     display: none;
   }
-  /* .PanelHeader .backbtn p {
-    font-size: 14px;
-    margin: 5px;
+  .AddUserHeader.arc .search {
+    display: none;
   }
-  .PanelHeader .backbtn button {
-    width: max-content;
-    height: auto;
-  } */
+  .popup-container.options-wrapper .option-container {
+    width: 320px;
+    margin-left: 50px;
+  }
 }
 @media screen and (max-width: 750px) {
   .noContainer {

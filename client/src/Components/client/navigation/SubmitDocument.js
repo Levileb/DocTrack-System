@@ -10,6 +10,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const SubmitDocument = () => {
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const getCurrentDateTime = () => {
     return new Date().toISOString(); // Returns a string in ISO 8601 format
   };
@@ -42,6 +44,7 @@ const SubmitDocument = () => {
     recipient: "",
     destination: "",
     remarks: "",
+    email: "",
   });
 
   const [showQR, setShowQR] = useState(false);
@@ -53,7 +56,7 @@ const SubmitDocument = () => {
   useEffect(() => {
     const fetchUserDetails = () => {
       axios
-        .get("http://localhost:3001/api/user/details", {
+        .get(`${API_URL}/api/user/details`, {
           withCredentials: true,
         })
         .then((res) => {
@@ -70,10 +73,12 @@ const SubmitDocument = () => {
 
     const fetchUsers = () => {
       axios
-        .get("http://localhost:3001/view-user")
+        .get(`${API_URL}/view-user`)
         .then((res) => {
           const allUsers = res.data;
-          const filteredUsers = allUsers.filter((user) => user.role === "user");
+          const filteredUsers = allUsers.filter(
+            (user) => user.role === "user" && !user.isArchived
+          );
           setUsers(filteredUsers);
           // Filter out the sender from the list of users for the recipient dropdown
           const filtered = allUsers.filter(
@@ -86,9 +91,10 @@ const SubmitDocument = () => {
 
     const fetchOffices = () => {
       axios
-        .get("http://localhost:3001/offices")
+        .get(`${API_URL}/offices`)
         .then((res) => {
-          setOffices(res.data);
+          const offices = res.data.filter((office) => !office.isArchived);
+          setOffices(offices);
         })
         .catch((err) => console.error("Error fetching offices:", err));
     };
@@ -98,35 +104,57 @@ const SubmitDocument = () => {
     fetchOffices();
   }, [formData.sender]); // Added dependency here
 
-  const handleInputChange = (event) => {
-    const { id, value } = event.target;
-    let destination = formData.destination;
-
-    if (id === "recipient") {
-      const selectedUser = users.find(
-        (user) => `${user.firstname} ${user.lastname}` === value
-      );
-      if (selectedUser) {
-        destination = selectedUser.office;
-      }
-    }
+  // Update filtered users based on selected destination office
+  const handleDestinationChange = (event) => {
+    const selectedOffice = event.target.value;
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [id]: value,
-      destination: id === "recipient" ? destination : prevFormData.destination,
+      destination: selectedOffice,
+      recipient: "",
     }));
+
+    const officeUsers = users.filter((user) => user.office === selectedOffice);
+    setFilteredUsers(officeUsers);
   };
 
-  useEffect(() => {
-    // Update the filteredUsers list whenever the sender changes
-    if (formData.sender) {
-      const filtered = users.filter(
-        (user) => `${user.firstname} ${user.lastname}` !== formData.sender
+  const handleRecipientChange = (event) => {
+    const selectedRecipient = event.target.value;
+
+    if (selectedRecipient === "All") {
+      const allRecipients = filteredUsers.map(
+        (user) => `${user.firstname} ${user.lastname}`
       );
-      setFilteredUsers(filtered);
+      const allEmails = filteredUsers.map((user) => user.email);
+      console.log("All Emails Selected", allEmails);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recipient: allRecipients.join(", "),
+        email: allEmails.join(", "),
+      }));
+    } else {
+      // Find the selected user's email
+      const selectedUser = filteredUsers.find(
+        (user) => `${user.firstname} ${user.lastname}` === selectedRecipient
+      );
+
+      const emailRecipient = selectedUser ? selectedUser.email : "";
+      console.log("Selected Email: ", emailRecipient);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recipient: selectedRecipient,
+        email: emailRecipient,
+      }));
     }
-  }, [formData.sender, users]);
+  };
+
+  const handleInputChange = (event) => {
+    const { id, value } = event.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [id]: value,
+    }));
+  };
 
   // Handle document submission
   const handleSubmit = (e) => {
@@ -140,12 +168,14 @@ const SubmitDocument = () => {
     };
     setFormData(updatedFormData);
     axios
-      .post("http://localhost:3001/submit-document", updatedFormData)
+      .post(`${API_URL}/submit-document`, updatedFormData, {
+        withCredentials: true, // This allows cookies to be sent with the request
+      })
       .then((res) => {
         toast.success("Submitted Successfully!", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -159,7 +189,7 @@ const SubmitDocument = () => {
         toast.error("Something went wrong, please try again!", {
           position: "top-right",
           autoClose: 3000,
-          hideProgressBar: false,
+          hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -173,11 +203,6 @@ const SubmitDocument = () => {
     const codeNumber = Math.floor(10000000 + Math.random() * 90000000);
     return codeNumber.toString();
   };
-
-  // const parseDate = (dateString) => {
-  //   const [year, month, day] = dateString.split("-");
-  //   return new Date(year, month - 1, day);
-  // };
 
   const handleClear = () => {
     setFormData({
@@ -218,7 +243,6 @@ const SubmitDocument = () => {
             div {
               display: flex;
               width: max-content;
-              height: 140px;
               flex-direction: column;
             }
             p {
@@ -240,8 +264,8 @@ const SubmitDocument = () => {
             }
             img {
               display: flex;
-              max-width: 100px;
-              max-height: 100px;
+              max-width: 150px;
+              max-height: 150px;
             }
             header {
               display: flex;
@@ -333,55 +357,13 @@ const SubmitDocument = () => {
                     required
                   />
                 </div>
-                {/* <p>Sender:</p>
-                <div className="input-new">
-                  {formData.sender && (
-                    <input
-                      type="text"
-                      id="sender"
-                      value={formData.sender}
-                      readOnly
-                    />
-                  )}
-                </div>
-                <p>Originating Office:</p>
-                <div className="input-new">
-                  {formData.originating && (
-                    <input
-                      type="text"
-                      id="originating"
-                      value={formData.originating}
-                      readOnly
-                    />
-                  )}
-                </div> */}
-                <p>Recipient:</p>
-                <div className="input-new">
-                  <select
-                    id="recipient"
-                    value={formData.recipient}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="" disabled>
-                      Select Recipient
-                    </option>
-                    {filteredUsers.map((user) => (
-                      <option
-                        key={user._id}
-                        value={`${user.firstname} ${user.lastname}`}
-                      >
-                        {user.firstname} {user.lastname}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+
                 <p>Destination Office:</p>
                 <div className="input-new">
                   <select
-                    id="destination" // Make sure this matches the key in the state
+                    id="destination"
                     value={formData.destination}
-                    onChange={handleInputChange}
+                    onChange={handleDestinationChange}
                   >
                     <option value="" disabled>
                       Select Office
@@ -393,6 +375,30 @@ const SubmitDocument = () => {
                     ))}
                   </select>
                 </div>
+
+                <p>Recipient:</p>
+                <div className="input-new">
+                  <select
+                    id="recipient"
+                    value={formData.recipient}
+                    onChange={handleRecipientChange}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Recipient
+                    </option>
+                    <option value="All">All</option>
+                    {filteredUsers.map((user) => (
+                      <option
+                        key={user._id}
+                        value={`${user.firstname} ${user.lastname}`}
+                      >
+                        {user.firstname} {user.lastname}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <p>Remarks:</p>
                 <div className="input-new">
                   <textarea
@@ -446,15 +452,15 @@ const SubmitDocument = () => {
                 <li>
                   Destination Office: <strong>{formData.destination}</strong>
                 </li>
+                <li>
+                  Remarks: <strong>{formData.remarks}</strong>
+                </li>
               </ul>
             </div>
             <div className="qrCodeImage">
               <QRCode id="qrCode" value={JSON.stringify(formData)} />
-              <br />
               <label id="codeNum">
-                <small>
-                  Control No.: <strong>{codeNumber}</strong>
-                </small>
+                Control Number: <strong>{codeNumber}</strong>
               </label>
             </div>
             <div className="actionbtn primarybtn">

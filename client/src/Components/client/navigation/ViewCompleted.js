@@ -14,12 +14,14 @@ const ViewCompleted = () => {
   const [document, setDocument] = useState(null);
   const [trackingInfo, setTrackingInfo] = useState(null);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     const fetchDocument = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3001/api/docs/${docId}`
-        );
+        const response = await axios.get(`${API_URL}/api/docs/${docId}`, {
+          withCredentials: true,
+        });
         setDocument(response.data);
       } catch (error) {
         console.error(
@@ -36,7 +38,7 @@ const ViewCompleted = () => {
     const fetchTrackingInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/docs/view-complete/${docId}`
+          `${API_URL}/api/docs/view-complete/${docId}`
         );
         const data = response.data;
 
