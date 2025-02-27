@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -31,8 +31,11 @@ app.use(
   })
 );
 
+
+const mongoURI = process.env.MONGO_URI;
+
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI)
 
 // JWT Secret Key
 const JWT_SECRET = process.env.JWT_SECRET;
