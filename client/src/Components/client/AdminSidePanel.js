@@ -81,7 +81,6 @@ const SidePanel = () => {
         navigate("/login");
       }
     };
-
     fetchUserDetails();
   }, [navigate]);
 

@@ -22,12 +22,14 @@ function LoginForm() {
   const API_URL = process.env.REACT_APP_API_URL;
 
   axios.defaults.withCredentials = true;
-
   const handleSubmit = (e) => {
     e.preventDefault();
+  
     axios
-      .post(`${API_URL}/login`, { email, password }, { withCredentials: true }) // Ensure credentials are sent
+      .post(`${API_URL}/login`, { email, password }, { withCredentials: true })
       .then((res) => {
+        console.log("Login Response:", res.data); // Debugging
+  
         if (res.data.Status === "Success") {
           toast.success("Login Success. Welcome!", {
             position: "top-center",
@@ -36,50 +38,28 @@ function LoginForm() {
             closeOnClick: true,
             pauseOnHover: false,
             draggable: false,
-            progress: undefined,
             theme: "light",
           });
-
+  
           const { accessToken, refreshToken } = res.data;
-          Cookies.set("accessToken", accessToken, {
-            secure: false, // Use true if your server uses HTTPS
-            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-            path: "/",
-            // domain: "localhost",
-          });
-          Cookies.set("refreshToken", refreshToken, {
-            secure: false, // Use true if your server uses HTTPS
-            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-            // domain: "localhost",
-          });
+          Cookies.set("accessToken", accessToken, { secure: false, sameSite: "Lax", path: "/" });
+          Cookies.set("refreshToken", refreshToken, { secure: false, sameSite: "Lax" });
           localStorage.setItem("role", res.data.role);
-
-          // Navigate based on the user's role
+  
+          // Redirect based on role after login
           setTimeout(() => {
-            if (res.data.role === "admin") {
-              navigate("/admin");
-            } else if (res.data.role === "user") {
-              navigate("/home");
-            }
+            navigate(res.data.role === "admin" ? "/admin" : "/home");
           }, 1500);
+        } else {
+          toast.error("Login failed. Please check your credentials.");
         }
       })
-      .catch(() => {
-        toast.error(
-          "Invalid Email or Incorrect Password. Please check and try again.",
-          {
-            position: "top-center",
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: false,
-            draggable: false,
-            progress: undefined,
-            theme: "light",
-          }
-        );
+      .catch((error) => {
+        console.error("Login Error:", error.response?.data || error.message);
+        toast.error("Invalid Email or Incorrect Password. Please try again.");
       });
   };
+  
 
   return (
     <>
