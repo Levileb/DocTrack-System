@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ["http://localhost:3000", "https://yourdomainhost.com"];
+const allowedOrigins = ["http://localhost:3000","http://localhost:3001", "https://yourdomainhost.com"];
 
 app.use(
   cors({
@@ -44,6 +44,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const verifyUser = (req, res, next) => {
   const token =
     req.headers.authorization?.split(" ")[1] || req.cookies.accessToken;
+
 
   if (!token) {
     return res.status(401).json({ error: "Token is missing" });
