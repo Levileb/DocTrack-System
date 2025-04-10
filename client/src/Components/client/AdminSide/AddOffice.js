@@ -24,7 +24,7 @@ const AddOffice = () => {
   useEffect(() => {
     // Fetch offices when the component mounts
     fetchOffices();
-  }, []);
+  },);
 
   const fetchOffices = () => {
     axios
@@ -37,9 +37,29 @@ const AddOffice = () => {
         console.log("Error: ", err);
       });
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Check if the office name already exists in the list
+    const isExisting = offices.some(
+      (existingOffice) =>
+        existingOffice.office.toLowerCase() === office.toLowerCase()
+    );
+
+    if (isExisting) {
+      toast.error("Office name already exists in the list!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
+
     axios
       .post(`${API_URL}/add-office`, { office })
       .then((res) => {
