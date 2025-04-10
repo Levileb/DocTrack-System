@@ -21,12 +21,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ["http://localhost:3000","http://localhost:3001", "https://yourdomainhost.com"];
+const allowedOrigins = ["http://localhost:3000", "https://yourdomainhost.com"];
 
 app.use(
   cors({
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT"],
     credentials: true,
   })
 );
@@ -92,68 +91,69 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
 // Login API
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  UserModel.findOne({ email: email })
-    .then((user) => {
-      if (user) {
-        if (!user.isVerified) {
-          return res.status(403).json({
-            Status: "Invalid",
-            message: "Account not verified. Please verify your email.",
-          });
-        }
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-          if (err) {
-            return res
-              .status(500)
-              .json({ Status: "Error", message: "Internal server error" });
-          }
+  mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+      UserModel.findOne({ email: email })
+        .then((user) => {
+          if (user) {
+            if (!user.isVerified) {
+              return res.status(403).json({
+                Status: "Invalid",
+                message: "Account not verified. Please verify your email.",
+              });
+            }
 
-          if (isMatch) {
-            // Generate Access Token
-            const accessToken = jwt.sign(
-              { email: user.email, role: user.role },
-              JWT_SECRET,
-              { expiresIn: "24h" }
-            );
+            if (password === user.password) {
+              // Generate Access Token
+              const accessToken = jwt.sign(
+                { email: user.email, role: user.role },
+                JWT_SECRET,
+                { expiresIn: "24h" }
+              );
 
-            // Generate Refresh Token (with longer expiry)
-            const refreshToken = jwt.sign({ email: user.email }, JWT_SECRET, {
-              expiresIn: "60d",
-            });
+              // Generate Refresh Token (with longer expiry)
+              const refreshToken = jwt.sign({ email: user.email }, JWT_SECRET, {
+                expiresIn: "60d",
+              });
 
-            res.cookie("accessToken", accessToken, {
-              secure: false, // Use true if your server uses HTTPS
-              sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-              path: "/",
-            });
-            res.cookie("refreshToken", refreshToken, {
-              secure: false, // Use true if your server uses HTTPS
-              sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-            });
+              res.cookie("accessToken", accessToken, {
+                secure: false, // Use true if your server uses HTTPS
+                sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+                path: "/",
+              });
+              res.cookie("refreshToken", refreshToken, {
+                secure: false, // Use true if your server uses HTTPS
+                sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+              });
 
-            // Respond with the tokens
-            return res.json({
-              accessToken,
-              refreshToken,
-              role: user.role,
-              Status: "Success",
-            });
+              // Respond with the tokens
+              return res.json({
+                accessToken,
+                refreshToken,
+                role: user.role,
+                Status: "Success",
+              });
+            } else {
+              return res
+                .status(401)
+                .json({ Status: "Error", message: "Incorrect password" });
+            }
           } else {
-            return res
-              .status(401)
-              .json({ Status: "Error", message: "Incorrect password" });
+            return res.status(404).json({ message: "User not found" });
           }
+        })
+        .catch((err) => {
+          res.status(500).json({ message: "Internal server error" });
         });
-      } else {
-        return res.status(404).json({ message: "User not found" });
-      }
     })
     .catch((err) => {
-      res.status(500).json({ message: "Internal server error" });
+      console.error("Error connecting to MongoDB:", err);
+      res.status(500).json({ message: "Database connection error" });
     });
 });
 
