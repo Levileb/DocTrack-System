@@ -33,10 +33,15 @@ const AddUsers = () => {
       .catch((err) => {
         console.log("Error: ", err);
       });
-  }, []); // Empty dependency array to run the effect only once when the component mounts
+  }, [API_URL]); // Empty dependency array to run the effect only once when the component mounts
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Set loading state
+    const submitButton = document.querySelector(".SubmitButton button");
+    submitButton.disabled = true;
+    submitButton.textContent = "Loading...";
 
     // Find the office name corresponding to the selected office ID
     const selectedOffice = offices.find(
@@ -46,44 +51,49 @@ const AddUsers = () => {
 
     axios
       .post(`${API_URL}/add-user`, {
-        firstname,
-        lastname,
-        email,
-        password,
-        position,
-        office: officeName,
+      firstname,
+      lastname,
+      email,
+      password,
+      position,
+      office: officeName,
       })
       .then((res) => {
-        toast.success("New User is added successfully!", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        // Resetting form fields
-        setFirstName("");
-        setLastName("");
-        setEmail("");
-        setPassword("");
-        setPosition("");
-        setOffice("");
+      toast.success("New User is added successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      // Resetting form fields
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPassword("");
+      setPosition("");
+      setOffice("");
       })
       .catch((err) => {
-        console.log("Error: ", err);
-        toast.error("Something went wrong, please try again!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
+      console.log("Error: ", err);
+      toast.error("Something went wrong, please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      })
+      .finally(() => {
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.textContent = "Save";
       });
   };
 
