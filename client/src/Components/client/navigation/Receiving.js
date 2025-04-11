@@ -44,7 +44,7 @@ const Receiving = () => {
 
       fetchDocument();
     }
-  }, [docId]);
+  }, [API_URL, docId]);
 
   const handleInputChange = (event) => {
     const { id, value } = event.target;

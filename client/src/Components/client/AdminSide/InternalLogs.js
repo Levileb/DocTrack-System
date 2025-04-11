@@ -28,7 +28,7 @@ const InternalLogs = () => {
 
   useEffect(() => {
     fetchDocs();
-  }, []);
+  }, );
   const fetchDocs = () => {
     axios
       .get(`${API_URL}/api/docs`)

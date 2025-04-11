@@ -32,7 +32,7 @@ const ArchiveDocument = () => {
     };
 
     fetchArchivedDocuments();
-  }, []);
+  }, );
 
   const handleRestoreClick = (docId) => {
     setSelectedDocId(docId);

@@ -37,7 +37,7 @@ const Forwarded = () => {
   useEffect(() => {
     fetchReceivedDocuments();
     fetchForwardedDocuments();
-  }, []);
+  }, );
 
   const fetchForwardedDocuments = async () => {
     try {

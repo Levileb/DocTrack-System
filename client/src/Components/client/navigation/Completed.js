@@ -38,7 +38,7 @@ const Completed = () => {
 
   useEffect(() => {
     fetchDocs(); // Fetch documents when the component mounts
-  }, []);
+  }, );
 
   const filteredData = data.filter((val) => {
     const searchMatch =

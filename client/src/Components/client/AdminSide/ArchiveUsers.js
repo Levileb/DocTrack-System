@@ -31,7 +31,7 @@ const ArchiveUsers = () => {
     };
 
     fetchArchivedUsers();
-  }, []);
+  },);
 
   const handleRestoreClick = (userId) => {
     setSelectedUserId(userId);

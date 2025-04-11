@@ -27,7 +27,7 @@ const AdminProfile = () => {
       .catch((err) => {
         console.error("Error fetching user details: ", err);
       });
-  }, []);
+  }, [API_URL]);
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);

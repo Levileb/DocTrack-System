@@ -31,7 +31,7 @@ const ArchiveOffice = () => {
     };
 
     fetchArchivedOffices();
-  }, []);
+  },);
 
   const handleRestoreClick = (officeId) => {
     setSelectedOfficeId(officeId);

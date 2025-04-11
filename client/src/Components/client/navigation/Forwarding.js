@@ -64,7 +64,7 @@ const Forwarding = () => {
     };
     fetchUserDetails();
     fetchData();
-  }, []);
+  }, );
 
   useEffect(() => {
     if (docId) {
@@ -85,7 +85,7 @@ const Forwarding = () => {
 
       fetchDocument();
     }
-  }, [docId]);
+  }, [API_URL, docId]);
 
   // Update filtered users based on selected destination office
   const handleDestinationChange = (event) => {

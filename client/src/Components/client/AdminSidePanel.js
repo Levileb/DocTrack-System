@@ -82,7 +82,7 @@ const SidePanel = () => {
       }
     };
     fetchUserDetails();
-  }, [navigate]);
+  }, [API_URL, navigate]);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);

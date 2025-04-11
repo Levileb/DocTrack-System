@@ -44,7 +44,7 @@ const Completing = () => {
 
       fetchDocument();
     }
-  }, [docId]);
+  }, [API_URL, docId]);
 
   const handleInputChange = (event) => {
     const { id, value } = event.target;

@@ -32,7 +32,7 @@ const Received = () => {
 
   useEffect(() => {
     fetchDocs();
-  }, []);
+  },);
 
   useEffect(() => {
     const filtered = docs.filter(

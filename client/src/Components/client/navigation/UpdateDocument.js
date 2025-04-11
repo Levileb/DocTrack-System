@@ -65,7 +65,7 @@ const UpdateDocument = () => {
     };
     fetchUserDetails();
     fetchData();
-  }, []);
+  }, [API_URL]);
   useEffect(() => {
     // Fetch document data from the server based on the document id
     axios
@@ -92,7 +92,7 @@ const UpdateDocument = () => {
         });
       })
       .catch((err) => console.log(err));
-  }, [id]);
+  }, [API_URL, id]);
 
   // Update filtered users based on selected destination office
   const handleDestinationChange = (event) => {

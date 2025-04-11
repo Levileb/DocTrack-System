@@ -32,7 +32,7 @@ const ViewCompleted = () => {
     };
 
     fetchDocument();
-  }, [docId]);
+  }, [API_URL, docId]);
 
   useEffect(() => {
     const fetchTrackingInfo = async () => {
@@ -73,7 +73,7 @@ const ViewCompleted = () => {
     };
 
     fetchTrackingInfo();
-  }, [docId]);
+  }, [API_URL, docId]);
 
   // Handle printing
   const handlePrint = () => {

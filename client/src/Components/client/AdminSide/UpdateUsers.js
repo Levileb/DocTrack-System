@@ -31,7 +31,7 @@ const UpdateUsers = () => {
         setOffice(result.data.office || "");
       })
       .catch((err) => console.log("Error: ", err));
-  }, [id]);
+  }, [API_URL, id]);
 
   // Fetch the list of offices
   useEffect(() => {
@@ -44,7 +44,7 @@ const UpdateUsers = () => {
         setOffices(activeOffices);
       })
       .catch((err) => console.log("Error: ", err));
-  }, []);
+  }, [API_URL]);
 
   const Update = (e) => {
     toast.info("Please wait for a moment..", {

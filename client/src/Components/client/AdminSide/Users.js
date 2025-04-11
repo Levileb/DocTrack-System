@@ -34,7 +34,7 @@ const Users = () => {
       .catch((error) => {
         console.error("Error fetching users: ", error);
       });
-  }, []);
+  },);
 
   const handlePopup = (userId) => {
     setSelectedUserId(userId); // Set the selected user id
@@ -69,7 +69,7 @@ const Users = () => {
           });
         });
     }
-  }, [selectedUserId]);
+  }, [API_URL, selectedUserId]);
 
   const handleEditUser = () => {
     navigate(`/update-user/${selectedUserId}`); // Pass selectedUserId in the URL

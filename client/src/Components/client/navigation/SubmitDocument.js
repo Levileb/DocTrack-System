@@ -102,7 +102,7 @@ const SubmitDocument = () => {
     fetchUserDetails();
     fetchUsers();
     fetchOffices();
-  }, [formData.sender]); // Added dependency here
+  }, [API_URL, formData.sender]); // Added dependency here
 
   // Update filtered users based on selected destination office
   const handleDestinationChange = (event) => {

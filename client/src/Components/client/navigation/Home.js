@@ -41,10 +41,10 @@ const Home = () => {
 
   useEffect(() => {
     fetchDocs();
-  }, []);
+  },);
   useEffect(() => {
     fetchUserData();
-  }, []);
+  },);
 
   useEffect(() => {
     const filtered = docs.filter(
@@ -130,7 +130,7 @@ const Home = () => {
   };
   useEffect(() => {
     fetchScanDocs();
-  }, []);
+  }, );
 
   const handlePopup = (event, doc) => {
     event.preventDefault();
