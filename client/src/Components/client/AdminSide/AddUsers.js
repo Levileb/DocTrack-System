@@ -9,6 +9,7 @@ import "../navigation/newcontent.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
 const AddUsers = () => {
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
@@ -36,8 +37,7 @@ const AddUsers = () => {
   }, [API_URL]); // Empty dependency array to run the effect only once when the component mounts
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-
+    e.preventDefault();    
     // Set loading state
     const submitButton = document.querySelector(".SubmitButton button");
     submitButton.disabled = true;
@@ -79,24 +79,35 @@ const AddUsers = () => {
       })
       .catch((err) => {
       console.log("Error: ", err);
-      toast.error("Something went wrong, please try again!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      })
-      .finally(() => {
-      // Reset button state
+      if (err.response && err.response.data && err.response.data.error) {
+        toast.error(err.response.data.error, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      } else {
+        toast.error("Something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    })
+    .finally(() => {
       submitButton.disabled = false;
       submitButton.textContent = "Save";
-      });
+    });
   };
-
   const handleClear = () => {
     // Clear form fields
     setFirstName("");
@@ -112,7 +123,7 @@ const AddUsers = () => {
   };
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
-    setPassword(newPassword);
+ setPassword(newPassword);
   };
 
   return (

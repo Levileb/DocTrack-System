@@ -11,6 +11,7 @@ const OfficeModel = require("./models/Office");
 const ReceivingLogModel = require("./models/ReceivingLogs");
 const ForwardingLogModel = require("./models/ForwardingLogs");
 const CompletedLogModel = require("./models/CompletedLogs");
+const deepEmailValidator = require('deep-email-validator');
 
 const app = express();
 
@@ -79,6 +80,9 @@ const verifyUser = (req, res, next) => {
       });
   });
 };
+
+
+
 
 // NodeMailer
 const nodemailer = require("nodemailer");
@@ -570,81 +574,114 @@ function generateVerificationToken(userId) {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
 }
 
+//Check Email Validity
+const isEmailValid = async (email) => { 
+if (email.endsWith(".gov.ph") || email.endsWith(".edu.ph")) {
+  return { valid: true }; 
+}
+
+  const result = await deepEmailValidator.validate({
+    email: email,
+    sender: email, // Optional, but improves accuracy
+    validateRegex: true,
+    validateMx: true,
+    validateTypo: true,
+    validateDisposable: true,
+    validateSMTP: true, // Skip SMTP validation for .gov.ph and .edu.ph domains
+  });
+
+  return result;
+};
+
 // Endpoint to add a new user
-app.post("/add-user", (req, res) => {
+app.post("/add-user", async (req, res) => {
   const { firstname, lastname, email, password, position, office } = req.body;
 
-  // Hash the password
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => {
-      // Create a new user with isVerified set to false
-      UserModel.create({
-        firstname,
-        lastname,
-        email,
-        password: hash,
-        position,
-        office,
-        isVerified: false, // New field to track verification status
-      })
-        .then((user) => {
-          // Generate verification token
-          const verificationToken = generateVerificationToken(user._id);
-          console.log("Verification Token: ", verificationToken);
+  if (!email || !password || !firstname || !lastname) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  const validation = await isEmailValid(email);
 
-          // Set up verification link
-          const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
-          console.log("Verification URL: ", verificationUrl);
-
-          const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
-
-          // Send verification email
-          const mailOptions = {
-            from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
-            to: email,
-            subject: "Email Verification",
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
-                <div style="padding: 20px;">
-                  <h2>Welcome to our Document Tracking System!</h2>
-                  <p>Please verify your email address by clicking the link below:</p>
-                  <a href="${verificationUrl}" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify Email</a>
-                  <p>If you did not sign up, please ignore this email.</p>
-                </div>
-                <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
-                  <p style="margin: 0;">This is an automated message, please do not reply.</p>
-                </div>
-               </div>
-            `,
-            headers: {
-              "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
-              "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
-            },
-          };
-
-          transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              console.error("Error sending email:", error);
-              return res
-                .status(500)
-                .json({ error: "Error sending verification email" });
-            } else {
-              console.log("Verification email sent:", info.response);
-              res.json({
-                message: "User added successfully. Please verify your email.",
-              });
-            }
-          });
-        })
-        .catch((err) =>
-          res.status(500).json({ error: "Internal server error" })
-        );
-    })
-    .catch((err) => {
-      console.error("Error hashing password:", err);
-      res.status(500).json({ error: "Internal server error" });
+  if (!validation.valid) {
+    return res.status(400).json({
+      error: "Invalid email address. Please use a valid email.",
+      reason: validation.reason, // Shows why the email is invalid
     });
+  }else{
+
+  bcrypt
+  .hash(password, 10)
+  .then((hash) => {
+    // Create a new user with isVerified set to false
+    UserModel.create({
+      firstname,
+      lastname,
+      email,
+      password: hash,
+      position,
+      office,
+      isVerified: false, // New field to track verification status
+    })
+      .then((user) => {
+        // Generate verification token
+        const verificationToken = generateVerificationToken(user._id);
+        console.log("Verification Token: ", verificationToken);
+        
+
+       
+        // Set up verification link
+        const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
+        console.log("Verification URL: ", verificationUrl);
+
+        const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+        // Send verification email
+        const mailOptions = {
+          from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
+          to: email,
+          subject: "Email Verification",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+              <div style="padding: 20px;">
+                <h2>Welcome to our Document Tracking System!</h2>
+                <p>Please verify your email address by clicking the link below:</p>
+                <a href="${verificationUrl}" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify Email</a>
+                <p>If you did not sign up, please ignore this email.</p>
+              </div>
+              <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+                <p style="margin: 0;">This is an automated message, please do not reply.</p>
+              </div>
+             </div>
+          `,
+          headers: {
+            "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+            "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+          },
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error("Error sending email:", error);
+            return res
+              .status(500)
+              .json({ error: "Error sending verification email" });
+          } else {
+            console.log("Verification email sent:", info.response);
+            res.json({
+              message: "User added successfully. Please verify your email.",
+            });
+          }
+        });
+      })
+      .catch((err) =>
+        res.status(500).json({ error: "Internal server error" })
+      );
+  })
+  .catch((err) => {
+    console.error("Error hashing password:", err);
+    res.status(500).json({ error: "Internal server error" });
+  });
+  }  
 });
 
 // Endpoint to verify user email
