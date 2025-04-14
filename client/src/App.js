@@ -24,6 +24,8 @@ import AdminTracking from "./Components/client/AdminSide/AdminTracking";
 import AdminProfile from "./Components/client/AdminSide/AdminProfile";
 import LandingPage from "./Components/client/LandingPage";
 import VerifyEmail from "./Components/client/VerifyEmail";
+import ForgotPassword from "./Components/client/LoginForm/ForgotPassword";
+import ResetPassword from "./Components/client/LoginForm/ResetPassword";
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/ForgotPassword" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/submit-document" element={<SubmitDocu />} />
@@ -80,6 +84,14 @@ function App() {
 
 function Login() {
   return <LoginForm />;
+}
+
+function ForgotPasswordPage() {
+  return <ForgotPassword />;
+}
+
+function ResetPasswordPage() {
+  return <ResetPassword />;
 }
 
 function HomePage() {

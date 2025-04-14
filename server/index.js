@@ -13,6 +13,7 @@ const ForwardingLogModel = require("./models/ForwardingLogs");
 const CompletedLogModel = require("./models/CompletedLogs");
 const deepEmailValidator = require('deep-email-validator');
 
+
 const app = express();
 
 
@@ -577,7 +578,7 @@ function generateVerificationToken(userId) {
 //Check Email Validity
 const isEmailValid = async (email) => { 
 if (email.endsWith(".gov.ph") || email.endsWith(".edu.ph")) {
-  return { valid: true }; 
+  return { valid: true }; // Skip validation for .gov.ph and .edu.ph domains
 }
 
   const result = await deepEmailValidator.validate({
@@ -587,11 +588,115 @@ if (email.endsWith(".gov.ph") || email.endsWith(".edu.ph")) {
     validateMx: true,
     validateTypo: true,
     validateDisposable: true,
-    validateSMTP: true, // Skip SMTP validation for .gov.ph and .edu.ph domains
+    validateSMTP: true, 
   });
 
   return result;
 };
+
+// Endpoint for forgot password
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Generate a reset password token
+    const resetToken = generateVerificationToken(user._id);
+
+    // Save the reset token and its expiration in the user's record
+    user.resetToken = resetToken;
+    user.resetTokenExpires = Date.now() + 3600000; // Token valid for 1 hour
+    await user.save();
+
+    // Set up reset password link
+    const resetUrl = `http://localhost:3000/reset-password?token=${resetToken}`;
+    console.log("Reset Password URL: ", resetUrl);
+
+    const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
+
+    // Send reset password email
+    const mailOptions = {
+      from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
+      to: email,
+      subject: "Reset Your Password",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; text-align: center;">
+          <div style="padding: 20px;">
+            <h2>Reset Your Password</h2>
+            <p>We received a request to reset your password. Click the link below to reset it:</p>
+            <a href="${resetUrl}" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Reset Password</a>
+            <p>If you did not request this, please ignore this email.</p>
+          </div>
+          <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+            <p style="margin: 0;">This is an automated message, please do not reply.</p>
+          </div>
+        </div>
+      `,
+      headers: {
+        "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
+        "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+      },
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res
+          .status(500)
+          .json({ error: "Error sending reset password email" });
+      } else {
+        console.log("Reset password email sent:", info.response);
+        res.json({
+          message: "Reset password email sent successfully. Please check your inbox.",
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error processing forgot password request:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+app.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: "Token and new password are required" });
+  }
+
+  try {
+    // Verify token and get user ID
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await UserModel.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!user.resetToken || user.resetToken !== token || user.resetTokenExpires < Date.now()) {
+      return res.status(400).json({ error: "Invalid or expired reset token" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpires = undefined;
+    await user.save();
+
+    res.json({ message: "Password reset successfully." });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // Endpoint to add a new user
 app.post("/add-user", async (req, res) => {

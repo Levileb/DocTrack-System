@@ -141,7 +141,11 @@ function LoginForm() {
 
               <IoIosLock className="icon" />
             </div>
-
+            <div className="forgot-password"
+              style={{ marginBottom:"12px" }}
+            >
+              <a href="/ForgotPassword"> Forgot Password?</a>
+            </div>
             <button className="loginBtn" type="submit">
               Log In
             </button>
