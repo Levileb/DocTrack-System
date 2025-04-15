@@ -664,6 +664,7 @@ app.post("/forgot-password", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 app.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
 
@@ -675,6 +676,7 @@ app.post("/reset-password", async (req, res) => {
     // Verify token and get user ID
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await UserModel.findById(decoded.userId);
+    console.log("Saved Token:", user.resetToken);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -684,9 +686,8 @@ app.post("/reset-password", async (req, res) => {
       return res.status(400).json({ error: "Invalid or expired reset token" });
     }
 
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
+    // Update the user's password directly without hashing
+    user.password = newPassword;
     user.resetToken = undefined;
     user.resetTokenExpires = undefined;
     await user.save();
