@@ -113,41 +113,49 @@ app.post("/login", (req, res) => {
               });
             }
 
-            if (password === user.password) {
-              // Generate Access Token
-              const accessToken = jwt.sign(
-                { email: user.email, role: user.role },
-                JWT_SECRET,
-                { expiresIn: "24h" }
-              );
+            // Compare the provided password with the hashed password in the database
+            bcrypt.compare(password, user.password, (err, isMatch) => {
+              if (err) {
+                console.error("Error comparing passwords:", err);
+                return res.status(500).json({ message: "Internal server error" });
+              }
 
-              // Generate Refresh Token (with longer expiry)
-              const refreshToken = jwt.sign({ email: user.email }, JWT_SECRET, {
-                expiresIn: "60d",
-              });
+              if (isMatch) {
+                // Generate Access Token
+                const accessToken = jwt.sign(
+                  { email: user.email, role: user.role },
+                  JWT_SECRET,
+                  { expiresIn: "24h" }
+                );
 
-              res.cookie("accessToken", accessToken, {
-                secure: false, // Use true if your server uses HTTPS
-                sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-                path: "/",
-              });
-              res.cookie("refreshToken", refreshToken, {
-                secure: false, // Use true if your server uses HTTPS
-                sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-              });
+                // Generate Refresh Token (with longer expiry)
+                const refreshToken = jwt.sign({ email: user.email }, JWT_SECRET, {
+                  expiresIn: "60d",
+                });
 
-              // Respond with the tokens
-              return res.json({
-                accessToken,
-                refreshToken,
-                role: user.role,
-                Status: "Success",
-              });
-            } else {
-              return res
-                .status(401)
-                .json({ Status: "Error", message: "Incorrect password" });
-            }
+                res.cookie("accessToken", accessToken, {
+                  secure: false, // Use true if your server uses HTTPS
+                  sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+                  path: "/",
+                });
+                res.cookie("refreshToken", refreshToken, {
+                  secure: false, // Use true if your server uses HTTPS
+                  sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+                });
+
+                // Respond with the tokens
+                return res.json({
+                  accessToken,
+                  refreshToken,
+                  role: user.role,
+                  Status: "Success",
+                });
+              } else {
+                return res
+                  .status(401)
+                  .json({ Status: "Error", message: "Incorrect password" });
+              }
+            });
           } else {
             return res.status(404).json({ message: "User not found" });
           }
@@ -593,7 +601,6 @@ if (email.endsWith(".gov.ph") || email.endsWith(".edu.ph")) {
 
   return result;
 };
-
 // Endpoint for forgot password
 app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
@@ -686,8 +693,11 @@ app.post("/reset-password", async (req, res) => {
       return res.status(400).json({ error: "Invalid or expired reset token" });
     }
 
-    // Update the user's password directly without hashing
-    user.password = newPassword;
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
     user.resetToken = undefined;
     user.resetTokenExpires = undefined;
     await user.save();
