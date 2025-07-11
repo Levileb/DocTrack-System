@@ -23,14 +23,24 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ["http://localhost:3000", "https://doc-track-system.vercel.app"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://doc-track-system.vercel.app"
+];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 
 
 const mongoURI = process.env.MONGO_URI;
