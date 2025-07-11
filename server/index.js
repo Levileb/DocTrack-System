@@ -113,49 +113,42 @@ app.post("/login", (req, res) => {
               });
             }
 
-            // Compare the provided password with the hashed password in the database
-            bcrypt.compare(password, user.password, (err, isMatch) => {
-              if (err) {
-                console.error("Error comparing passwords:", err);
-                return res.status(500).json({ message: "Internal server error" });
-              }
+            // 🚫 Plaintext password comparison (not secure)
+            if (password === user.password) {
 
-              if (isMatch) {
-                // Generate Access Token
-                const accessToken = jwt.sign(
-                  { email: user.email, role: user.role },
-                  JWT_SECRET,
-                  { expiresIn: "24h" }
-                );
+              const accessToken = jwt.sign(
+                { email: user.email, role: user.role },
+                JWT_SECRET,
+                { expiresIn: "24h" }
+              );
 
-                // Generate Refresh Token (with longer expiry)
-                const refreshToken = jwt.sign({ email: user.email }, JWT_SECRET, {
-                  expiresIn: "60d",
-                });
+              const refreshToken = jwt.sign({ email: user.email }, JWT_SECRET, {
+                expiresIn: "60d",
+              });
 
-                res.cookie("accessToken", accessToken, {
-                  secure: false, // Use true if your server uses HTTPS
-                  sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-                  path: "/",
-                });
-                res.cookie("refreshToken", refreshToken, {
-                  secure: false, // Use true if your server uses HTTPS
-                  sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-                });
+              res.cookie("accessToken", accessToken, {
+                secure: false,
+                sameSite: "Lax",
+                path: "/",
+              });
+              res.cookie("refreshToken", refreshToken, {
+                secure: false,
+                sameSite: "Lax",
+              });
 
-                // Respond with the tokens
-                return res.json({
-                  accessToken,
-                  refreshToken,
-                  role: user.role,
-                  Status: "Success",
-                });
-              } else {
-                return res
-                  .status(401)
-                  .json({ Status: "Error", message: "Incorrect password" });
-              }
-            });
+              return res.json({
+                accessToken,
+                refreshToken,
+                role: user.role,
+                Status: "Success",
+              });
+
+            } else {
+              return res
+                .status(401)
+                .json({ Status: "Error", message: "Incorrect password" });
+            }
+
           } else {
             return res.status(404).json({ message: "User not found" });
           }
@@ -169,6 +162,7 @@ app.post("/login", (req, res) => {
       res.status(500).json({ message: "Database connection error" });
     });
 });
+
 
 // API for Refresh Token
 app.post("/api/refresh-token", (req, res) => {
