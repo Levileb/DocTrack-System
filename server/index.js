@@ -615,21 +615,25 @@ app.post("/forgot-password", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Generate a reset password token
-    const resetToken = generateVerificationToken(user._id);
+    //FIX: Generate a proper JWT reset token carrying userId
+    const resetToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    // Save the reset token and its expiration in the user's record
+    //Save the reset token and expiration in the user's record
     user.resetToken = resetToken;
     user.resetTokenExpires = Date.now() + 3600000; // Token valid for 1 hour
     await user.save();
 
-    // Set up reset password link
-    const resetUrl = `http://doc-track-system.vercel.app/reset-password?token=${resetToken}`;
+    //Set up reset password link (FRONTEND_URL should come from .env)
+    const resetUrl = `https://doc-track-system.vercel.app/reset-password?token=${resetToken}`;
     console.log("Reset Password URL: ", resetUrl);
 
     const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
 
-    // Send reset password email
+    //Send reset password email
     const mailOptions = {
       from: '"DocTrack-System" <doctracks.kabankalan@gmail.com>',
       to: email,
@@ -648,8 +652,8 @@ app.post("/forgot-password", async (req, res) => {
         </div>
       `,
       headers: {
-        "X-Unique-ID": uniqueID.toString(), // Custom unique identifier
-        "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`, // Unique for each email
+        "X-Unique-ID": uniqueID.toString(),
+        "In-Reply-To": `<${new Date().getTime()}@doctracks.kabankalan.com>`,
       },
     };
 
@@ -666,11 +670,13 @@ app.post("/forgot-password", async (req, res) => {
         });
       }
     });
+
   } catch (error) {
     console.error("Error processing forgot password request:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 app.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
