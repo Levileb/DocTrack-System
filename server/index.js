@@ -25,29 +25,68 @@ app.use(cookieParser());
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://doc-track-system.vercel.app"
+  "https://doc-track-system.vercel.app",
+  "https://doc-track-backend.vercel.app"  // Add your backend URL too
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log("Blocked by CORS:", origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Ensure OPTIONS is allowed
-  allowedHeaders: ["Content-Type", "Authorization"],      // Ensure headers are allowed
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type", 
+    "Authorization", 
+    "X-Requested-With",
+    "Accept",
+    "Origin"
+  ],
+  exposedHeaders: ["Set-Cookie"],
+  preflightContinue: false,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
 
-// Handle preflight requests explicitly (some platforms like Vercel need this)
+// Handle preflight requests explicitly
 app.options('*', cors(corsOptions));
 
+// Add a middleware to log CORS issues
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
+  next();
+});
 
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.header('Access-Control-Allow-Origin', 'https://doc-track-system.vercel.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    cors: 'enabled',
+    origin: req.headers.origin 
+  });
+});
+
+// Test CORS endpoint
+app.get('/test-cors', (req, res) => {
+  res.json({ 
+    message: 'CORS is working!', 
+    origin: req.headers.origin,
+    method: req.method 
+  });
+});
 
 const mongoURI = process.env.MONGO_URI;
 
