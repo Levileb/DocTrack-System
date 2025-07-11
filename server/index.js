@@ -1393,7 +1393,7 @@ app.post("/submit-document", verifyUser, (req, res) => {
                   Please review it at your earliest convenience once the document has arrived.
                 </p>
                 <p style="font-size: 16px; text-align: center; margin-top: 30px;">
-                  <a href="http://localhost:3000/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
+                  <a href="http://doc-track-system.vercel.app/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
                 </p>
               </div>
               <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
