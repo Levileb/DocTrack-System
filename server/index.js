@@ -28,18 +28,24 @@ const allowedOrigins = [
   "https://doc-track-system.vercel.app"
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Ensure OPTIONS is allowed
+  allowedHeaders: ["Content-Type", "Authorization"],      // Ensure headers are allowed
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly (some platforms like Vercel need this)
+app.options('*', cors(corsOptions));
+
 
 
 
