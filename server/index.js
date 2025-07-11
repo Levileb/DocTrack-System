@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ["http://localhost:3000", "https://yourdomainhost.com"];
+const allowedOrigins = ["http://localhost:3000", "https://doc-track-system.vercel.app"];
 
 app.use(
   cors({
@@ -624,7 +624,7 @@ app.post("/forgot-password", async (req, res) => {
     await user.save();
 
     // Set up reset password link
-    const resetUrl = `http://localhost:3000/reset-password?token=${resetToken}`;
+    const resetUrl = `http://doc-track-system.vercel.app/reset-password?token=${resetToken}`;
     console.log("Reset Password URL: ", resetUrl);
 
     const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
@@ -746,7 +746,7 @@ app.post("/add-user", async (req, res) => {
 
        
         // Set up verification link
-        const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
+        const verificationUrl = `http://doc-track-system.vercel.app/verify-email?token=${verificationToken}`;
         console.log("Verification URL: ", verificationUrl);
 
         const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
@@ -814,7 +814,7 @@ app.get("/verify-email", async (req, res) => {
 
     if (user.isVerified) {
       // User already verified
-      return res.redirect("http://localhost:3000");
+      return res.redirect("http://doc-track-system.vercel.app");
     }
 
     // Mark the user as verified
@@ -822,7 +822,7 @@ app.get("/verify-email", async (req, res) => {
     await user.save();
 
     // Redirect to login page or success page
-    res.redirect("http://localhost:3000"); // Use a query param to show a success message
+    res.redirect("http://doc-track-system.vercel.app"); // Use a query param to show a success message
   } catch (error) {
     res.status(400).send("Invalid or expired token");
   }
