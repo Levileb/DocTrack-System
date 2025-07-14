@@ -58,41 +58,6 @@ app.use(cors(corsOptions));
 // Handle preflight requests explicitly
 app.options('*', cors(corsOptions));
 
-// Add a middleware to log CORS issues
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
-  next();
-});
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  console.log(`${req.method} ${req.path}`);
-  console.log(`Origin: ${origin || 'No origin'}`);
-  console.log(`User-Agent: ${req.headers['user-agent']}`);
-  next();
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    cors: 'enabled',
-    origin: req.headers.origin,
-    allowedOrigins: allowedOrigins,
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// Test CORS endpoint
-app.get('/test-cors', (req, res) => {
-  res.json({ 
-    message: 'CORS is working!', 
-    origin: req.headers.origin,
-    method: req.method,
-    timestamp: new Date().toISOString()
-  });
-});
 
 const mongoURI = process.env.MONGO_URI;
 
