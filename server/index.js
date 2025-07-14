@@ -53,10 +53,21 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy error: Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
+
+app.options('*', cors());
 // Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
+// app.options('*', cors(corsOptions));
 
 
 const mongoURI = process.env.MONGO_URI;
