@@ -21,10 +21,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = [
-  "http://localhost:3000",    
-  "https://doc-track-system.vercel.app",
-  "https://doc-track-backend.vercel.app"  // Add your backend URL too
+const allowedOrigins = [  
+  "https://doc-track-system.vercel.app"
 ];
 
 const corsOptions = {
