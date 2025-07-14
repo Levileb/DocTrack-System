@@ -16,15 +16,13 @@ const deepEmailValidator = require('deep-email-validator');
 
 const app = express();
 
-
-
 // Parse JSON and Cookies
 app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
 const allowedOrigins = [
-  "http://localhost:3000",
+  "http://localhost:3000",    
   "https://doc-track-system.vercel.app",
   "https://doc-track-backend.vercel.app"  // Add your backend URL too
 ];
@@ -66,16 +64,23 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  console.log(`${req.method} ${req.path}`);
+  console.log(`Origin: ${origin || 'No origin'}`);
+  console.log(`User-Agent: ${req.headers['user-agent']}`);
+  next();
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.header('Access-Control-Allow-Origin', 'https://doc-track-system.vercel.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
     cors: 'enabled',
-    origin: req.headers.origin 
+    origin: req.headers.origin,
+    allowedOrigins: allowedOrigins,
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -84,7 +89,8 @@ app.get('/test-cors', (req, res) => {
   res.json({ 
     message: 'CORS is working!', 
     origin: req.headers.origin,
-    method: req.method 
+    method: req.method,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -168,7 +174,7 @@ app.post("/login", (req, res) => {
               });
             }
 
-            // 🚫 Plaintext password comparison (not secure)
+            // Plaintext password comparison (not secure)
             if (password === user.password) {
 
               const accessToken = jwt.sign(
