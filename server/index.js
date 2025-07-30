@@ -24,8 +24,8 @@ app.use(cookieParser());
 
 // CORS configuration
 const allowedOrigins = ["http://localhost:3000", 
-                        "https://doctrack.onrender.com",
-                        "https://doctrack-api.onrender.com"
+                        "https://doc-track-system.vercel.app",
+                        "https://doc-track-backend.vercel.app"
                         ];
 
 app.use(
@@ -631,7 +631,7 @@ app.post("/forgot-password", async (req, res) => {
     await user.save();
 
     // Set up reset password link
-    const resetUrl = `https://doctrack.onrender.com/reset-password?token=${resetToken}`;
+    const resetUrl = `https://doc-track-system.vercel.app/reset-password?token=${resetToken}`;
     console.log("Reset Password URL: ", resetUrl);
 
     const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
@@ -753,7 +753,7 @@ app.post("/add-user", async (req, res) => {
 
        
         // Set up verification link
-        const verificationUrl = `https://doctrack.onrender.com/verify-email?token=${verificationToken}`;
+        const verificationUrl = `https://doc-track-system.vercel.app/verify-email?token=${verificationToken}`;
         console.log("Verification URL: ", verificationUrl);
 
         const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
@@ -821,7 +821,7 @@ app.get("/verify-email", async (req, res) => {
 
     if (user.isVerified) {
       // User already verified
-      return res.redirect("https://doctrack.onrender.com");
+      return res.redirect("https://doc-track-system.vercel.app");
     }
 
     // Mark the user as verified
@@ -829,7 +829,7 @@ app.get("/verify-email", async (req, res) => {
     await user.save();
 
     // Redirect to login page or success page
-    res.redirect("https://doctrack.onrender.com"); // Use a query param to show a success message
+    res.redirect("https://doc-track-system.vercel.app"); // Use a query param to show a success message
   } catch (error) {
     res.status(400).send("Invalid or expired token");
   }
@@ -1400,7 +1400,7 @@ app.post("/submit-document", verifyUser, (req, res) => {
                   Please review it at your earliest convenience once the document has arrived.
                 </p>
                 <p style="font-size: 16px; text-align: center; margin-top: 30px;">
-                  <a href="https://doctrack.onrender.com/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
+                  <a href="https://doc-track-system.vercel.app/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
                 </p>
               </div>
               <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
