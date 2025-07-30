@@ -23,7 +23,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ["http://localhost:3000", "https://yourdomainhost.com"];
+const allowedOrigins = ["http://localhost:3000", 
+                        "https://doctrack.onrender.com",
+                        "https://doctrack-api.onrender.com"];
 
 app.use(
   cors({
@@ -624,7 +626,7 @@ app.post("/forgot-password", async (req, res) => {
     await user.save();
 
     // Set up reset password link
-    const resetUrl = `http://localhost:3000/reset-password?token=${resetToken}`;
+    const resetUrl = `https://doctrack.onrender.com/reset-password?token=${resetToken}`;
     console.log("Reset Password URL: ", resetUrl);
 
     const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
@@ -746,7 +748,7 @@ app.post("/add-user", async (req, res) => {
 
        
         // Set up verification link
-        const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
+        const verificationUrl = `https://doctrack.onrender.com/verify-email?token=${verificationToken}`;
         console.log("Verification URL: ", verificationUrl);
 
         const uniqueID = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit ID
@@ -814,7 +816,7 @@ app.get("/verify-email", async (req, res) => {
 
     if (user.isVerified) {
       // User already verified
-      return res.redirect("http://localhost:3000");
+      return res.redirect("https://doctrack.onrender.com");
     }
 
     // Mark the user as verified
@@ -822,7 +824,7 @@ app.get("/verify-email", async (req, res) => {
     await user.save();
 
     // Redirect to login page or success page
-    res.redirect("http://localhost:3000"); // Use a query param to show a success message
+    res.redirect("https://doctrack.onrender.com"); // Use a query param to show a success message
   } catch (error) {
     res.status(400).send("Invalid or expired token");
   }
@@ -1393,7 +1395,7 @@ app.post("/submit-document", verifyUser, (req, res) => {
                   Please review it at your earliest convenience once the document has arrived.
                 </p>
                 <p style="font-size: 16px; text-align: center; margin-top: 30px;">
-                  <a href="http://localhost:3000/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
+                  <a href="https://doctrack.onrender.com/inbox" style="padding: 10px 20px; background-color: #129bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">View Document</a>
                 </p>
               </div>
               <div style="background-color: #f8f8f8; padding: 10px; text-align: center; font-size: 12px; color: #777;">
