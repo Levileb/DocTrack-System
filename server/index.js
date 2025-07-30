@@ -24,8 +24,9 @@ app.use(cookieParser());
 
 // CORS configuration
 const allowedOrigins = ["http://localhost:3000", 
-                        "https://doctrack.onrender.com",
-                        "https://doctrack-api.onrender.com"];
+                        // "https://doctrack.onrender.com",
+                        // "https://doctrack-api.onrender.com"
+                        ];
 
 app.use(
   cors({
@@ -89,6 +90,10 @@ const verifyUser = (req, res, next) => {
 
 // NodeMailer
 const nodemailer = require("nodemailer");
+
+console.log("Email configuration check:");
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "***SET***" : "NOT SET");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
