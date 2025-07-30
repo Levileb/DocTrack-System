@@ -24,8 +24,8 @@ app.use(cookieParser());
 
 // CORS configuration
 const allowedOrigins = ["http://localhost:3000", 
-                        // "https://doctrack.onrender.com",
-                        // "https://doctrack-api.onrender.com"
+                        "https://doctrack.onrender.com",
+                        "https://doctrack-api.onrender.com"
                         ];
 
 app.use(
