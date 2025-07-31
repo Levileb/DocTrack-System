@@ -22,6 +22,12 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+// Debug middleware to log requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin')} - Cookies: ${JSON.stringify(req.cookies)}`);
+  next();
+});
+
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:3000", 
@@ -33,8 +39,22 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        console.log('CORS blocked origin:', origin);
+        return callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Set-Cookie'],
+    optionsSuccessStatus: 200
   })
 );
 
@@ -144,13 +164,17 @@ app.post("/login", (req, res) => {
                 });
 
                 res.cookie("accessToken", accessToken, {
-                  secure: false, // Use true if your server uses HTTPS
-                  sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+                  secure: true, // Use true for HTTPS (required for production)
+                  sameSite: "None", // Required for cross-origin cookies
                   path: "/",
+                  httpOnly: true, // Prevent XSS attacks
+                  maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
                 });
                 res.cookie("refreshToken", refreshToken, {
-                  secure: false, // Use true if your server uses HTTPS
-                  sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+                  secure: true, // Use true for HTTPS (required for production)
+                  sameSite: "None", // Required for cross-origin cookies
+                  httpOnly: true, // Prevent XSS attacks
+                  maxAge: 60 * 24 * 60 * 60 * 1000, // 60 days in milliseconds
                 });
 
                 // Respond with the tokens
@@ -202,7 +226,12 @@ app.post("/api/refresh-token", (req, res) => {
     );
 
     // Send the new access token as a cookie or JSON response
-    res.cookie("accessToken", newAccessToken, { httpOnly: true, secure: true });
+    res.cookie("accessToken", newAccessToken, { 
+      httpOnly: true, 
+      secure: true, 
+      sameSite: "None",
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
     return res.json({ accessToken: newAccessToken });
   });
 });
