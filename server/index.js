@@ -23,11 +23,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ["http://localhost:3000", 
-                        "https://doc-track-system.vercel.app",
-                        "https://doctrack-api.onrender.com",
-                      
-                        ];
+const allowedOrigins = [
+  "http://localhost:3000", 
+  "https://doctrack.onrender.com",
+  "https://doctrack-system.onrender.com",
+  "https://doc-track-system.vercel.app",
+  "https://doctrack-api.onrender.com"
+];
 
 app.use(
   cors({
@@ -724,14 +726,8 @@ app.post("/add-user", async (req, res) => {
   if (!email || !password || !firstname || !lastname) {
     return res.status(400).json({ error: "All fields are required" });
   }
-  const validation = await isEmailValid(email);
 
-  if (!validation.valid) {
-    return res.status(400).json({
-      error: "Invalid email address. Please use a valid email.",
-      reason: validation.reason, // Shows why the email is invalid
-    });
-  }else{
+  // Email validation removed - accept any email format
 
   bcrypt
   .hash(password, 10)
@@ -805,8 +801,7 @@ app.post("/add-user", async (req, res) => {
     console.error("Error hashing password:", err);
     res.status(500).json({ error: "Internal server error" });
   });
-  }  
-});
+  });
 
 // Endpoint to verify user email
 app.get("/verify-email", async (req, res) => {
