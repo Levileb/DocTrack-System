@@ -25,7 +25,8 @@ app.use(cookieParser());
 // CORS configuration
 const allowedOrigins = ["http://localhost:3000", 
                         "https://doc-track-system.vercel.app",
-                        "https://doc-track-backend.vercel.app"
+                        "https://doctrack-api.onrender.com",
+                      
                         ];
 
 app.use(
