@@ -24,17 +24,21 @@ app.use(cookieParser());
 
 // Debug middleware to log requests
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin')} - Cookies: ${JSON.stringify(req.cookies)}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log('Origin:', req.get('Origin'));
+  console.log('User-Agent:', req.get('User-Agent')?.substring(0, 50) + '...');
+  console.log('Cookies:', JSON.stringify(req.cookies));
+  console.log('Authorization Header:', req.get('Authorization') ? 'Present' : 'Missing');
+  console.log('---');
   next();
 });
 
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:3000", 
-  "https://doctrack.onrender.com",
-  "https://doctrack-system.onrender.com",
-  "https://doc-track-system.vercel.app",
-  "https://doctrack-api.onrender.com"
+  "https://doctrack-system.onrender.com", // Your backend URL (for API calls)
+  "https://doc-track-system.vercel.app", // Your frontend URL
+  "https://doctrack-api.onrender.com" // Alternative backend URL if needed
 ];
 
 app.use(
@@ -69,17 +73,22 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
-  const token =
-    req.headers.authorization?.split(" ")[1] || req.cookies.accessToken;
+  const authHeader = req.headers.authorization;
+  const cookieToken = req.cookies.accessToken;
+  const token = authHeader?.split(" ")[1] || cookieToken;
 
+  console.log('[Auth Debug] Authorization header:', authHeader ? 'Present' : 'Missing');
+  console.log('[Auth Debug] Cookie token:', cookieToken ? 'Present' : 'Missing');
+  console.log('[Auth Debug] Final token:', token ? 'Present' : 'Missing');
 
   if (!token) {
+    console.log('[Auth Debug] No token found - returning 401');
     return res.status(401).json({ error: "Token is missing" });
   }
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
-      console.error("Token verification error:", err);
+      console.error("[Auth Debug] Token verification error:", err.message);
       return res.status(401).json({ error: "Invalid token" });
     }
 

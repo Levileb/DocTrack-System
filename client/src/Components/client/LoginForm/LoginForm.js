@@ -42,15 +42,14 @@ function LoginForm() {
 
           const { accessToken, refreshToken } = res.data;
           Cookies.set("accessToken", accessToken, {
-            secure: false, // Use true if your server uses HTTPS
-            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
+            secure: true, // Use true for HTTPS (required for production)
+            sameSite: "None", // Required for cross-origin requests
             path: "/",
-            // domain: "localhost",
           });
           Cookies.set("refreshToken", refreshToken, {
-            secure: false, // Use true if your server uses HTTPS
-            sameSite: "Lax", // Ensure correct cross-site handling | set to Strict for production
-            // domain: "localhost",
+            secure: true, // Use true for HTTPS (required for production)
+            sameSite: "None", // Required for cross-origin requests
+            path: "/",
           });
           localStorage.setItem("role", res.data.role);
 

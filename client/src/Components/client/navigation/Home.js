@@ -18,6 +18,7 @@ import { LuArchive } from "react-icons/lu";
 import { FaRegCopy } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
@@ -76,18 +77,26 @@ const Home = () => {
 
   const fetchUserData = async () => {
     try {
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_URL}/api/user/find-user`, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
       setUser(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching user data:", error);
+      // If token is invalid, redirect to login
+      if (error.response?.status === 401) {
+        navigate("/login");
+      }
     }
   };
 
   const fetchDocs = () => {
+    const token = Cookies.get("accessToken");
     axios
       .get(`${API_URL}/api/docs/sent`, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       })
       .then((response) => {
@@ -108,8 +117,10 @@ const Home = () => {
   };
 
   const fetchScanDocs = () => {
+    const token = Cookies.get("accessToken");
     axios
       .get(`${API_URL}/api/docs`, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       })
       .then((response) => {
@@ -335,9 +346,13 @@ const Home = () => {
           setScanned_Id(selectedDoc._id);
         } else {
           // If not "Completed", proceed with updating the status to "Viewed"
+          const token = Cookies.get("accessToken");
           await axios.post(`${API_URL}/api/docs/update-status`, {
             docId: selectedDoc._id,
             // status: "Viewed",
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
           });
           navigate(`/receiving-document/${selectedDoc._id}`);
 
@@ -394,8 +409,12 @@ const Home = () => {
   const handleArchiveConfirm = async () => {
     if (!docToArchive) return;
     try {
+      const token = Cookies.get("accessToken");
       await axios.post(`${API_URL}/archive-document`, {
         docId: docToArchive,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       setDocs(docs.filter((doc) => doc._id !== docToArchive));
       setFilteredDocs(filteredDocs.filter((doc) => doc._id !== docToArchive));
