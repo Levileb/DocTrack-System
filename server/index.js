@@ -88,6 +88,12 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", service: "DocTrack Backend" });
 });
 
+// Test endpoint for sent route (without auth)
+app.get("/api/docs/sent-test", (req, res) => {
+  console.log('[SENT-TEST] Test endpoint accessed');
+  res.json({ message: "Sent test endpoint working", timestamp: new Date().toISOString() });
+});
+
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
   const authHeader = req.headers.authorization;
