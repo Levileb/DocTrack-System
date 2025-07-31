@@ -29,6 +29,13 @@ app.use((req, res, next) => {
   console.log('User-Agent:', req.get('User-Agent')?.substring(0, 50) + '...');
   console.log('Cookies:', JSON.stringify(req.cookies));
   console.log('Authorization Header:', req.get('Authorization') ? 'Present' : 'Missing');
+  
+  // Special logging for docs endpoints
+  if (req.path.startsWith('/api/docs/')) {
+    console.log('[DOCS ENDPOINT DEBUG] Path:', req.path);
+    console.log('[DOCS ENDPOINT DEBUG] Method:', req.method);
+  }
+  
   console.log('---');
   next();
 });
@@ -346,6 +353,8 @@ app.get("/api/docs", (req, res) => {
 
 // API for fetching sent documents by logged in user
 app.get("/api/docs/sent", verifyUser, async (req, res) => {
+  console.log('[SENT ENDPOINT] Request received for /api/docs/sent');
+  console.log('[SENT ENDPOINT] User:', req.user.email);
   const loggedInUserId = req.user._id;
 
   try {
@@ -356,8 +365,11 @@ app.get("/api/docs/sent", verifyUser, async (req, res) => {
       .exec();
 
     if (sentDocuments.length === 0) {
+      console.log('[SENT ENDPOINT] No documents found for user:', req.user.email);
       return res.status(404).json("No sent documents found");
     }
+
+    console.log('[SENT ENDPOINT] Found', sentDocuments.length, 'documents for user:', req.user.email);
 
     const documents = sentDocuments.map((doc) => ({
       _id: doc._id,
@@ -375,6 +387,7 @@ app.get("/api/docs/sent", verifyUser, async (req, res) => {
     res.json(documents);
   } catch (err) {
     console.error("Error fetching sent documents:", err);
+    console.error("[SENT ENDPOINT] Database error for user:", req.user.email, err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
