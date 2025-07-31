@@ -71,6 +71,16 @@ mongoose.connect(process.env.MONGO_URI)
 // JWT Secret Key
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// Test endpoint to verify backend is working
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend is working!", timestamp: new Date().toISOString() });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", service: "DocTrack Backend" });
+});
+
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -92,11 +102,16 @@ const verifyUser = (req, res, next) => {
       return res.status(401).json({ error: "Invalid token" });
     }
 
+    console.log('[Auth Debug] Token decoded successfully for email:', decoded.email);
+
     UserModel.findOne({ email: decoded.email }) // Ensure email is unique
       .then((user) => {
         if (!user) {
+          console.log('[Auth Debug] User not found for email:', decoded.email);
           return res.status(401).json({ error: "User not found" });
         }
+
+        console.log('[Auth Debug] User found:', user.firstname, user.lastname);
 
         req.user = {
           _id: user._id,
@@ -111,7 +126,7 @@ const verifyUser = (req, res, next) => {
         next();
       })
       .catch((err) => {
-        console.error("Error finding user:", err);
+        console.error("[Auth Debug] Error finding user:", err);
         res.status(500).json({ error: "Internal server error" });
       });
   });
@@ -967,7 +982,7 @@ app.get("/archived-offices", async (req, res) => {
 });
 
 // Endpoint to update a document status
-app.post("/api/docs/update-status", async (req, res) => {
+app.post("/api/docs/update-status", verifyUser, async (req, res) => {
   try {
     const { docId, status } = req.body; // Accept the status as a parameter
     await DocModel.findByIdAndUpdate(docId, { status: status });
