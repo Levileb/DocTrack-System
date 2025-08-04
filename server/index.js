@@ -88,6 +88,16 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", service: "DocTrack Backend" });
 });
 
+// Test endpoint for authenticated requests
+app.get("/api/auth-test", verifyUser, (req, res) => {
+  console.log('[AUTH-TEST] Authenticated user:', req.user.email);
+  res.json({ 
+    message: "Authentication successful", 
+    user: req.user.email,
+    timestamp: new Date().toISOString() 
+  });
+});
+
 // Middleware to verify token
 const verifyUser = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -198,13 +208,13 @@ app.post("/login", (req, res) => {
                   secure: true, // Use true for HTTPS (required for production)
                   sameSite: "None", // Required for cross-origin cookies
                   path: "/",
-                  httpOnly: true, // Prevent XSS attacks
+                  httpOnly: false, // Allow client-side access for Authorization headers
                   maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
                 });
                 res.cookie("refreshToken", refreshToken, {
                   secure: true, // Use true for HTTPS (required for production)
                   sameSite: "None", // Required for cross-origin cookies
-                  httpOnly: true, // Prevent XSS attacks
+                  httpOnly: true, // Keep refresh token secure
                   maxAge: 60 * 24 * 60 * 60 * 1000, // 60 days in milliseconds
                 });
 
@@ -258,7 +268,7 @@ app.post("/api/refresh-token", (req, res) => {
 
     // Send the new access token as a cookie or JSON response
     res.cookie("accessToken", newAccessToken, { 
-      httpOnly: true, 
+      httpOnly: false, // Allow client-side access
       secure: true, 
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -1406,6 +1416,10 @@ app.get("/api/docs/tracking-info/:codeNumber", async (req, res) => {
 
 //Submitting and Creating Document
 app.post("/submit-document", verifyUser, (req, res) => {
+  console.log('[SUBMIT-DOC] Document submission request received');
+  console.log('[SUBMIT-DOC] User:', req.user.email);
+  console.log('[SUBMIT-DOC] Request body keys:', Object.keys(req.body));
+  
   const {
     title,
     sender,

@@ -4,6 +4,7 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { getAuthToken } from "../../../utils/auth";
 import QRCode from "qrcode.react";
 import { AiFillCloseCircle } from "react-icons/ai";
 import logo from "../assets/kabankalan-logo.png";
@@ -178,7 +179,24 @@ const SubmitDocument = () => {
       date: getCurrentDateTime(), // Use ISO format
     };
     setFormData(updatedFormData);
-    const token = Cookies.get("accessToken");
+    const token = getAuthToken(); // Use the utility function
+    console.log("Token retrieved for submit-document:", token ? "Present" : "Missing");
+    console.log("Token length:", token ? token.length : 0);
+    
+    if (!token) {
+      toast.error("Authentication required. Please log in again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
+    
     axios
       .post(`${API_URL}/submit-document`, updatedFormData, {
         headers: { Authorization: `Bearer ${token}` },
@@ -198,8 +216,12 @@ const SubmitDocument = () => {
         setShowQR(true);
       })
       .catch((err) => {
-        console.log(err);
-        toast.error("Something went wrong, please try again!", {
+        console.error("Error submitting document:", err);
+        console.error("Error response status:", err.response?.status);
+        console.error("Error response data:", err.response?.data);
+        console.error("Request headers:", err.config?.headers);
+        
+        toast.error("Failed to submit document. Please check your authentication.", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: true,
