@@ -5,6 +5,7 @@ import Footer from "../Footer";
 import { IoSearch } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
 import { ToastContainer, toast } from "react-toastify";
@@ -41,7 +42,9 @@ const Forwarded = () => {
 
   const fetchForwardedDocuments = async () => {
     try {
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_URL}/api/docs/forwarded`, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
       // Sort documents from most recent to oldest
@@ -56,7 +59,9 @@ const Forwarded = () => {
 
   const fetchReceivedDocuments = async () => {
     try {
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_URL}/api/docs/received`, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
       // Sort documents from most recent to oldest

@@ -3,6 +3,7 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,7 +28,9 @@ const Completing = () => {
     if (docId) {
       const fetchDocument = async () => {
         try {
+          const token = Cookies.get("accessToken");
           const docResponse = await axios.get(`${API_URL}/api/docs/${docId}`, {
+            headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
           });
           setFormData((prevFormData) => ({
@@ -61,9 +64,13 @@ const Completing = () => {
   const handleSubmitForm = async (event) => {
     event.preventDefault();
     try {
+      const token = Cookies.get("accessToken");
       await axios.post(`${API_URL}/api/docs/complete`, {
         docId: docId,
         remarks: formData.remarks,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       // Handle success message and clear form
       toast.success("Document Process Completed!", {

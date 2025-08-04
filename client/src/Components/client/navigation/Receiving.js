@@ -4,6 +4,7 @@ import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import Header from "../Header";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -27,7 +28,9 @@ const Receiving = () => {
     if (docId) {
       const fetchDocument = async () => {
         try {
+          const token = Cookies.get("accessToken");
           const docResponse = await axios.get(`${API_URL}/api/docs/${docId}`, {
+            headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
           });
           setFormData((prevFormData) => ({
@@ -62,10 +65,13 @@ const Receiving = () => {
     event.preventDefault();
 
     try {
+      const token = Cookies.get("accessToken");
       await axios.post(`${API_URL}/api/docs/log-receipt`, {
-        withCredentials: true,
         docId: docId,
         remarks: formData.remarks,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       toast.info("Please wait for a moment..", {
         position: "top-right",
@@ -79,6 +85,9 @@ const Receiving = () => {
       });
       await axios.post(`${API_URL}/api/docs/update-received`, {
         docId: docId,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       toast.success("Received Successfully!", {
         position: "top-right",

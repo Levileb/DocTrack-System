@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
@@ -19,7 +20,9 @@ const Completed = () => {
   // Function to fetch completed documents
   const fetchDocs = async () => {
     try {
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_URL}/api/docs/completed`, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
 

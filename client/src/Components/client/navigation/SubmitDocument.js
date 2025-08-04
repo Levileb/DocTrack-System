@@ -3,6 +3,7 @@ import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import axios from "axios";
+import Cookies from "js-cookie";
 import QRCode from "qrcode.react";
 import { AiFillCloseCircle } from "react-icons/ai";
 import logo from "../assets/kabankalan-logo.png";
@@ -55,8 +56,10 @@ const SubmitDocument = () => {
 
   useEffect(() => {
     const fetchUserDetails = () => {
+      const token = Cookies.get("accessToken");
       axios
         .get(`${API_URL}/api/user/details`, {
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         })
         .then((res) => {
@@ -72,8 +75,12 @@ const SubmitDocument = () => {
     };
 
     const fetchUsers = () => {
+      const token = Cookies.get("accessToken");
       axios
-        .get(`${API_URL}/view-user`)
+        .get(`${API_URL}/view-user`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        })
         .then((res) => {
           const allUsers = res.data;
           const filteredUsers = allUsers.filter(
@@ -90,8 +97,12 @@ const SubmitDocument = () => {
     };
 
     const fetchOffices = () => {
+      const token = Cookies.get("accessToken");
       axios
-        .get(`${API_URL}/offices`)
+        .get(`${API_URL}/offices`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        })
         .then((res) => {
           const offices = res.data.filter((office) => !office.isArchived);
           setOffices(offices);
@@ -167,8 +178,10 @@ const SubmitDocument = () => {
       date: getCurrentDateTime(), // Use ISO format
     };
     setFormData(updatedFormData);
+    const token = Cookies.get("accessToken");
     axios
       .post(`${API_URL}/submit-document`, updatedFormData, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true, // This allows cookies to be sent with the request
       })
       .then((res) => {

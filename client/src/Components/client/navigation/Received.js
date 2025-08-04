@@ -7,6 +7,7 @@ import { IoSearch } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { AiFillCloseCircle } from "react-icons/ai";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
 import { FaRegCopy } from "react-icons/fa";
@@ -120,9 +121,13 @@ const Received = () => {
           setShowOptions(true);
         } else {
           // If not "Completed or Received", proceed with updating the status to "Viewed"
+          const token = Cookies.get("accessToken");
           await axios.post(`${API_URL}/api/docs/update-status`, {
             docId: selectedDoc._id,
             // status: "Viewed",
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
           });
           navigate(`/receiving-document/${selectedDoc._id}`);
 
