@@ -735,7 +735,7 @@ const Home = () => {
 
       {showScanner && (
         <div className="popup-container qr" onClick={closeScanner}>
-          <div className="popup qrscanner">
+          <div className="popup qrscanner" onClick={(e) => e.stopPropagation()}>
             <QrReader onClose={closeScanner} onScan={handleScan} />
           </div>
         </div>
