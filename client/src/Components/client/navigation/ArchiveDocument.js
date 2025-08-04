@@ -7,6 +7,7 @@ import { RiArrowGoBackFill } from "react-icons/ri";
 import "../navigation/newcontent.css";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GrCaretNext, GrCaretPrevious } from "react-icons/gr";
@@ -23,11 +24,24 @@ const ArchiveDocument = () => {
     // Fetch archived documents from the backend
     const fetchArchivedDocuments = async () => {
       try {
-        const response = await axios.get(`${API_URL}/archived-document`); // Corrected URL
+        const token = Cookies.get("accessToken");
+        console.log("Archive Document - Token retrieved:", token ? "Present" : "Missing");
+        
+        if (!token) {
+          console.error("No authentication token found");
+          return;
+        }
+        
+        const response = await axios.get(`${API_URL}/archived-document`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }); // Corrected URL
         // console.log("Fetched archived documents:", response.data);
         setData(response.data);
       } catch (error) {
         console.error("Error fetching archived documents", error);
+        console.error("Error response status:", error.response?.status);
+        console.error("Error response data:", error.response?.data);
       }
     };
 
@@ -42,8 +56,12 @@ const ArchiveDocument = () => {
   const handleRestore = async (docId) => {
     if (!selectedDocId) return;
     try {
+      const token = Cookies.get("accessToken");
       await axios.post(`${API_URL}/restore-document`, {
         docId: selectedDocId,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       }); // Use selectedDocId here
       // Update the local state to reflect the restored document
       setData(data.filter((doc) => doc._id !== selectedDocId));

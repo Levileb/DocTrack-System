@@ -3,6 +3,7 @@ import Header from "../Header";
 import SidePanel from "../SidePanel";
 import Footer from "../Footer";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { RiArrowGoBackFill } from "react-icons/ri";
@@ -47,14 +48,21 @@ const UpdateDocument = () => {
     };
     const fetchData = async () => {
       try {
-        const userResponse = await axios.get(`${API_URL}/view-user`);
+        const token = Cookies.get("accessToken");
+        const userResponse = await axios.get(`${API_URL}/view-user`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
         const filteredUsers = userResponse.data.filter(
           (user) => user.role === "user" && !user.isArchived
         );
         setAllUsers(filteredUsers);
         setFilteredUsers(filteredUsers);
 
-        const officeResponse = await axios.get(`${API_URL}/offices`);
+        const officeResponse = await axios.get(`${API_URL}/offices`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
         const filteredOffices = officeResponse.data.filter(
           (office) => !office.isArchived
         );
