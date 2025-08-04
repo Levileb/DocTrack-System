@@ -337,7 +337,7 @@ const Received = () => {
       {showScanner && (
         <div className="popup-container qr" onClick={closeScanner}>
           <div className="popup qrscanner" onClick={(e) => e.stopPropagation()}>
-            <QrReader onClose={closeScanner} onScan={handleScan} />
+            <QrReader key="qr-scanner" onClose={closeScanner} onScan={handleScan} />
           </div>
         </div>
       )}
